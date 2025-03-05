@@ -1,0 +1,31 @@
+$z-base: 100;
+:root {
+    --color-bg: #fff;  /* 背景色 */
+    --color-surface: #F5F6F7; /* 表面色 */
+
+    --color-primary: #35BBC4;   /* 主要颜色 */
+    --color-primary-light: #d1eaed; //rgba(53, 187, 196, 0.2); /* 主要颜色的亮色 */
+
+    --color-text-primary: rgba(51, 51, 51, 1); /* 主要文本颜色 */
+    --color-text-secondary: #666; /* 次要文本颜色 */
+    --color-text-disabled: #AAAAAA; /* 禁用文本颜色 */
+
+    --color-hover: rgba(0, 0, 0, 0.05);
+
+    --font-fimily: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    --font-size: 14px;
+    --font-size-small: 12px;
+
+    --spacing-size-small: 4px;
+    --spacing-size: 8px;
+    --spacing-size-medium: 16px;
+
+    --radius: 6px;
+    --shadow: 0px 6px 10px rgba(0, 0, 0, 0.16), 0px 1px 18px rgba(0, 0, 0, 0.23);
+    --shadow-hover:  0px 4px 8px rgba(0, 0, 0, 0.3);
+    --shadow-active: 0px 8px 16px rgba(0, 0, 0, 0.4);
+
+    --z-base: #{$z-base};
+    --z-pop: #{ $z-base + 20 };
+    --z-mask: #{ $z-base + 10 };
+}

@@ -1,0 +1,31 @@
+# 忽略 node_modules
+node_modules/
+
+# 忽略源码（只发布编译后的代码）
+src/
+
+# 忽略构建工具和配置文件
+.vscode/
+.idea/
+.DS_Store
+*.log
+*.lock
+*.tmp
+
+# 忽略 Git 相关文件
+.git/
+.gitignore
+
+# 忽略文档和示例
+docs/
+examples/
+
+# 忽略测试文件
+tests/
+__tests__/
+coverage/
+jest.config.js
+
+# 忽略开发依赖文件
+*.tsconfig.json
+.env

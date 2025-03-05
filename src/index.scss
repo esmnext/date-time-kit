@@ -1,0 +1,11 @@
+@import './style.scss';
+
+.dt-show {
+    visibility: visible;
+    opacity: 1;
+}
+
+.dt-hidden {
+    visibility: hidden;
+    opacity: 0;
+}

@@ -1,0 +1,64 @@
+{
+  "name": "date-time-kit",
+  "version": "1.0.0",
+  "description": "A JavaScript library for handling date and time operations efficiently.",
+  "type": "module",
+  "types": "type.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./type.d.ts"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "files": [
+    "dist",
+    "type.d.ts"
+  ],
+  "scripts": {
+    "build": "rsbuild build",
+    "check": "biome check --write",
+    "dev": "rsbuild dev --open",
+    "format": "prettier --write .",
+    "lint": "eslint .",
+    "preview": "rsbuild preview",
+    "prepublishOnly": "rsbuild build"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.3",
+    "@eslint/js": "^9.12.0",
+    "@rsbuild/core": "^1.0.19",
+    "eslint": "^9.12.0",
+    "globals": "^15.11.0",
+    "prettier": "^3.3.3",
+    "sass-embedded": "^1.81.0",
+    "sass-loader": "^16.0.3",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.8.1"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  },
+  "keywords": [
+    "date",
+    "time",
+    "datetime",
+    "utility",
+    "javascript",
+    "library"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dp-os/date-time-kit.git"
+  },
+  "author": "Wes Loong <wesloong@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dp-os/date-time-kit/issues"
+  },
+  "homepage": "https://github.com/dp-os/date-time-kit#readme",
+  "engines": {
+    "node": ">=14"
+  }
+}
