@@ -112,7 +112,7 @@ console.log(result);
 
 ## 📬 联系
 
-如果你有任何问题或建议，请随时在 [GitHub Issues](https://github.com/dp-os/date-time-kit/issues) 提交反馈，或通过 email@example.com 联系我们。
+如果你有任何问题或建议，请随时在 [GitHub Issues](https://github.com/dp-os/date-time-kit/issues) 提交反馈，或通过 wesloong@gmail.com 联系我们。
 
 ---
 

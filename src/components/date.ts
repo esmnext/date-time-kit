@@ -165,7 +165,6 @@ function renderDayByMonth(data: kitContent, date: Date = new Date()) {
         dataHTML += `
             <div class="dt-data-item dt-data-item-disabled">
                 <div class="dt-data-rect dt-data-item-disabled">
-                    <div class="dt-data-circle dt-data-item-disabled"></div>
                     <div class="dt-data-text dt-data-item-disabled">${i + 1}</div>
                 </div>
             </div>
@@ -216,7 +215,6 @@ function renderDayByMonth(data: kitContent, date: Date = new Date()) {
         //     }
         // }
         
-        
         dataHTML += `
             <div class="${classList.join(' ')}" data-date="${renderDate}">
                 <div class="dt-data-rect"  data-date="${renderDate}">
@@ -233,7 +231,6 @@ function renderDayByMonth(data: kitContent, date: Date = new Date()) {
         dataHTML += `
             <div class="dt-data-item dt-data-item-disabled">
                 <div class="dt-data-rect dt-data-item-disabled">
-                    <div class="dt-data-circle dt-data-item-disabled"></div>
                     <div class="dt-data-text dt-data-item-disabled">${i}</div>
                 </div>
             </div>

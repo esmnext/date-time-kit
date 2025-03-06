@@ -8,6 +8,10 @@ export function create(data: kitContent) {
     ele.innerHTML = render(data);
 
     QUICK_MAP.all = getAllLimit(data);
+    
+    ele.querySelector('.dt-quick-item-active')?.classList.remove('dt-quick-item-active');
+    const limitKey = getLimtKey(data);
+    limitKey && ele.querySelector('.dt-quick-item[data-limit="' + limitKey + '"]')!.classList.add('dt-quick-item-active');
     // add event
     ele.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
@@ -75,6 +79,7 @@ function setDate(limit: kitDataLimit, data: kitContent) {
 
 }
 function render(data: kitContent) {
+    
     return `
         <div class="dt-quick-item" data-limit="all">All</div>
         <div class="dt-quick-item" data-limit="today">Today</div>
@@ -158,9 +163,44 @@ function renderTimeZoneList(data: kitContent) {
 export function updateData(ele: HTMLElement, data: kitContent) {
     // ele.innerHTML = render(data);
     ele.querySelector('.dt-time-zone-text')!.innerHTML = renderTimeZoneText(data);
+
+
+    ele.querySelector('.dt-quick-item-active')?.classList.remove('dt-quick-item-active');
+    const limitKey = getLimtKey(data);
+    limitKey && ele.querySelector('.dt-quick-item[data-limit="' + limitKey + '"]')!.classList.add('dt-quick-item-active');
 }
 
+function getLimtKey(data: kitContent) {
+    for ( const key in QUICK_MAP) {
+        if ( !QUICK_MAP[key as keyof typeof QUICK_MAP] ) {
+            return;
+        }
+        
+        if ( 
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.hour === data.endTime.hour &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.minute === data.endTime.minute &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.second === data.endTime.second &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.millisecond === data.endTime.millisecond &&
 
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startTime.hour === data.startTime.hour &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startTime.minute === data.startTime.minute &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startTime.second === data.startTime.second &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startTime.millisecond === data.startTime.millisecond &&
+
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startDate.year === data.startDate.year &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startDate.month === data.startDate.month &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startDate.date === data.startDate.date &&
+
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.year === data.endDate.year &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.month === data.endDate.month &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.date === data.endDate.date 
+
+        ) {
+            return key;
+        }
+    }
+    return null;
+}
 function getQuickMap(): { [key in kitDataLimit]: kitDataLimitContent | null} {
     return {
         all: null,
