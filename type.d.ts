@@ -11,6 +11,7 @@ export interface kitContent {
     minDate: kitDate,
     maxTime: kitTime,
     minTime: kitTime,
+    lang: Lang,
     timeZone: number
 }
 
@@ -47,8 +48,8 @@ export interface kitComponent {
 }
 
 export type status = 'start' | 'end';
-export type timeString = `${number}-${number}-${number} ${number}:${number}:${number}:${number}`;
-export type lang = 'zh-CN' | 'en-US';
+export type timeString = `${number}-${number}-${number} ${number}:${number}:${number}.${number}`;
+export type Lang = 'zhCN' | 'enUS';
 export interface kitOption {
     root: HTMLElement,
     // default select
@@ -58,7 +59,7 @@ export interface kitOption {
     maxTime?: timeString,
     minTime?: timeString,
     // default lang
-    lang?: lang,
+    lang?: Lang,
     // default time zone
     timeZone?: number
 }
@@ -72,5 +73,44 @@ export interface kitResult {
      
     timeZone: number
 }
-
+type Lang = 'zhCN' | 'enUS';
+export type kitI18n {
+    [key in Lang]: { 
+        box: {
+            confirm: string,
+            cancel: string
+        },
+        quick: {
+            all: string,
+            today: string,
+            yesterday: string,
+            week: string,
+            lastWeek: string,
+            last7Days: string,
+            month: string,
+            last30Days: string,
+            last180Days: string,
+            last6Month: string,
+            year: string,
+            timezone: string,
+            recommend: string,
+            timezoneList: string,
+        },
+        date: {
+            sun: string,
+            mon: string,
+            tue: string,
+            wed: string,
+            thu: string,
+            fri: string,
+            sat: string,
+        },
+        time: {
+            startTime: string,
+            endTime: string,
+            startMillisecond: string,
+            endMillisecond: string,
+        }
+     }
+}
 export type kitDataLimit = 'all' | 'today' | 'yesterday' | 'week' | 'lastWeek' | 'last7Days' | 'month' | 'last30Days' | 'last180Days' | 'last6Month' | 'year';

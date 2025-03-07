@@ -1,7 +1,7 @@
 
 import * as box from './components/box';
 import './index.scss';
-import { kitContent, kitDate, kitOption, kitTime } from '../type';
+import { kitContent, kitDate, kitOption, kitResult, kitTime } from '../type';
 
 
 /**
@@ -11,11 +11,10 @@ import { kitContent, kitDate, kitOption, kitTime } from '../type';
  * @param kitOpiton {kitOption} - options for the kit
  * @returns {Promise<kitContent>} - the data of the kit
  */
-export async function open(kitOpiton: kitOption): Promise<kitContent> {
+export async function open(kitOpiton: kitOption): Promise<kitResult> {
     const element = kitOpiton.root;
     const data = dataFactory(kitOpiton);
     
-
     return box.create({
         root: element
     }, data);
@@ -43,8 +42,9 @@ function dataFactory(kitOpiton: kitOption): kitContent {
     let endDate = new Date(kitOpiton.endTime || Date.now());
 
     // if end time month equal start time month to show month
+    let startDateShow = new Date(kitOpiton.startTime || Date.now());
     let endDateShow = new Date(kitOpiton.endTime || Date.now());
-    if ( startDate.getUTCFullYear() === endDate.getUTCFullYear() && startDate.getMonth() == endDate.getMonth() ) {
+    if ( startDate.getUTCFullYear() === endDate.getUTCFullYear() && startDateShow.getMonth() == endDate.getMonth() ) {
         endDateShow.setMonth(endDate.getMonth() + 1);
     }
 
@@ -56,19 +56,21 @@ function dataFactory(kitOpiton: kitOption): kitContent {
         // get current time zone
         timeZone = -new Date().getTimezoneOffset() / 60;
     }
+
     
     return {
         startDate: kitOpiton.startTime ? initDate(startDate) : initDate(),
         endDate: kitOpiton.endTime ? initDate(endDate) : initDate(),
         startTime: kitOpiton.startTime ? initTime(startDate) : initTime(),
         endTime: kitOpiton.endTime ? initTime(endDate) : initTime(),
-        startDateShow: kitOpiton.startTime ? initDate(startDate) : initDate(),
-        endDateShow: kitOpiton.startTime ? initDate(endDateShow) : initDate(),
+        startDateShow: initDate(startDateShow),
+        endDateShow: initDate(endDateShow),
         moveDate: initDate(),
         maxDate: initDate(minDate),
         maxTime: initTime(minDate),
         minDate: initDate(maxDate),
         minTime: initTime(maxDate),
+        lang: kitOpiton.lang || 'enUS',
         timeZone
     }
 }

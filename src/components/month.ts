@@ -43,7 +43,7 @@ export function create(data: kitContent, status: status = "start") {
         // sub month
         if ( target.classList.contains('dt-month-sub') ) {
             const dateShow: keyof kitContent = status === 'start' ? 'startDateShow' : 'endDateShow';
-            const newDate = new Date(`${data[dateShow].year}-${data[dateShow].month}-${data[dateShow].date}`);
+            const newDate = new Date(data[dateShow].year, data[dateShow].month - 1, data[dateShow].date);
             newDate.setMonth(newDate.getMonth() - 1);
             data[dateShow] = {
                 year: newDate.getFullYear(),
@@ -57,7 +57,8 @@ export function create(data: kitContent, status: status = "start") {
         // add month
         if ( target.classList.contains('dt-month-add') ) {
             const dateShow: keyof kitContent = status === 'start' ? 'startDateShow' : 'endDateShow';
-            const newDate = new Date(`${data[dateShow].year}-${data[dateShow].month}-${data[dateShow].date}`);
+            // const newDate = new Date(`${data[dateShow].year}-${data[dateShow].month}-${data[dateShow].date}`);
+            const newDate = new Date(data[dateShow].year, data[dateShow].month - 1, data[dateShow].date);
             newDate.setMonth(newDate.getMonth() + 1);
             data[dateShow] = {
                 year: newDate.getFullYear(),
@@ -336,8 +337,10 @@ function getBoxClass(data: kitContent, status: status) {
     // hide year switch button
     const classNameY = status === 'start' ? 'dt-year-hide-right-y' : 'dt-year-hide-left-y';
 
-    let startDate = new Date(`${data.startDateShow.year}-${data.startDateShow.month}`);
-    const endDate = new Date(`${data.endDateShow.year}-${data.endDateShow.month}`);
+    // let startDate = new Date(`${data.startDateShow.year}-${data.startDateShow.month}`);
+    let startDate = new Date(data.startDateShow.year, data.startDateShow.month - 1);
+    // const endDate = new Date(`${data.endDateShow.year}-${data.endDateShow.month}`);
+    const endDate = new Date(data.endDateShow.year, data.endDateShow.month - 1);
     startDate.setMonth(startDate.getMonth() + 1);
     if ( startDate.getTime() >= endDate.getTime() ) {
         classList.push(classNameM);

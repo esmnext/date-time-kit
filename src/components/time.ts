@@ -1,5 +1,6 @@
 import { kitContent, kitDate, kitTime, status } from "../../type";
 import './time.scss';
+import i18n from "@/i18n";
 
 export function create(data: kitContent) {
 
@@ -113,9 +114,10 @@ function renderSelectList(data: kitContent, status: status) {
         secondList += `<div data-status="${status}" class="dt-time-select-item ${time.second === i? 'dt-time-select-item-active': ''}" data-second="${i}">${String(i).padStart(2, '0')}</div>`;
     }
 
+    const i18nTime = i18n[data.lang].time;
     return `
         <div class="dt-time-select-body">
-            <div class="dt-time-select-title">${status === 'start'? 'Start time': 'End time'}</div>
+            <div class="dt-time-select-title">${status === 'start'? i18nTime.startTime: i18nTime.endTime}</div>
             <div class="dt-time-select-content">
                 <div class="dt-time-select-ul">
                     ${hourList}
@@ -128,7 +130,7 @@ function renderSelectList(data: kitContent, status: status) {
                 </div>
             </div>
             <div class="dt-time-select-millisecond">
-                <div>${status === 'start'? 'Start Millisecond': 'End Mnllisecond'}</div>
+                <div>${status === 'start'? i18nTime.startMillisecond: i18nTime.endMillisecond}</div>
                 <input type="text" 
                 data-status="${status}"
                 value="${time.millisecond.toString().padStart(3, '0')}" 
@@ -144,14 +146,16 @@ function renderSelectList(data: kitContent, status: status) {
 
 
 function renderTimeString(data: kitContent) {
-    return `${renderDate(data.startDate)} ${renderTime(data.startTime)} - ${renderDate(data.endDate)} ${renderTime(data.endTime)}`
+    return `${renderDate(data.startDate)} ${renderTime(data.startTime)} 
+        <span>-</span>
+    ${renderDate(data.endDate)} ${renderTime(data.endTime)}`
 
 }
 function renderDate(data: kitDate) {
     return `${String(data.year).padStart(4, '0')}-${String(data.month).padStart(2, '0')}-${String(data.date).padStart(2, '0')}`
 }
 function renderTime(time: kitTime) {
-    return `${String(time.hour).padStart(2, '0')}:${String(time.minute).padStart(2, '0')}:${String(time.second).padStart(2, '0')}:${String(time.millisecond).padStart(3, '0')}`
+    return `${String(time.hour).padStart(2, '0')}:${String(time.minute).padStart(2, '0')}:${String(time.second).padStart(2, '0')}.${String(time.millisecond).padStart(3, '0')}`
 }
 /**
  * Updates the element with the given kitContent data.

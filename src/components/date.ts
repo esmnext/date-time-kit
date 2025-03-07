@@ -1,6 +1,7 @@
 import { kitContent, kitDate, status } from "../../type";
 import './date.scss';
-
+import i18n from "@/i18n";
+import * as utils from '../utils';
     /**
      * create a date box
      * @param data - the data of date box
@@ -38,7 +39,7 @@ export function create(data: kitContent, status: status = "start") {
             };
             // start
             if ( data.startDate.year && !data.endDate.year ) {
-                if(new Date(`${data.startDate.year}-${data.startDate.month}-${data.startDate.date}`).getTime() > itemDate.getTime()) {
+                if(new Date(data.startDate.year, data.startDate.month - 1, data.startDate.date).getTime() > itemDate.getTime()) {
                         data.endDate = data.startDate;
                         data.startDate = date;
                         return ;
@@ -84,7 +85,7 @@ export function create(data: kitContent, status: status = "start") {
             };
 
 
-            if(new Date(`${moveDate.year}-${moveDate.month}-${moveDate.date}`).getTime() > itemDate.getTime()) {
+            if(new Date(moveDate.year, moveDate.month - 1, moveDate.date).getTime() > itemDate.getTime()) {
                     data.endDate = moveDate;
                     data.startDate = date;
                     return ;
@@ -107,7 +108,7 @@ function render(data: kitContent, status: status) {
     }
 
     if ( status === 'start' && data.startDateShow.year ) {
-        renderDate = new Date(`${data.startDateShow.year}-${data.startDateShow.month}-${data.startDateShow.date}`);
+        renderDate = new Date(data.startDateShow.year, data.startDateShow.month - 1, data.startDateShow.date);
     }
    
     if ( status === 'end' && !data.endDateShow.year ) {
@@ -118,13 +119,13 @@ function render(data: kitContent, status: status) {
         }
         else {
 
-            renderDate = new Date(`${data.startDateShow.year}-${data.startDateShow.month}-${data.startDateShow.date}`);
+            renderDate = new Date(data.startDateShow.year, data.startDateShow.month - 1, data.startDateShow.date);;
             renderDate.setMonth(renderDate.getMonth() + 1);
         }
     }
 
     if ( status === 'end' && data.endDateShow.year ) {
-        renderDate = new Date(`${data.endDateShow.year}-${data.endDateShow.month}-${data.endDateShow.date}`);
+        renderDate = new Date(data.endDateShow.year, data.endDateShow.month - 1, data.endDateShow.date);
     }
 
     let dataHTML = '';
@@ -132,17 +133,18 @@ function render(data: kitContent, status: status) {
         renderDate = new Date();
     }
     dataHTML = renderDayByMonth(data, renderDate);
+    const i18nDay = i18n[data.lang].date;
     return `
         <div class="dt-date-week">
-            <div>Sun</div>
-            <div>Mon</div>
-            <div>Tue</div>
-            <div>Wed</div>
-            <div>Thu</div>
-            <div>Fri</div>
-            <div>Sat</div>
+            <div>${i18nDay.sun}</div>
+            <div>${i18nDay.mon}</div>
+            <div>${i18nDay.tue}</div>
+            <div>${i18nDay.wed}</div>
+            <div>${i18nDay.thu}</div>
+            <div>${i18nDay.fri}</div>
+            <div>${i18nDay.sat}</div>
         </div>
-        <div class="dt-date-content" data-date="${renderDate?.getFullYear()}-${renderDate?.getMonth() + 1}">
+        <div class="dt-date-content" data-date="${utils.getDateTimeStr(renderDate?.getFullYear(), renderDate?.getMonth() + 1)}">
         ${dataHTML}
         </div>
     `;
@@ -172,11 +174,14 @@ function renderDayByMonth(data: kitContent, date: Date = new Date()) {
     }
 
    
-    const startDate = `${data.startDate.year}-${data.startDate.month}-${data.startDate.date}`;
-    const endDate = `${data.endDate.year}-${data.endDate.month}-${data.endDate.date}`;
+    // const startDate = `${data.startDate.year}-${data.startDate.month}-${data.startDate.date}`;
+    // const endDate = `${data.endDate.year}-${data.endDate.month}-${data.endDate.date}`;
+    const startDate = utils.getDateTimeStr(data.startDate.year, data.startDate.month, data.startDate.date);
+    const endDate = utils.getDateTimeStr(data.endDate.year, data.endDate.month, data.endDate.date);
     for (let i = 1; i <= days; i++) {
         const classList = ['dt-data-item'];
-        const renderDate = `${date.getFullYear()}-${month}-${i}`;
+        // const renderDate = `${date.getFullYear()}-${month}-${i}`;
+        const renderDate = utils.getDateTimeStr(date.getFullYear(), month, i);
 
         if ( currentString === renderDate ) {
             classList.push('dt-data-item-current');

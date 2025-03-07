@@ -1,5 +1,6 @@
 import { kitContent, kitDataLimit, kitTime, kitDataLimitContent } from "../../type";
 import './quick.scss';
+import i18n from "@/i18n";
 
 const QUICK_MAP = getQuickMap();
 export function create(data: kitContent) {
@@ -65,8 +66,10 @@ function setDate(limit: kitDataLimit, data: kitContent) {
     data.endTime = QUICK_MAP[limit].endTime;
     data.startDateShow = data.startDate;
     // if end time month equal start time month to show month
-    const endData = new Date(`${data.endDate.year}-${data.endDate.month}-${data.endDate.date}`);
-    const startData = new Date(`${data.startDate.year}-${data.startDate.month}-${data.startDate.date}`);
+    // const endData = new Date(`${data.endDate.year}-${data.endDate.month}-${data.endDate.date}`);
+    const endData = new Date(data.endDate.year, data.endDate.month - 1, data.endDate.date);
+    // const startData = new Date(`${data.startDate.year}-${data.startDate.month}-${data.startDate.date}`);
+    const startData = new Date(data.startDate.year, data.startDate.month - 1, data.startDate.date);
     if ( endData.getFullYear() === startData.getFullYear() && endData.getMonth() == startData.getMonth() ) {
         endData.setMonth(endData.getMonth() + 1);
     }
@@ -79,19 +82,12 @@ function setDate(limit: kitDataLimit, data: kitContent) {
 
 }
 function render(data: kitContent) {
-    
+    let html = '';
+    for ( const key in QUICK_MAP) {
+        html += `<div class="dt-quick-item" data-limit="${key}">${i18n[data.lang].quick[key as keyof typeof QUICK_MAP]}</div>`;
+    }
     return `
-        <div class="dt-quick-item" data-limit="all">All</div>
-        <div class="dt-quick-item" data-limit="today">Today</div>
-        <div class="dt-quick-item" data-limit="yesterday">Yesterday</div>
-        <div class="dt-quick-item" data-limit="week">This Week</div>
-        <div class="dt-quick-item" data-limit="lastWeek">Last Week</div>
-        <div class="dt-quick-item" data-limit="last7Days">Last 7 Days</div>
-        <div class="dt-quick-item" data-limit="month">This Month</div>
-        <div class="dt-quick-item" data-limit="last30Days">Last 30 Days</div>
-        <div class="dt-quick-item" data-limit="last180Days">Last 180 Days</div>
-        <div class="dt-quick-item" data-limit="last6Month">Last 6 Month</div>
-        <div class="dt-quick-item" data-limit="year">This Year</div>
+        ${html}
         <div class="dt-time-zone">
             <div class="dt-time-zone-text">${renderTimeZoneText(data)}</div>
             <div class="dt-time-zone-icon"></div>
@@ -107,18 +103,18 @@ function render(data: kitContent) {
 function renderTimeZoneText( data: kitContent ) {
     if ( data.timeZone >= 0 ) {
         return `
-           Timezone: UTC+${data.timeZone}
+           ${i18n[data.lang].quick.timezone}: UTC+${data.timeZone}
         `;
     }
     return `
-       Timezone: UTC${data.timeZone}
+       ${i18n[data.lang].quick.timezone}: UTC${data.timeZone}
     `;
 }
 
 function renderTimeZoneList(data: kitContent) {
     // get current time zone
     const currentZone = -new Date().getTimezoneOffset() / 60;
-    let html = `<div class="dt-time-zone-select-title">Recommend</div>`;
+    let html = `<div class="dt-time-zone-select-title">${i18n[data.lang].quick.recommend}</div>`;
 
     // render recomment
     if (currentZone >= 0) {
@@ -134,7 +130,7 @@ function renderTimeZoneList(data: kitContent) {
     html += `<div class="dt-time-zone-item" data-timezone="2">
         <span class="dt-time-zone-item-icon"></span><span>UTC+2</span>
     </div>`;
-    html += `<div class="dt-time-zone-select-title">Timezone</div>`;
+    html += `<div class="dt-time-zone-select-title">${i18n[data.lang].quick.timezoneList}</div>`;
 
     // render all time zone
     for (let i = 0; i <= 12; i++) {
@@ -284,8 +280,8 @@ function getWeekLimit() {
 // lastWeek: 'Last Week',
 function getLastWeekLimit() {
     const current = new Date();
-    const startTime = new Date(current.getFullYear(), current.getMonth(), current.getDate() - current.getDay() + 1);
-    const endTime = new Date(current.getFullYear(), current.getMonth(), current.getDate() - current.getDay() + 7);
+    const startTime = new Date(current.getFullYear(), current.getMonth(), current.getDate() - current.getDay() - 6);
+    const endTime = new Date(current.getFullYear(), current.getMonth(), current.getDate() - current.getDay());
     return limitFactory(startTime, endTime);
 }
 // last7Days: 'Last 7 Days',

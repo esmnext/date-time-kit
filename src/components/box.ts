@@ -5,7 +5,7 @@ import * as month from './month';
 import * as date from './date';
 import * as time from './time';
 import * as utils from '../utils';
-
+import i18n from '@/i18n';
 
 /**
  * create date time picker
@@ -64,12 +64,19 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
        
         const eleBox = document.createElement('div');
         eleBox.classList.add('dt-box');
-        eleBox.innerHTML = render();
+        eleBox.innerHTML = render(data);
         root.appendChild(eleBox);
 
+        // create mask
+        const eleMask = document.createElement('div');
+        eleMask.classList.add('dt-mask');
+        document.body.appendChild(eleMask);
         // compute position
-        let rect = root.getBoundingClientRect();
-        eleBox.style.top = `${rect.height + 5}px`;
+        if ( window.innerWidth > 768 ) {
+            let rect = root.getBoundingClientRect();
+            eleBox.style.top = `${rect.height + 5}px`;
+        }
+        
 
         // add quick select list
         const eleQuick = quick.create(dataProxy);
@@ -124,7 +131,8 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
         //*********************************/
         // add event for box
         function removeEventListener() {
-            document.removeEventListener('click', cancel);
+            // document.removeEventListener('click', cancel);
+            eleMask.removeEventListener('click', cancel);
             eleBox.removeEventListener('click', eventLoop);
         }
         /**
@@ -133,6 +141,7 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
         function cancel() {
             removeEventListener();
             utils.hideBox(eleBox);
+            utils.hideBox(eleMask);
             reject("cancel");
         }
 
@@ -143,6 +152,7 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
         function done() {
             removeEventListener();
             utils.hideBox(eleBox);
+            utils.hideBox(eleMask);
 
             const startTime: timeString = `${dataProxy.startDate.year}-${dataProxy.startDate.month}-${dataProxy.startDate.date} ${dataProxy.startTime.hour}:${dataProxy.startTime.minute}:${dataProxy.startTime.second}:${dataProxy.startTime.millisecond}`;
             const endTime: timeString = `${dataProxy.endDate.year}-${dataProxy.endDate.month}-${dataProxy.endDate.date} ${dataProxy.endTime.hour}:${dataProxy.endTime.minute}:${dataProxy.endTime.second}:${dataProxy.endTime.millisecond}`;
@@ -179,7 +189,8 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
         }
         // add event
         eleBox.addEventListener('click', eventLoop);
-        document.addEventListener('click', cancel);
+        // document.addEventListener('click', cancel);
+        eleMask.addEventListener('click', cancel);
         // show box 
         utils.showBox(eleBox);
         
@@ -196,7 +207,7 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
  * and footer buttons for 'Cancel' and 'Done' actions.
  */
 
-function render() {
+function render(data: kitContent): string {
     return `
          <div class="dt-content">
             <div class="dt-date-box">
@@ -205,8 +216,8 @@ function render() {
             </div>
             <div class="dt-time-box"></div>
             <div class="dt-footer">
-                <button class="dt-button dt-button-cancel">Cancel</button>
-                <button class="dt-button dt-button-primary">Done</button>
+                <button class="dt-button dt-button-cancel">${i18n[data.lang].box.cancel}</button>
+                <button class="dt-button dt-button-primary">${i18n[data.lang].box.confirm}</button>
             </div>
          </div>
     `;

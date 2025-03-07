@@ -1,10 +1,12 @@
-@import '../style.scss';
+@use '../style.scss';
 .dt-quick {
     display: flex;
     flex-direction: column;
     width: 150px;
     padding: var(--spacing-size-small);
     background: var(--color-surface);
+    text-align: center;
+    text-align: center;
 }
 .dt-quick-item {
     height: 32px;
@@ -129,6 +131,7 @@
     color: var(--color-text-secondary);
     line-height: 24px;
     padding: 0 var(--spacing-size-small);
+    text-align: left;
 }
 .dt-time-zone-item {
     height: 30px;
@@ -206,3 +209,30 @@
         }
     }
 }   
+
+@media screen and (max-width: style.$screen-sm) {
+    .dt-quick {
+        flex-direction: row;
+        // background: transparent;
+        width: 100%;
+        padding: 0 var(--spacing-size-medium);
+        box-sizing: border-box;
+        // display: none;
+    }
+    .dt-quick-item {
+        display: none;
+    }
+
+    .dt-time-zone-select {
+        right: -40px;
+        top: 0;
+        left: 0;
+    }
+
+    .dt-time-zone-select-show .dt-time-zone-select {
+        bottom: auto;
+        top: 38px;
+        
+    }
+    
+}

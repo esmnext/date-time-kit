@@ -1,4 +1,4 @@
-@import "../style.scss";
+@use "../style.scss";
 // .dt-data-circle {
 //     animation: gradient .3s ease-in-out;
 // }
@@ -183,3 +183,44 @@
         background: transparent;
     }
 }
+
+
+@media screen and (max-width: style.$screen-sm) {
+    .dt-date-box{
+        flex-direction: column;
+    }
+    .dt-data-body {
+        width: 100%;
+    }
+    .dt-data-item {
+        width: 14.2%;
+        user-select: none;
+        &:active {
+            .dt-data-circle {
+                transform: scale(1.2) translateX(-50%);
+            }
+        }
+        &:hover {
+            .dt-data-circle {
+                transform: scale(1.2) translateX(-50%);
+            }
+        }
+      
+    }
+    .dt-data-circle {
+        left: 50%;
+        transform: translateX(-50%);
+        transform-origin: left center;
+    }
+    .dt-data-item-active, .dt-data-item-start, .dt-data-item-end {
+        & .dt-data-circle {
+            transform: scale(1) translateX(-50%);
+        }
+    }
+    .dt-data-item-current {
+        & .dt-data-circle {
+            transform: scale(1) translateX(-50%);
+        }
+    }
+
+} 

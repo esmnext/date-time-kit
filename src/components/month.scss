@@ -1,3 +1,4 @@
+@use '../style.scss';
 .dt-month {
     display: flex;
     justify-content: space-between;
@@ -138,3 +139,17 @@
         visibility: hidden;
     }
 }
+
+
+@media screen and (max-width: style.$screen-sm) {
+    .dt-month-add-box {
+        display: none;
+    }
+    .dt-month-sub-box {
+        display: none;
+    }
+    .dt-month {
+        justify-content: center;
+    }
+}
+

@@ -1,4 +1,4 @@
-@import '../style.scss';
+@use '../style.scss';
 .dt-time-body {
     position: relative;
     
@@ -127,4 +127,32 @@
     font-size: 14px;
     width: 148px;
     outline: none;
+}
+
+@media screen and (max-width: style.$screen-sm) {
+    .dt-time-string {
+        // width: 160px;
+        font-size: 12px;
+        span {
+            display: none;
+        }
+    }
+    .dt-time-body-content {
+        height: auto;
+    }
+    
+    .dt-time-select-box {
+        font-size: 12px;
+    }
+    
+    .dt-time-line {
+        margin: 0 var(--spacing-size-small);
+    }
+    .dt-time-select-item  {
+        width: 40px;
+      
+    }
+    .dt-time-millisecond-input {
+        width: 128px;
+    }
 }
