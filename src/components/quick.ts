@@ -192,12 +192,12 @@ export function getLimtKey(data: kitContent): kitDataLimit | null {
             QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.date === data.endDate.date 
 
         ) {
-            return key;
+            return key as kitDataLimit;
         }
     }
     return null;
 }
-function getQuickMap(): { [key in kitDataLimit]: kitDataLimitContent | null} {
+export function getQuickMap(): { [key in kitDataLimit]: kitDataLimitContent | null} {
     return {
         all: null,
         today: getTodayLimit(),

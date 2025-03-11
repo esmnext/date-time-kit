@@ -2,6 +2,8 @@
 
 ## v1.0.2-alpha.0 2025-11-03
 ### Features
+- 新增 导出 export declare function getLimtKey(): kitDataLimit[]; 方法
+- 新增 导出 export declare function getQuickMap(): { [key in kitDataLimit]: kitDataLimitContent | null}; 方法
 - 新增 default 导出
 - 新增 open 方法 ts定义
 - 新增 禁用 超过时间范围的 日期选择

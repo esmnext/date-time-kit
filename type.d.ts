@@ -1,6 +1,8 @@
 
 
 export declare function open(kitOpiton: kitOption): Promise<kitResult>;
+export declare function getLimtKey(): kitDataLimit[];
+export declare function getQuickMap(): { [key in kitDataLimit]: kitDataLimitContent | null};
 
 export interface kitContent {
     startDate: kitDate,
