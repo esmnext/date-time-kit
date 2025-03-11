@@ -26,8 +26,13 @@ export function create(data: kitContent, status: status = "start") {
             target.classList.contains('dt-data-circle') ||
             target.classList.contains('dt-data-text')
         ) {
+
+            let itemEle = target;
+            while ( !itemEle.classList.contains('dt-data-item') ) {
+                itemEle = itemEle.parentElement as HTMLElement;
+            }
             // disabled
-            if ( target.classList.contains('dt-data-item-disabled') ) {
+            if ( itemEle.classList.contains('dt-data-item-disabled') ) {
                 return;
             }
 
@@ -158,8 +163,7 @@ function renderDayByMonth(data: kitContent, date: Date = new Date()) {
 
     // current time
     const currnet = new Date();
-    const currentString = `${currnet.getFullYear()}-${currnet.getMonth() + 1}-${currnet.getDate()}`;
-
+    const currentString =  utils.getDateTimeStr(currnet.getFullYear(), currnet.getMonth() + 1, currnet.getDate());
 
     let dataHTML = ``;
     // previous month
@@ -178,17 +182,23 @@ function renderDayByMonth(data: kitContent, date: Date = new Date()) {
     // const endDate = `${data.endDate.year}-${data.endDate.month}-${data.endDate.date}`;
     const startDate = utils.getDateTimeStr(data.startDate.year, data.startDate.month, data.startDate.date);
     const endDate = utils.getDateTimeStr(data.endDate.year, data.endDate.month, data.endDate.date);
+
+    const minDateObj = new Date(utils.getDateTimeStr(data.minDate.year, data.minDate.month, data.minDate.date));
+    const maxDateObj = new Date(utils.getDateTimeStr(data.maxDate.year, data.maxDate.month, data.maxDate.date));
+
     for (let i = 1; i <= days; i++) {
         const classList = ['dt-data-item'];
         // const renderDate = `${date.getFullYear()}-${month}-${i}`;
         const renderDate = utils.getDateTimeStr(date.getFullYear(), month, i);
+        const renderDateObj = new Date(renderDate);
 
         if ( currentString === renderDate ) {
+            
             classList.push('dt-data-item-current');
         }
         
         if ( data.startDate.year && data.endDate.year ) {
-            if ( new Date(startDate) < new Date(renderDate) && new Date(endDate) > new Date(renderDate) ) {
+            if ( new Date(startDate) < renderDateObj && new Date(endDate) > renderDateObj ) {
                 classList.push('dt-data-item-sel');
             }
 
@@ -202,6 +212,12 @@ function renderDayByMonth(data: kitContent, date: Date = new Date()) {
         } 
         if ( startDate === renderDate ) {
             classList.push('dt-data-item-active');
+        }
+
+        if ( minDateObj.getTime() > renderDateObj.getTime() ||
+             maxDateObj.getTime() < renderDateObj.getTime() 
+        ) {
+            classList.push('dt-data-item-disabled');
         }
         
         // if ( data.startDateShow.year && data.endDateShow.year ) {

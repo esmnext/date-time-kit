@@ -1,4 +1,7 @@
 
+
+export declare function open(kitOpiton: kitOption): Promise<kitResult>;
+
 export interface kitContent {
     startDate: kitDate,
     endDate: kitDate,
@@ -70,7 +73,7 @@ export interface kitResult {
     // time stamp
     startTimeStamp: number,
     endTimeStamp: number,
-     
+    quick: kitDataLimit | null,
     timeZone: number
 }
 type Lang = 'zhCN' | 'enUS';

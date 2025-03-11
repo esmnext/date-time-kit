@@ -120,3 +120,8 @@ function initTime(date: Date | undefined = undefined): kitTime {
         millisecond: date.getMilliseconds()
     }
 }
+
+
+export default {
+    open
+}

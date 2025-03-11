@@ -22,7 +22,6 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
         }
         // debounce
         const updateData = utils.debounce(() => {
-            console.log('render');
             components.forEach(item => {
                 item.component.updateData(item.ele, dataProxy);
             })
@@ -154,12 +153,13 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
             utils.hideBox(eleBox);
             utils.hideBox(eleMask);
 
-            const startTime: timeString = `${dataProxy.startDate.year}-${dataProxy.startDate.month}-${dataProxy.startDate.date} ${dataProxy.startTime.hour}:${dataProxy.startTime.minute}:${dataProxy.startTime.second}:${dataProxy.startTime.millisecond}`;
-            const endTime: timeString = `${dataProxy.endDate.year}-${dataProxy.endDate.month}-${dataProxy.endDate.date} ${dataProxy.endTime.hour}:${dataProxy.endTime.minute}:${dataProxy.endTime.second}:${dataProxy.endTime.millisecond}`;
+            const startTime: timeString = `${dataProxy.startDate.year}-${dataProxy.startDate.month}-${dataProxy.startDate.date} ${dataProxy.startTime.hour}:${dataProxy.startTime.minute}:${dataProxy.startTime.second}.${dataProxy.startTime.millisecond}`;
+            const endTime: timeString = `${dataProxy.endDate.year}-${dataProxy.endDate.month}-${dataProxy.endDate.date} ${dataProxy.endTime.hour}:${dataProxy.endTime.minute}:${dataProxy.endTime.second}.${dataProxy.endTime.millisecond}`;
             
             resolve({
                 startTime,
                 endTime,
+                quick: quick.getLimtKey(dataProxy),
                 startTimeStamp: new Date(startTime).getTime(),
                 endTimeStamp: new Date(endTime).getTime(),
                 timeZone: dataProxy.timeZone

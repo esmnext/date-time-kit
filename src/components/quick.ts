@@ -166,10 +166,10 @@ export function updateData(ele: HTMLElement, data: kitContent) {
     limitKey && ele.querySelector('.dt-quick-item[data-limit="' + limitKey + '"]')!.classList.add('dt-quick-item-active');
 }
 
-function getLimtKey(data: kitContent) {
+export function getLimtKey(data: kitContent): kitDataLimit | null {
     for ( const key in QUICK_MAP) {
         if ( !QUICK_MAP[key as keyof typeof QUICK_MAP] ) {
-            return;
+            return null;
         }
         
         if ( 
