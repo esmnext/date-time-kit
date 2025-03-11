@@ -80,7 +80,7 @@ console.log(result);
 示例：
 
 ```js
-import dataTimeKit from 'date-time-kit';
+import dataTimeKit from '@gez/date-time-kit';
 
 const result = awiat dataTimeKit.open({
     root: document.getElementById('root')
@@ -91,7 +91,7 @@ console.log(result);
 ## 💡 示例代码
 
 ```js
-const result = awiat dataTimeKit.open({
+const result = await dataTimeKit.open({
     root: document.getElementById('root'),
     maxTime: "1990-01-01 00:00:00.000",
     minTime: "2050-01-01 00:00:00.000",
