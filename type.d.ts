@@ -1,9 +1,15 @@
 
 
 export declare function open(kitOpiton: kitOption): Promise<kitResult>;
-export declare function getLimtKey(): kitDataLimit[];
-export declare function getQuickMap(): { [key in kitDataLimit]: kitDataLimitContent | null};
+export declare function getLimitKeyByTimetamp(startTimestamp: timeString, endTimestamp: timeString, timeZone: number | undefined): kitDataLimit | null;
+export declare function getTimestampByLimitKey(limit: kitDataLimit, timeZone: number | undefined): kitTimestampResult;
 
+export interface kitTimestampResult {
+    startTime: timeString,
+    endTime: timeString,
+    startTimeStamp: number,
+    endTimeStamp: number
+}
 export interface kitContent {
     startDate: kitDate,
     endDate: kitDate,
@@ -117,5 +123,10 @@ export type kitI18n {
             endMillisecond: string,
         }
      }
+}
+
+export interface kitDateTime {
+    date: kitDate,
+    time: kitTime
 }
 export type kitDataLimit = 'all' | 'today' | 'yesterday' | 'week' | 'lastWeek' | 'last7Days' | 'month' | 'last30Days' | 'last180Days' | 'last6Month' | 'year';

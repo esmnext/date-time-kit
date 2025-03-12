@@ -1,4 +1,4 @@
-import { kitDate, kitTime } from "*";
+import { kitContent, kitDate, kitDateTime, kitOption, kitTime, timeString } from "*";
 
 /**
  * Shows the element by adding the "dt-show" class.
@@ -74,10 +74,14 @@ export function getDateTimeStr(year: number, month: number, date: number | undef
 
 export function getTimeStr (hour: number, minute: number, second: number, millisecond: number): string {
 
-    return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}:${millisecond.toString().padStart(3, '0')}`;
+    return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}.${millisecond.toString().padStart(3, '0')}`;
 }
 
 
+
+export function getTimeString(date: kitDate, time: kitTime): timeString {
+    return `${getDateTimeStr(date.year, date.month, date.date)} ${getTimeStr(time.hour, time.minute, time.second, time.millisecond)}` as timeString;
+}
 
 
 
@@ -90,19 +94,27 @@ export function getTimeStr (hour: number, minute: number, second: number, millis
  */
 export function dataFactory(kitOpiton: kitOption): kitContent {
 
-    let maxDate = new Date(kitOpiton.maxTime || Date.now());
-    maxDate.setFullYear(maxDate.getFullYear() + (kitOpiton.maxTime ? 0 : 5));
+    let { maxTime, minTime, startTime, endTime } = kitOpiton;
+    if ( kitOpiton.timeZone) {
+        maxTime && (maxTime = getTimeStringByTimeZone(maxTime, kitOpiton.timeZone));
+        minTime && (minTime = getTimeStringByTimeZone(minTime, kitOpiton.timeZone));
+        startTime && (startTime = getTimeStringByTimeZone(startTime, kitOpiton.timeZone));
+        endTime && (endTime = getTimeStringByTimeZone(endTime, kitOpiton.timeZone));
+    }
 
-    let minDate = new Date(kitOpiton.minTime || Date.now());
-    minDate.setFullYear(minDate.getFullYear() - (kitOpiton.minTime ? 0 : 20));
+    let maxDate = new Date(maxTime|| Date.now());
+    maxDate.setFullYear(maxDate.getFullYear() + (maxTime? 0 : 5));
+
+    let minDate = new Date(minTime || Date.now());
+    minDate.setFullYear(minDate.getFullYear() - (minTime ? 0 : 20));
 
 
-    let startDate = new Date(kitOpiton.startTime || Date.now());
-    let endDate = new Date(kitOpiton.endTime || Date.now());
+    let startDate = new Date(startTime || Date.now());
+    let endDate = new Date(endTime|| Date.now());
 
     // if end time month equal start time month to show month
-    let startDateShow = new Date(kitOpiton.startTime || Date.now());
-    let endDateShow = new Date(kitOpiton.endTime || Date.now());
+    let startDateShow = new Date(startTime || Date.now());
+    let endDateShow = new Date(endTime|| Date.now());
     if ( startDate.getUTCFullYear() === endDate.getUTCFullYear() && startDateShow.getMonth() == endDate.getMonth() ) {
         endDateShow.setMonth(endDate.getMonth() + 1);
     }
@@ -118,10 +130,10 @@ export function dataFactory(kitOpiton: kitOption): kitContent {
 
     
     return {
-        startDate: kitOpiton.startTime ? initDate(startDate) : initDate(),
-        endDate: kitOpiton.endTime ? initDate(endDate) : initDate(),
-        startTime: kitOpiton.startTime ? initTime(startDate) : initTime(),
-        endTime: kitOpiton.endTime ? initTime(endDate) : initTime(),
+        startDate: startTime ? initDate(startDate) : initDate(),
+        endDate: endTime? initDate(endDate) : initDate(),
+        startTime: startTime ? initTime(startDate) : initTime(),
+        endTime: endTime? initTime(endDate) : initTime(),
         startDateShow: initDate(startDateShow),
         endDateShow: initDate(endDateShow),
         moveDate: initDate(),
@@ -178,4 +190,70 @@ function initTime(date: Date | undefined = undefined): kitTime {
         second: date.getSeconds(),
         millisecond: date.getMilliseconds()
     }
+}
+
+
+export function getCurrentTimeZone(): number {
+    return -new Date().getTimezoneOffset() / 60;
+}
+
+    /**
+     * Converts a Date object from its current timezone to a different timezone.
+     *
+     * This function takes a Date object and returns a new Date object with the same date and time,
+     * but with a different timezone. If the timeZone parameter is undefined, the function will use
+     * the current timezone.
+     *
+     * @param date The Date object to convert.
+     * @param timeZone The number of hours to offset the timezone. If undefined, it will use the current timezone.
+     * @returns A new Date object with the same date and time as the original, but in the specified timezone.
+     */
+export function getDateByTimeZone(date: Date, timeZone: number | undefined): Date {
+    const currentTimeZone = getCurrentTimeZone();
+    if (timeZone === undefined) {
+        timeZone = currentTimeZone;
+    }
+
+    timeZone = timeZone - currentTimeZone;
+    return new Date(date.getTime() + timeZone * 60 * 60 * 1000);
+}
+
+export function getKitTimeyTimeZone(datatime: kitDateTime, timeZone: number): kitDateTime {
+    if (timeZone === undefined) {
+        timeZone = getCurrentTimeZone();
+    }
+    let result = new Date(datatime.date.year, datatime.date.month - 1, datatime.date.date,
+         datatime.time.hour, datatime.time.minute, datatime.time.second, datatime.time.millisecond);
+    result = getDateByTimeZone(result, timeZone);
+    return {
+        date: {
+            year: result.getFullYear(),
+            month: result.getMonth() + 1,
+            date: result.getDate()
+        },
+        time: {
+            hour: result.getHours(),
+            minute: result.getMinutes(),
+            second: result.getSeconds(),
+            millisecond: result.getMilliseconds()
+        }
+    }
+}
+
+export function getTimeStringByTimeZone(datatime: timeString, timeZone: number): timeString {
+    if (timeZone === undefined) {
+        timeZone = getCurrentTimeZone();
+    }
+    let result = new Date(datatime);
+    result = getDateByTimeZone(result, timeZone);
+    return getTimeString({
+        year: result.getFullYear(),
+        month: result.getMonth() + 1,
+        date: result.getDate()
+    }, {
+        hour: result.getHours(),
+        minute: result.getMinutes(),
+        second: result.getSeconds(),    
+        millisecond: result.getMilliseconds()
+    });
 }

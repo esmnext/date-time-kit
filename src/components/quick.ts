@@ -1,8 +1,8 @@
 import { kitContent, kitDataLimit, kitTime, kitDataLimitContent } from "../../type";
 import './quick.scss';
 import i18n from "@/i18n";
-
-const QUICK_MAP = getQuickMap();
+ export const QUICK_MAP = getQuickMap();
+ 
 export function create(data: kitContent) {
     const ele = document.createElement('div');
     ele.classList.add('dt-quick');

@@ -1,9 +1,16 @@
 # @gez/date-time-kit 
 
-## v1.0.2-alpha.0 2025-11-03
+
+## v1.0.3-alpha.1 2025-03-12
 ### Features
-- 新增 导出 export declare function getLimtKey(): kitDataLimit[]; 方法
-- 新增 导出 export declare function getQuickMap(): { [key in kitDataLimit]: kitDataLimitContent | null}; 方法
+- 修复 结束时间毫秒变更时 修改到了开始时间
+- 修改 getTimestampByLimitKey 方法新增时区 参数
+- 修改 getLimitKeyByTimetamp 方法新增 时区 参数
+- 新增 时区的支持
+## v1.0.3-alpha.1 2025-03-11
+### Features
+- 新增 导出 export declare function getLimitKeyByTimetamp(startTimestamp: timeString, endTimestamp: timeString): kitDataLimit | null;
+- 新增 导出 export declare function getTimestampByLimitKey(limit: kitDataLimit): { startTime: timeString, endTime: timeString };
 - 新增 default 导出
 - 新增 open 方法 ts定义
 - 新增 禁用 超过时间范围的 日期选择

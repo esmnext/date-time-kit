@@ -62,7 +62,7 @@ export function create(data: kitContent) {
         const target = e.target as HTMLInputElement;
         if ( target.classList.contains('dt-time-millisecond-input') ) {
             const status = target.getAttribute('data-status') as status;
-            const timeKey: keyof kitContent = status === 'start' ? 'startTime' : 'startTime';
+            const timeKey: keyof kitContent = status === 'start' ? 'startTime' : 'endTime';
 
             const value = target.value;
             if ( isNaN(Number(value)) ) {
