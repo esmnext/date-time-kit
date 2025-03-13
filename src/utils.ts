@@ -84,6 +84,11 @@ export function getTimeString(date: kitDate, time: kitTime): timeString {
 }
 
 
+export function getTimeStringByTimestamp(timestamp: number): timeString {
+    const date = new Date(timestamp);  
+    return `${getDateTimeStr(date.getFullYear(), date.getMonth() + 1, date.getDate())} ${getTimeStr(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds())}` as timeString;
+}
+
 
 /**
  * dataFactory
@@ -96,6 +101,7 @@ export function dataFactory(kitOpiton: kitOption): kitContent {
 
     let { maxTime, minTime, startTime, endTime } = kitOpiton;
     if ( kitOpiton.timeZone) {
+        const currentTimeZone = getCurrentTimeZone();
         maxTime && (maxTime = getTimeStringByTimeZone(maxTime, kitOpiton.timeZone));
         minTime && (minTime = getTimeStringByTimeZone(minTime, kitOpiton.timeZone));
         startTime && (startTime = getTimeStringByTimeZone(startTime, kitOpiton.timeZone));
@@ -208,14 +214,16 @@ export function getCurrentTimeZone(): number {
      * @param timeZone The number of hours to offset the timezone. If undefined, it will use the current timezone.
      * @returns A new Date object with the same date and time as the original, but in the specified timezone.
      */
-export function getDateByTimeZone(date: Date, timeZone: number | undefined): Date {
-    const currentTimeZone = getCurrentTimeZone();
-    if (timeZone === undefined) {
-        timeZone = currentTimeZone;
+export function getDateByTimeZone(date: Date, targetTimeZone: number | undefined, currentTimeZone?: number | undefined): Date {
+    if ( !currentTimeZone) {
+        currentTimeZone = getCurrentTimeZone();
+    }
+    if (targetTimeZone === undefined) {
+        targetTimeZone = currentTimeZone;
     }
 
-    timeZone = timeZone - currentTimeZone;
-    return new Date(date.getTime() + timeZone * 60 * 60 * 1000);
+    targetTimeZone = targetTimeZone - targetTimeZone;
+    return new Date(date.getTime() + targetTimeZone * 60 * 60 * 1000);
 }
 
 export function getKitTimeyTimeZone(datatime: kitDateTime, timeZone: number): kitDateTime {
@@ -240,12 +248,19 @@ export function getKitTimeyTimeZone(datatime: kitDateTime, timeZone: number): ki
     }
 }
 
-export function getTimeStringByTimeZone(datatime: timeString, timeZone: number): timeString {
-    if (timeZone === undefined) {
-        timeZone = getCurrentTimeZone();
+export function getTimeStringByTimeZone(
+    datatime: timeString, 
+    targetTimeZone: number | undefined, 
+    currentTimeZone?: number | undefined): timeString {
+
+    if (targetTimeZone === undefined) {
+        targetTimeZone = getCurrentTimeZone();
+    }
+    if (currentTimeZone === undefined) {
+        currentTimeZone = getCurrentTimeZone();
     }
     let result = new Date(datatime);
-    result = getDateByTimeZone(result, timeZone);
+    result = getDateByTimeZone(result, targetTimeZone, currentTimeZone);
     return getTimeString({
         year: result.getFullYear(),
         month: result.getMonth() + 1,

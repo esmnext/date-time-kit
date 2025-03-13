@@ -21,9 +21,9 @@
         // import dataTimeKit from './index.ts';
         const dataTimeKit = await import('./index.js');
 
-        const rand = dataTimeKit.getTimestampByLimitKey('last7Days', 2); // 2021-01-01 00:00:00.000
-        const d = dataTimeKit.getLimitKeyByTimetamp(rand.startTime, rand.endTime, 2); // 2021-01-01 00:00:00.000
-        console.log(rand, d);
+        const rand = dataTimeKit.getTimestampByLimitKey('last7Days', 2); 
+        const keyName = dataTimeKit.getLimitKeyByTimetamp(rand.startTime, rand.endTime, 2); 
+        console.log(rand, keyName);
          // event
         dataTimeKit.open({
             root: document.querySelector('#root'),

@@ -92,6 +92,7 @@
     align-items: center;
     justify-content: space-between;
     border-radius: var(--radius);
+    z-index: var(--z-pop);
 }
 
 .dt-time-zone-text {
@@ -111,7 +112,7 @@
 .dt-time-zone-select {
     position: absolute;
     bottom: 10px;
-    background: #fff;
+    background: var(--theme-bg-global);
     width: 160px;
     right: -170px;
     border-radius: var(--radius);

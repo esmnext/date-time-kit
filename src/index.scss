@@ -1,17 +1,16 @@
 @use 'style.scss';
-
 :root {
-    --color-bg: #fff;  /* 背景色 */
-    --color-surface: #F5F6F7; /* 表面色 */
+    --color-bg: var(--theme-bg-global, #fff);  /* 背景色 */
+    --color-surface: var(--theme-bg-primary, #F5F6F7); /* 表面色 */
 
-    --color-primary: #35BBC4;   /* 主要颜色 */
-    --color-primary-light: #d1eaed; //rgba(53, 187, 196, 0.2); /* 主要颜色的亮色 */
+    --color-primary: var(--theme-color-primary, #35BBC4);   /* 主要颜色 */
+    --color-primary-light: var(--theme-bg-primary,#d1eaed); //rgba(53, 187, 196, 0.2); /* 主要颜色的亮色 */
 
-    --color-text-primary: rgba(51, 51, 51, 1); /* 主要文本颜色 */
-    --color-text-secondary: #666; /* 次要文本颜色 */
-    --color-text-disabled: #AAAAAA; /* 禁用文本颜色 */
+    --color-text-primary: var(--theme-text-color, rgba(51, 51, 51, 1)); /* 主要文本颜色 */
+    --color-text-secondary: var( --theme-text-color-secondary, #666); /* 次要文本颜色 */
+    --color-text-disabled: var(--theme-text-color-disabled, #AAAAAA); /* 禁用文本颜色 */
 
-    --color-hover: rgba(0, 0, 0, 0.05);
+    --color-hover: var(--theme-bg-primary, rgba(0, 0, 0, 0.05));
 
     --font-fimily: 'PingFang SC', 'Microsoft YaHei', sans-serif;
     --font-size: 14px;

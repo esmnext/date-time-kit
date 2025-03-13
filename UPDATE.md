@@ -1,5 +1,9 @@
 # @gez/date-time-kit 
 
+## v1.0.3-alpha.1 2025-03-12
+- 新增 支持 默认主题色
+- 新增 导出 export declare function getTimeStringByTimestamp(timestamp: number): timeString;
+- 修改 默认 层级 100 -> 3000
 
 ## v1.0.3-alpha.1 2025-03-12
 ### Features

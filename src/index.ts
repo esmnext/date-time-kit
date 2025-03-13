@@ -23,13 +23,14 @@ export async function open(kitOpiton: kitOption): Promise<kitResult> {
 
 
 export function getLimitKeyByTimetamp(startTimestamp: timeString, endTimestamp: timeString, timeZone: number | undefined): kitDataLimit | null {
-
+    const currentTimeZone = utils.getCurrentTimeZone();
     if ( !timeZone ) {
-        timeZone = utils.getCurrentTimeZone();
+        timeZone = currentTimeZone;
     }
 
-    const startTimeDate = new Date(utils.getTimeStringByTimeZone(startTimestamp, timeZone));
-    const endTimeDate = new Date(utils.getTimeStringByTimeZone(endTimestamp, timeZone));
+    
+    const startTimeDate = new Date(utils.getTimeStringByTimeZone(startTimestamp, timeZone, currentTimeZone));
+    const endTimeDate = new Date(utils.getTimeStringByTimeZone(endTimestamp, timeZone, currentTimeZone));
     const endTime: kitTime = {
         hour: endTimeDate.getHours(),
         minute: endTimeDate.getMinutes(),
@@ -135,5 +136,6 @@ export function getTimestampByLimitKey(limitKey: kitDataLimit, timeZone: number 
 export default {
     open,
     getLimitKeyByTimetamp,
-    getTimestampByLimitKey
+    getTimestampByLimitKey,
+    getTimeStringByTimestamp: utils.getTimeStringByTimestamp,
 }

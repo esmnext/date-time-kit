@@ -3,6 +3,7 @@
 export declare function open(kitOpiton: kitOption): Promise<kitResult>;
 export declare function getLimitKeyByTimetamp(startTimestamp: timeString, endTimestamp: timeString, timeZone: number | undefined): kitDataLimit | null;
 export declare function getTimestampByLimitKey(limit: kitDataLimit, timeZone: number | undefined): kitTimestampResult;
+export declare function getTimeStringByTimestamp(timestamp: number): timeString;
 
 export interface kitTimestampResult {
     startTime: timeString,
