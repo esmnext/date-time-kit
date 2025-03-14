@@ -1,7 +1,139 @@
 @use 'style.scss';
 :root {
-    --color-bg: var(--theme-bg-global, #fff);  /* 背景色 */
-    --color-surface: var(--theme-bg-primary, #F5F6F7); /* 表面色 */
+    // [data-theme], [data-theme="light"] {
+        // color: #333;
+        // background-color: #eaeced;
+        // --theme-text-color: #333;
+        // --theme-text-color-white: #fff;
+        // --theme-text-color-secondary: #999;
+        // --theme-text-color-reverse: #fff;
+        // --theme-text-color-positive: #2EA379;
+        // --theme-text-color-negative: #DC3A48;
+        // --theme-text-color-quote-positive: #2EA379;
+        // --theme-text-color-quote-negative: #DC3A48;
+        // --theme-text-color-link: #1F72E8;
+        // --theme-text-color-disabled: #aaa;
+        // --theme-text-color-auxiliary: #666;
+        // --theme-quote-chart-yamagata-color: #576780;
+        // --theme-quote-chart-yamagata-bg-start: rgba(87, 103, 128, 0.2);
+        // --theme-quote-chart-yamagata-bg-end: rgba(255, 255, 255, 0.2);
+        // --theme-quote-chart-line-color: #576780;
+        // --theme-layout-type: centered;
+        // --theme-hover-color: rgba(0, 0, 0, 0.05);
+        // --theme-hover-color-sell: #D23F4B;
+        // --theme-hover-color-primary: #3E72FE;
+        // --theme-hover-color-buy: #2B9B73;
+        // --theme-color-warning: #e9a00d;
+        // --theme-color-trade-direction: #576780;
+        // --theme-color-success: #6ea82f;
+        // --theme-color-sell: #DE4350;
+        // --theme-color-secondary: #333;
+        // --theme-color-profit: #22835f;
+        // --theme-color-primary: #2962FE;
+        // --theme-color-danger: #eb4e5c;
+        // --theme-color-buy: #2EA379;
+        // --theme-button-border-radius: 100px;
+        // --theme-box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        // --theme-border-radius-layout: 12px;
+        // --theme-border-radius-button: 100px;
+        // --theme-border-radius-block: 12px;
+        // --theme-border-color: rgba(0, 0, 0, 0.05);
+        // --theme-border-color-input: #ccc;
+        // --theme-border-color-divider: rgba(0, 0, 0, 0.08);
+        // --theme-border-color-dark: rgba(0, 0, 0, 0.1);
+        // --theme-bg-warning: rgba(255, 162, 0, 0.1);
+        // --theme-bg-transparent: rgba(255, 255, 255, 0);
+        // --theme-bg-success: rgba(110, 168, 47, 0.1);
+        // --theme-bg-sell: rgba(220, 58, 72, 0.1);
+        // --theme-bg-secondary: #eaeaea;
+        // --theme-bg-reverse: #333;
+        // --theme-bg-primary: rgba(41,98,254,0.1);
+        // --theme-bg-global: #eaeced;
+        // --theme-bg-global-trade: #fff;
+        // --theme-bg-danger: rgba(220, 58, 72, 0.1);
+        // --theme-bg-chat-bubble: rgba(149 236 105, 1);
+        // --theme-bg-buy: rgba(41,98,254,0.1);
+        // --theme-bg-block: #fff;
+        // --theme-bg-block-dark: #f5f6f7;
+        // --theme-bg-quote-positive: rgba(46, 163, 121, 0.15);
+        // --theme-bg-quote-negative: rgba(220, 58, 72, 0.15);
+        // --theme-active-color: #f0f0f0;
+        // --theme-text-color-funds-deposit: #2962FE;
+        // --theme-text-color-funds-withdraw: #e98d06;
+        // --theme-text-color-funds-transfer: #2A7CF3;
+        // --theme-text-color-positive: #2ea379;
+        // --theme-text-color-negative: #dc3a48;
+        // }
+        
+        // [data-theme="dark"] {
+        // color: rgba(255, 255, 255, 0.9);
+        // background-color: #171717;
+        // --theme-text-color: rgba(255, 255, 255, 0.9);
+        // --theme-text-color-white: #fff;
+        // --theme-text-color-secondary: rgba(255, 255, 255, 0.5);
+        // --theme-text-color-reverse: #161616;
+        // --theme-text-color-positive: #2EA379;
+        // --theme-text-color-negative: #DC3A48;
+        // --theme-text-color-quote-positive: #2EA379;
+        // --theme-text-color-quote-negative: #DC3A48;
+        // --theme-text-color-link: #60A2FF;
+        // --theme-text-color-disabled: rgba(255, 255, 255, 0.3);
+        // --theme-text-color-auxiliary: rgba(255, 255, 255, 0.7);
+        // --theme-quote-chart-yamagata-color: #798494;
+        // --theme-quote-chart-yamagata-bg-start: rgba(121, 132, 148, 0.2);
+        // --theme-quote-chart-yamagata-bg-end: rgba(18, 19, 19, 0);
+        // --theme-quote-chart-line-color: #798494;
+        // --theme-layout-type: centered;
+        // --theme-hover-color: rgba(255, 255, 255, 0.05);
+        // --theme-hover-color-sell: #D23F4B;
+        // --theme-hover-color-primary: #3E72FE;
+        // --theme-hover-color-buy: #2B9B73;
+        // --theme-color-warning: #e09d16;
+        // --theme-color-trade-direction: #7c8eab;
+        // --theme-color-success: #6ea82f;
+        // --theme-color-sell: #DE4350;
+        // --theme-color-secondary: rgba(255, 255, 255, 0.9);
+        // --theme-color-profit: #22835f;
+        // --theme-color-primary: #2962FE;
+        // --theme-color-danger: #dc3a48;
+        // --theme-color-buy: #2EA379;
+        // --theme-button-border-radius: 100px;
+        // --theme-box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        // --theme-border-radius-layout: 12px;
+        // --theme-border-radius-button: 100px;
+        // --theme-border-radius-block: 12px;
+        // --theme-border-color: rgba(255, 255, 255, 0.05);
+        // --theme-border-color-input: #494949;
+        // --theme-border-color-divider: rgba(0, 0, 0, 0.8);
+        // --theme-border-color-dark: rgba(255, 255, 255, 0.1);
+        // --theme-bg-warning: rgba(255, 162, 0, 0.1);
+        // --theme-bg-transparent: rgba(51, 52, 53, 0);
+        // --theme-bg-success: rgba(110, 168, 47, 0.1);
+        // --theme-bg-sell: rgba(220, 58, 72, 0.1);
+        // --theme-bg-secondary: rgba(255, 255, 255, 0.1);
+        // --theme-bg-reverse: #fafafa;
+        // --theme-bg-primary: rgba(41,98,254,0.1);
+        // --theme-bg-global: #171717;
+        // --theme-bg-global-trade: #161616;
+        // --theme-bg-danger: rgba(220, 58, 72, 0.1);
+        // --theme-bg-chat-bubble: rgba(149 236 105, 0.3);
+        // --theme-bg-buy: rgba(41,98,254,0.1);
+        // --theme-bg-block: #1f1f1f;
+        // --theme-bg-block-dark: #2a2a2a;
+        // --theme-bg-quote-positive: rgba(46, 163, 121, 0.15);
+        // --theme-bg-quote-negative: rgba(220, 58, 72, 0.15);
+        // --theme-active-color: #353535;
+        // --theme-text-color-funds-deposit: #2962FE;
+        // --theme-text-color-funds-withdraw: #e98d06;
+        // --theme-text-color-funds-transfer: #2A7CF3;
+        // --theme-text-color-positive: #2ea379;
+        // --theme-text-color-negative: #dc3a48;
+        // // }
+        
+}
+:root {
+    --color-bg: var(--theme-bg-block, #fff);  /* 背景色 */
+    --color-surface: var(--theme-bg-block-dark, #F5F6F7); /* 表面色 */
 
     --color-primary: var(--theme-color-primary, #35BBC4);   /* 主要颜色 */
     --color-primary-light: var(--theme-bg-primary,#d1eaed); //rgba(53, 187, 196, 0.2); /* 主要颜色的亮色 */

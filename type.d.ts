@@ -1,10 +1,17 @@
-
+import { Granularity } from './granularity';
 
 export declare function open(kitOpiton: kitOption): Promise<kitResult>;
-export declare function getLimitKeyByTimetamp(startTimestamp: timeString, endTimestamp: timeString, timeZone: number | undefined): kitDataLimit | null;
-export declare function getTimestampByLimitKey(limit: kitDataLimit, timeZone: number | undefined): kitTimestampResult;
+export declare function getLimitKeyByTimetamp(startTimestamp: timeString, endTimestamp: timeString, timeZone?: number | undefined): kitDataLimit | null;
+export declare function getTimestampByLimitKey(limit: kitDataLimit, timeZone?: number | undefined): kitTimestampResult;
 export declare function getTimeStringByTimestamp(timestamp: number): timeString;
-
+export declare function getTimeStringByTimeZone(timeString: timeString, timeZone: number, currentTimeZone?: number): timeString;
+export default {
+    open,
+    getLimitKeyByTimetamp,
+    getTimestampByLimitKey,
+    getTimeStringByTimestamp,
+    getTimeStringByTimeZone
+}
 export interface kitTimestampResult {
     startTime: timeString,
     endTime: timeString,
@@ -24,7 +31,8 @@ export interface kitContent {
     maxTime: kitTime,
     minTime: kitTime,
     lang: Lang,
-    timeZone: number
+    timeZone: number,
+    granularity: Granularity
 }
 
 export interface kitDate {
@@ -73,8 +81,10 @@ export interface kitOption {
     // default lang
     lang?: Lang,
     // default time zone
-    timeZone?: number
+    timeZone?: number,
+    granularity?: Granularity
 }
+
 
 export interface kitResult {
     startTime: timeString,
@@ -85,8 +95,7 @@ export interface kitResult {
     quick: kitDataLimit | null,
     timeZone: number
 }
-type Lang = 'zhCN' | 'enUS';
-export type kitI18n {
+export type kitI18n = {
     [key in Lang]: { 
         box: {
             confirm: string,

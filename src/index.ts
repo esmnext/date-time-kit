@@ -138,4 +138,5 @@ export default {
     getLimitKeyByTimetamp,
     getTimestampByLimitKey,
     getTimeStringByTimestamp: utils.getTimeStringByTimestamp,
+    getTimeStringByTimeZone: utils.getTimeStringByTimeZone
 }

@@ -5,8 +5,7 @@
     width: 150px;
     padding: var(--spacing-size-small);
     background: var(--color-surface);
-    text-align: center;
-    text-align: center;
+    text-align: left;
 }
 .dt-quick-item {
     height: 32px;
@@ -15,16 +14,6 @@
     padding: 0 var(--spacing-size-small);
     border-radius: var(--radius);
     transition: all 0.3s ease-in-out;
-   
-    &:hover {
-        // background: var(--color-hover);
-        // box-shadow: var(--shadow-hover);
-        // transform: scale(1.02); /* 轻微放大 */
-    }
-    // &:active {
-    //     box-shadow: var(--shadow-active);
-    //     // transform: scale(0.98); /* 轻微缩小 */
-    // }
     cursor: pointer;
     position: relative;
     overflow: hidden; /* 确保波纹不会超出按钮 */

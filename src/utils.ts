@@ -1,4 +1,5 @@
-import { kitContent, kitDate, kitDateTime, kitOption, kitTime, timeString } from "*";
+import {  kitContent, kitDate, kitDateTime, kitOption, kitTime, timeString } from "*";
+import { Granularity } from './enum';
 
 /**
  * Shows the element by adding the "dt-show" class.
@@ -74,9 +75,12 @@ export function getDateTimeStr(year: number, month: number, date: number | undef
 
 export function getTimeStr (hour: number, minute: number, second: number, millisecond: number): string {
 
-    return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}.${millisecond.toString().padStart(3, '0')}`;
+    return `${getTimeStringInSeconds(hour, minute, second)}.${millisecond.toString().padStart(3, '0')}`;
 }
+export function getTimeStringInSeconds (hour: number, minute: number, second: number): string {
 
+    return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
+}
 
 
 export function getTimeString(date: kitDate, time: kitTime): timeString {
@@ -148,7 +152,8 @@ export function dataFactory(kitOpiton: kitOption): kitContent {
         minDate: initDate(maxDate),
         minTime: initTime(maxDate),
         lang: kitOpiton.lang || 'enUS',
-        timeZone
+        timeZone,
+        granularity: kitOpiton.granularity || Granularity.day
     }
 }
 

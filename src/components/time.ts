@@ -1,6 +1,8 @@
-import { kitContent, kitDate, kitTime, status } from "../../type";
+import { Granularity } from "@/enum";
+import {  kitContent, kitDate, kitTime, status } from "../../type";
 import './time.scss';
 import i18n from "@/i18n";
+import * as utils from '../utils';
 
 export function create(data: kitContent) {
 
@@ -8,6 +10,11 @@ export function create(data: kitContent) {
     ele.classList.add('dt-time');
     ele.innerHTML = render(data);
 
+    if ( data.granularity <= Granularity.day) {
+        // only show time
+        return ele;
+    }
+ 
     // add event
     ele.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
@@ -129,7 +136,17 @@ function renderSelectList(data: kitContent, status: status) {
                     ${secondList}
                 </div>
             </div>
-            <div class="dt-time-select-millisecond">
+            ${data.granularity >= Granularity.millisecond ? renderMillisecondInput(data, status) : ''}
+        </div>
+        
+    `;
+}
+
+function renderMillisecondInput(data: kitContent, status: status) {
+    const i18nTime = i18n[data.lang].time;
+    let time = status === 'start' ? data.startTime : data.endTime;
+
+    return `<div class="dt-time-select-millisecond">
                 <div>${status === 'start'? i18nTime.startMillisecond: i18nTime.endMillisecond}</div>
                 <input type="text" 
                 data-status="${status}"
@@ -138,24 +155,21 @@ function renderSelectList(data: kitContent, status: status) {
                 maxlength="3"
                 
                 />
-            </div>
-        </div>
-        
-    `;
+            </div>`;
 }
-
 
 function renderTimeString(data: kitContent) {
-    return `${renderDate(data.startDate)} ${renderTime(data.startTime)} 
-        <span>-</span>
-    ${renderDate(data.endDate)} ${renderTime(data.endTime)}`
-
-}
-function renderDate(data: kitDate) {
-    return `${String(data.year).padStart(4, '0')}-${String(data.month).padStart(2, '0')}-${String(data.date).padStart(2, '0')}`
-}
-function renderTime(time: kitTime) {
-    return `${String(time.hour).padStart(2, '0')}:${String(time.minute).padStart(2, '0')}:${String(time.second).padStart(2, '0')}.${String(time.millisecond).padStart(3, '0')}`
+    if ( data.granularity <= Granularity.day ) {
+        return `${utils.getDateTimeStr(data.startDate.year, data.startDate.month, data.startDate.date)}
+        <span>-</span> 
+        ${utils.getDateTimeStr(data.endDate.year, data.endDate.month, data.endDate.date)}`;
+    }
+    if ( data.granularity <= Granularity.second ) {
+        return `${utils.getDateTimeStr(data.startDate.year, data.startDate.month, data.startDate.date)} ${utils.getTimeStringInSeconds(data.startTime.hour, data.startTime.minute, data.startTime.second)}
+        <span>-</span> 
+        ${utils.getDateTimeStr(data.endDate.year, data.endDate.month, data.endDate.date)}  ${utils.getTimeStringInSeconds(data.endTime.hour, data.endTime.minute, data.endTime.second)}`;
+    }
+    return `${utils.getTimeString(data.startDate, data.startTime)} <span>-</span> ${utils.getTimeString(data.endDate, data.endTime)}`;
 }
 /**
  * Updates the element with the given kitContent data.
