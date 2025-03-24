@@ -32,6 +32,7 @@ export interface kitContent {
     minTime: kitTime,
     lang: Lang,
     timeZone: number,
+    enableZone: boolean,
     granularity: Granularity
 }
 
@@ -82,7 +83,8 @@ export interface kitOption {
     lang?: Lang,
     // default time zone
     timeZone?: number,
-    granularity?: Granularity
+    granularity?: Granularity,
+    enableZone?: boolean | undefined
 }
 
 

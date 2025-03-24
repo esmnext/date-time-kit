@@ -1,5 +1,14 @@
 # @gez/date-time-kit 
 
+## v1.0.3-alpha.25 2025-03-24
+- 新增 时区启用禁用选项 默认启用 enableZone?: boolean | undefined
+
+## v1.0.3-alpha.18 2025-03-19
+- 移除 自动转时区的功能
+
+## v1.0.3-alpha.17 2025-03-17
+- 修复 getTimeStringByTimeZone方法 时区偏移计算错误
+
 ## v1.0.3-alpha.16 2025-03-14
 - 修改 取消遮罩颜色
 - 新增 option 参数 granularity 控制 选择颗粒度

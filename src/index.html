@@ -21,40 +21,47 @@
         // import dataTimeKit from './index.ts';
         const dataTimeKit = await import('./index.js');
 
-        const rand = dataTimeKit.getTimestampByLimitKey('last7Days', 2); 
-        const keyName = dataTimeKit.getLimitKeyByTimetamp(rand.startTime, rand.endTime, 2); 
+        const rand = dataTimeKit.getTimestampByLimitKey('today', 7); 
+        const keyName = dataTimeKit.getLimitKeyByTimetamp(rand.startTime, rand.endTime, 7); 
         console.log(rand, keyName);
+
+        console.log(dataTimeKit.default.getTimeStringByTimeZone(rand.startTime, 2, 7));
+        console.log(dataTimeKit.default.getTimeStringByTimeZone(rand.startTime, 8, 7));
+        // console.log(dataTimeKit.default.getTimeStringByTimeZone('2025-02-27 00:00:00.000', 8));
          // event
-        dataTimeKit.open({
+        const result = await dataTimeKit.open({
             root: document.querySelector('#root'),
             maxTime: "1990-01-01 00:00:00.000",
             minTime: "2050-01-01 23:59:59.999",
             startTime: rand.startTime,
             endTime: rand.endTime,
             timeZone: 2,
-            lang: 'zhCN'
+            lang: 'zhCN',
+            granularity: 'minute',
+            enableZone: false
         });
+        console.log(result);
 
-        document.querySelector('#select').addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const data = await dataTimeKit.open({
-                root: e.target,
-            });
-            console.log(data);
-        });
+        // document.querySelector('#select').addEventListener('click', async (e) => {
+        //     e.stopPropagation();
+        //     const data = await dataTimeKit.open({
+        //         root: e.target,
+        //     });
+        //     console.log(data);
+        // });
 
-        document.querySelector('#select-def').addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const data = await dataTimeKit.open({
-                root: e.target,
-                maxTime: "1990-01-01 00:00:00.000",
-                minTime: "2050-01-02 00:00:00.000",
-                startTime: "1990-01-01 00:00:00.000",
-                endTime: "2050-01-01 00:10:10.022",
-                lang: 'zhCN'
-            });
-            console.log(data);
-        });
+        // document.querySelector('#select-def').addEventListener('click', async (e) => {
+        //     e.stopPropagation();
+        //     const data = await dataTimeKit.open({
+        //         root: e.target,
+        //         maxTime: "1990-01-01 00:00:00.000",
+        //         minTime: "2050-01-02 00:00:00.000",
+        //         startTime: "1990-01-01 00:00:00.000",
+        //         endTime: "2050-01-01 00:10:10.022",
+        //         lang: 'zhCN'
+        //     });
+        //     console.log(data);
+        // });
     </script>
 </body>
 </html>

@@ -153,17 +153,18 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
             utils.hideBox(eleBox);
             utils.hideBox(eleMask);
 
-            // const startDate = utils.getKitTimeyTimeZone({
-            //     date: dataProxy.startDate,
-            //     time: dataProxy.startTime
-            // }, dataProxy.timeZone);
-            // const endDate = utils.getKitTimeyTimeZone({
-            //     date: dataProxy.endDate,
-            //     time: dataProxy.endTime
-            // }, dataProxy.timeZone);
+            const startDate = utils.getKitTimeyTimeZone({
+                date: dataProxy.startDate,
+                time: dataProxy.startTime
+            }, dataProxy.timeZone);
+            const endDate = utils.getKitTimeyTimeZone({
+                date: dataProxy.endDate,
+                time: dataProxy.endTime
+            }, dataProxy.timeZone);
+
            
-            const startTime: timeString = utils.getTimeString(dataProxy.startDate, dataProxy.startTime);
-            const endTime: timeString = utils.getTimeString(dataProxy.endDate, dataProxy.endTime);
+            const startTime: timeString = utils.getTimeString(startDate.date, startDate.time);
+            const endTime: timeString = utils.getTimeString(endDate.date, endDate.time);
             // const startTime = utils.getTimeString(startDate);
             // const endTime = utils.getTimeString(endDate);
             resolve({

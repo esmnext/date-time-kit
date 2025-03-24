@@ -24,13 +24,12 @@ export async function open(kitOpiton: kitOption): Promise<kitResult> {
 
 export function getLimitKeyByTimetamp(startTimestamp: timeString, endTimestamp: timeString, timeZone: number | undefined): kitDataLimit | null {
     const currentTimeZone = utils.getCurrentTimeZone();
-    if ( !timeZone ) {
+    if ( timeZone === undefined ) {
         timeZone = currentTimeZone;
     }
 
-    
-    const startTimeDate = new Date(utils.getTimeStringByTimeZone(startTimestamp, timeZone, currentTimeZone));
-    const endTimeDate = new Date(utils.getTimeStringByTimeZone(endTimestamp, timeZone, currentTimeZone));
+    const startTimeDate = new Date(utils.getTimeStringByTimeZone(startTimestamp, currentTimeZone, timeZone));
+    const endTimeDate = new Date(utils.getTimeStringByTimeZone(endTimestamp, currentTimeZone, timeZone));
     const endTime: kitTime = {
         hour: endTimeDate.getHours(),
         minute: endTimeDate.getMinutes(),
@@ -112,7 +111,7 @@ export function getTimestampByLimitKey(limitKey: kitDataLimit, timeZone: number 
     if ( !QUICK_MAP[limitKey] ) {
         return result;
     }
-    if ( !timeZone ) {
+    if ( timeZone === undefined ) {
         timeZone = utils.getCurrentTimeZone();
     }
 
@@ -120,6 +119,8 @@ export function getTimestampByLimitKey(limitKey: kitDataLimit, timeZone: number 
         date: QUICK_MAP[limitKey].startDate,
         time: QUICK_MAP[limitKey].startTime
     }, timeZone);
+
+
     const endDateTime = utils.getKitTimeyTimeZone({
         date: QUICK_MAP[limitKey].endDate,
         time: QUICK_MAP[limitKey].endTime
@@ -127,6 +128,9 @@ export function getTimestampByLimitKey(limitKey: kitDataLimit, timeZone: number 
 
     result.startTime = utils.getTimeString(startDateTime.date, startDateTime.time);
     result.endTime = utils.getTimeString(endDateTime.date, endDateTime.time);
+
+    // result.startTime = utils.getTimeString(QUICK_MAP[limitKey].startDate, QUICK_MAP[limitKey].startTime);
+    // result.endTime = utils.getTimeString(QUICK_MAP[limitKey].endDate, QUICK_MAP[limitKey].endTime);
     result.startTimeStamp = new Date(result.startTime).getTime();
     result.endTimeStamp = new Date(result.endTime).getTime();
     return result;

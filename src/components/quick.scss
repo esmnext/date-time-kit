@@ -7,6 +7,16 @@
     background: var(--color-surface);
     text-align: left;
 }
+.dt-quick-zone-disabled {
+    .dt-time-zone-icon {
+        display: none;
+    }
+    .dt-time-zone{
+        &:hover {
+            background: none;
+        }
+    }
+}
 .dt-quick-item {
     height: 32px;
     line-height: 32px;

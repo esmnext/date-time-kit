@@ -6,7 +6,12 @@ import i18n from "@/i18n";
 export function create(data: kitContent) {
     const ele = document.createElement('div');
     ele.classList.add('dt-quick');
+    if ( !data.enableZone ) {
+        ele.classList.add('dt-quick-zone-disabled');
+    }
+
     ele.innerHTML = render(data);
+
 
     QUICK_MAP.all = getAllLimit(data);
     
@@ -29,6 +34,9 @@ export function create(data: kitContent) {
             target.classList.contains('dt-time-zone-text') ||
             target.classList.contains('dt-time-zone-icon')
         ) {
+            if ( ele.classList.contains('dt-quick-zone-disabled') ) {
+                return;
+            }
             ele.querySelector('.dt-time-zone')?.classList.add('dt-time-zone-select-show');
             return;
         }
@@ -83,6 +91,8 @@ function setDate(limit: kitDataLimit, data: kitContent) {
 }
 function render(data: kitContent) {
     let html = '';
+    
+
     for ( const key in QUICK_MAP) {
         html += `<div class="dt-quick-item" data-limit="${key}">${i18n[data.lang].quick[key as keyof typeof QUICK_MAP]}</div>`;
     }
