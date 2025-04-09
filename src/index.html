@@ -21,7 +21,6 @@
         // import dataTimeKit from './index.ts';
         const dataTimeKit = await import('./index.js');
 
-<<<<<<< HEAD
         const rand = dataTimeKit.getTimestampByLimitKey('today', 2); 
         const keyName = dataTimeKit.getLimitKeyByTimetamp(rand.startTime, rand.endTime, 2); 
         console.log(rand, keyName);
@@ -55,28 +54,6 @@
 
         console.log('start', dataTimeKit.default.getTimeStringByTimeZone(result.startTime, 8, 2));
         console.log('end', dataTimeKit.default.getTimeStringByTimeZone(result.endTime, 8, 2));
-=======
-        const rand = dataTimeKit.getTimestampByLimitKey('today', 7); 
-        const keyName = dataTimeKit.getLimitKeyByTimetamp(rand.startTime, rand.endTime, 7); 
-        console.log(rand, keyName);
-
-        console.log(dataTimeKit.default.getTimeStringByTimeZone(rand.startTime, 2, 7));
-        console.log(dataTimeKit.default.getTimeStringByTimeZone(rand.startTime, 8, 7));
-        // console.log(dataTimeKit.default.getTimeStringByTimeZone('2025-02-27 00:00:00.000', 8));
-         // event
-        const result = await dataTimeKit.open({
-            root: document.querySelector('#root'),
-            maxTime: "1990-01-01 00:00:00.000",
-            minTime: "2050-01-01 23:59:59.999",
-            startTime: rand.startTime,
-            endTime: rand.endTime,
-            timeZone: 2,
-            lang: 'zhCN',
-            granularity: 'minute',
-            enableZone: false
-        });
-        console.log(result);
->>>>>>> b798a433d849f68600218f0a394a63422eae818c
 
         // document.querySelector('#select').addEventListener('click', async (e) => {
         //     e.stopPropagation();

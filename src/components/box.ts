@@ -21,12 +21,8 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
             return reject("Date time picker has been created");
         }
         // debounce
-<<<<<<< HEAD
         const updateDataDebounce = utils.debounce(() => {
             updateData(eleBox, dataProxy);
-=======
-        const updateData = utils.debounce(() => {
->>>>>>> b798a433d849f68600218f0a394a63422eae818c
             components.forEach(item => {
                 item.component.updateData(item.ele, dataProxy);
             })
@@ -57,11 +53,7 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
                 target[key as keyof kitContent] = value;
                 
                 // send new data to components
-<<<<<<< HEAD
                 updateDataDebounce();
-=======
-                updateData();
->>>>>>> b798a433d849f68600218f0a394a63422eae818c
                 return true;
             }
         });
@@ -204,12 +196,9 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
             }
 
             if (target.classList.contains('dt-button-primary')) {
-<<<<<<< HEAD
                 if (target.classList.contains('dt-button-disabled')) {
                     return;
                 }
-=======
->>>>>>> b798a433d849f68600218f0a394a63422eae818c
                 done();
             }
         }
@@ -247,7 +236,6 @@ function render(data: kitContent): string {
             </div>
          </div>
     `;
-<<<<<<< HEAD
 }
 
 
@@ -265,6 +253,4 @@ export function updateData(ele: HTMLElement, data: kitContent) {
 
 
     doneButton.classList.remove('dt-button-disabled');
-=======
->>>>>>> b798a433d849f68600218f0a394a63422eae818c
 }
