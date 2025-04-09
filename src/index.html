@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>test</title>
+    <style>
+
+    .select {
+        position: relative;
+    }
+
+    </style>
+</head>
+<body>
+   <div id="root"></div>
+   <button id="select" class="select">选择日期</button>
+    <button id="select-def" class="select">默认选中</button>
+
+    <script type="module">
+        // import dataTimeKit from './index.ts';
+        const dataTimeKit = await import('./index.js');
+
+        const rand = dataTimeKit.getTimestampByLimitKey('today', 2); 
+        const keyName = dataTimeKit.getLimitKeyByTimetamp(rand.startTime, rand.endTime, 2); 
+        console.log(rand, keyName);
+
+        // console.log(dataTimeKit.default.getTimeStringByTimeZone(rand.startTime, 2, 7));
+        // console.log(dataTimeKit.default.getTimeStringByTimeZone(rand.startTime, 8, 7));
+        // console.log(dataTimeKit.default.getTimeStringByTimeZone('2025-02-27 00:00:00.000', 8));
+         // event
+        // const result = await dataTimeKit.open({
+        //     root: document.querySelector('#root'),
+        //     minTime: "1990-01-01 00:00:00.000",
+        //     maxTime: "2050-01-01 23:59:59.999",
+        //     startTime: rand.startTime,
+        //     endTime: rand.endTime,
+        //     timeZone: 2,
+        //     lang: 'zhCN',
+        //     granularity: 'minute',
+        //     enableZone: false
+        // });
+
+        const result = await dataTimeKit.open({
+            root: document.querySelector('#root'),
+            "minTime": "1990-01-01 00:00:00.000",
+            "maxTime": "2025-04-28 18:35:20.894",
+            "enableZone": false,
+            "granularity": "minute",
+            "startTime": rand.startTime,
+            "endTime": rand.endTime,
+            "timeZone": 2
+        });
+
+        console.log('start', dataTimeKit.default.getTimeStringByTimeZone(result.startTime, 8, 2));
+        console.log('end', dataTimeKit.default.getTimeStringByTimeZone(result.endTime, 8, 2));
+
+        // document.querySelector('#select').addEventListener('click', async (e) => {
+        //     e.stopPropagation();
+        //     const data = await dataTimeKit.open({
+        //         root: e.target,
+        //     });
+        //     console.log(data);
+        // });
+
+        // document.querySelector('#select-def').addEventListener('click', async (e) => {
+        //     e.stopPropagation();
+        //     const data = await dataTimeKit.open({
+        //         root: e.target,
+        //         maxTime: "1990-01-01 00:00:00.000",
+        //         minTime: "2050-01-02 00:00:00.000",
+        //         startTime: "1990-01-01 00:00:00.000",
+        //         endTime: "2050-01-01 00:10:10.022",
+        //         lang: 'zhCN'
+        //     });
+        //     console.log(data);
+        // });
+    </script>
+</body>
+</html>

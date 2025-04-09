@@ -1,0 +1,127 @@
+@use '../style.scss';
+
+.dt-box {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    box-shadow: var(--shadow);
+    font-family: var(--font-fimily);
+    border-radius: var(--radius);
+    overflow: hidden;
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+    display: flex;
+    z-index: var(--z-base);
+    font-size: var(--font-size);
+    ::-webkit-scrollbar {
+        display: none;
+    }
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  
+}
+.dt-date-box {
+    display: flex;
+    
+    flex: 1;
+}
+.dt-data-body {
+    width: 280px;
+    & + & {
+        margin-left: var(--spacing-size-medium);
+    }
+}
+.dt-content {
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-size-medium);
+}
+
+.dt-footer {
+    display: flex;
+    justify-content: end;
+}
+
+.dt-button {
+    height: 40px;
+    padding: 0 var(--spacing-size-medium);
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    color: var(--color-text-primary);
+    background-color: var(--color-surface);
+    font-family: var(--font-fimily);
+    font-size: var(--font-size);
+    transition: all 0.2s ease-in-out;
+    &:hover {
+        box-shadow: var(--shadow-hover);
+        transform: scale(1.02); /* 轻微放大 */
+    }
+    &:active {
+        box-shadow: var(--shadow-active);
+        transform: scale(0.98); /* 轻微缩小 */
+    }
+    & + & {
+        margin-left: var(--spacing-size-medium);
+    }
+}
+.dt-button-primary {
+    background-color: var(--color-text-primary);
+    color: var(--color-bg);
+}
+
+.dt-mask {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: var(--z-base-mask);
+    // background: rgba(255, 255, 255, 0.5);
+    width: 100%;
+    height: 100%;
+}
+
+.dt-button-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+    &:hover {
+        box-shadow: none;
+        transform: none;
+    }
+    &:active {
+        box-shadow: none;
+        transform: none;
+    }
+}
+@media screen and (max-width: style.$screen-sm) {
+    .dt-box {
+        flex-direction: column;
+        align-items: end;
+        position: fixed;
+        bottom: -100%;
+        top: auto !important;
+        left: 0;
+        right: 0;
+        max-height: 80%;
+    }
+    .dt-show {
+        bottom: 0;
+        visibility: visible;
+        opacity: 1;
+    }
+    .dt-content {
+        overflow: auto;
+    }
+    .dt-date-box {
+        overflow: auto;
+    }
+    .dt-data-body {
+        & + &  {
+            margin-left: 0;
+        }
+    }
+}
