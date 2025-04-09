@@ -1,7 +1,11 @@
 import { kitI18n } from "*";
 
 export default {
+<<<<<<< HEAD
     enUS: {
+=======
+    "enUS": {
+>>>>>>> b798a433d849f68600218f0a394a63422eae818c
         box: {
             confirm: 'Done',
             cancel: 'Cancel'
@@ -39,7 +43,11 @@ export default {
         }
 
     },
+<<<<<<< HEAD
     zhCN: {
+=======
+    "zhCN": {
+>>>>>>> b798a433d849f68600218f0a394a63422eae818c
         box: {
             confirm: '完成',
             cancel: '取消'
@@ -75,6 +83,7 @@ export default {
             startMillisecond: '毫秒',
             endMillisecond: '毫秒',
         }
+<<<<<<< HEAD
     },
     zhTW: {
         box: {
@@ -304,4 +313,7 @@ export default {
 
     }
         
+=======
+    }
+>>>>>>> b798a433d849f68600218f0a394a63422eae818c
 } as kitI18n;

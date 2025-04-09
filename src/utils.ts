@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import {  kitContent, kitDate, kitDateTime, kitOption, kitTime, timeString, Lang } from "*";
+=======
+import {  kitContent, kitDate, kitDateTime, kitOption, kitTime, timeString } from "*";
+>>>>>>> b798a433d849f68600218f0a394a63422eae818c
 import { Granularity } from './enum';
 
 /**
@@ -104,9 +108,12 @@ export function getTimeStringByTimestamp(timestamp: number): timeString {
 export function dataFactory(kitOpiton: kitOption): kitContent {
 
     let { maxTime, minTime, startTime, endTime } = kitOpiton;
+<<<<<<< HEAD
     let temTime = maxTime;
     maxTime = minTime;
     minTime = temTime;
+=======
+>>>>>>> b798a433d849f68600218f0a394a63422eae818c
     
     if ( kitOpiton.timeZone !== undefined ) {
         const currentTimeZone = getCurrentTimeZone();
@@ -149,6 +156,7 @@ export function dataFactory(kitOpiton: kitOption): kitContent {
         kitOpiton.enableZone = true;
     }
 
+<<<<<<< HEAD
     kitOpiton.lang  = kitOpiton.lang  || 'enUS';
     kitOpiton.lang  = kitOpiton.lang.replace(/\-/, '') as Lang;
     if ( 
@@ -157,6 +165,9 @@ export function dataFactory(kitOpiton: kitOption): kitContent {
     ) {
         kitOpiton.lang = 'enUS';
     }
+=======
+    
+>>>>>>> b798a433d849f68600218f0a394a63422eae818c
     return {
         startDate: startTime ? initDate(startDate) : initDate(),
         endDate: endTime? initDate(endDate) : initDate(),
@@ -248,7 +259,11 @@ export function getDateByTimeZone(date: Date, targetTimeZone: number | undefined
         targetTimeZone = currentTimeZone;
     }
 
+<<<<<<< HEAD
     const result = new Date(date.getTime() +  (currentTimeZone * 60 * 60 * 1000) - (targetTimeZone * 60 * 60 * 1000));
+=======
+    const result = new Date(date.getTime() -  (currentTimeZone * 60 * 60 * 1000) + (targetTimeZone * 60 * 60 * 1000));
+>>>>>>> b798a433d849f68600218f0a394a63422eae818c
     return result;
 }
 

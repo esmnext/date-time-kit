@@ -81,11 +81,15 @@ function setDate(limit: kitDataLimit, data: kitContent) {
     if ( endData.getFullYear() === startData.getFullYear() && endData.getMonth() == startData.getMonth() ) {
         endData.setMonth(endData.getMonth() + 1);
     }
+<<<<<<< HEAD
     data.moveDate = {
         year: 0,
         month: 0,
         date: 0
     }
+=======
+
+>>>>>>> b798a433d849f68600218f0a394a63422eae818c
     data.endDateShow = {
         ...data.endDate,
         year: endData.getFullYear(),
