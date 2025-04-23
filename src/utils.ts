@@ -1,5 +1,6 @@
 import {  kitContent, kitDate, kitDateTime, kitOption, kitTime, timeString, Lang } from "*";
 import { Granularity } from './enum';
+import i18n from "./i18n";
 
 /**
  * Shows the element by adding the "dt-show" class.
@@ -152,8 +153,7 @@ export function dataFactory(kitOpiton: kitOption): kitContent {
     kitOpiton.lang  = kitOpiton.lang  || 'enUS';
     kitOpiton.lang  = kitOpiton.lang.replace(/\-/, '') as Lang;
     if ( 
-        kitOpiton.lang !== 'enUS' && 
-        kitOpiton.lang !== 'zhCN' 
+        !i18n[kitOpiton.lang] 
     ) {
         kitOpiton.lang = 'enUS';
     }

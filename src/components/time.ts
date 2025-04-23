@@ -34,11 +34,15 @@ export function create(data: kitContent) {
 
             target.parentElement?.querySelector('.dt-time-select-item-active')?.classList.remove('dt-time-select-item-active');
             target.classList.add('dt-time-select-item-active');
-            target.scrollIntoView({
-                block: 'start',
-                inline: 'center',
+            // target.scrollIntoView({
+            //     block: 'start',
+            //     inline: 'center',
+            //     behavior: 'smooth'
+            // });
+            target.parentElement!.scrollTo({
+                top: target.offsetTop - 35,
                 behavior: 'smooth'
-            });
+            })
             return ;
         }
 
@@ -56,11 +60,15 @@ export function create(data: kitContent) {
         // ele.querySelector('.dt-time-mask')?.classList.add('dt-time-mask-show');
         setTimeout(() => {
             ele.querySelectorAll('.dt-time-select-item-active').forEach( (e) => {
-                e.scrollIntoView({
-                    block: 'start',
-                    inline: 'center',
+                // e.scrollIntoView({
+                //     block: 'start',
+                //     inline: 'center',
+                //     behavior: 'smooth'
+                // });
+                e.parentElement!.scrollTo({
+                    top: (e as HTMLElement).offsetTop - 35,
                     behavior: 'smooth'
-                });
+                })
             });
         }, 200);
     })

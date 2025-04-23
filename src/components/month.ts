@@ -75,11 +75,15 @@ export function create(data: kitContent, status: status = "start") {
             ele.classList.add('dt-month-select-show');
             setTimeout(() => {
                 ele.querySelectorAll('.dt-month-item-active').forEach( (e) => {
-                    e.scrollIntoView({
-                        block: 'start',
-                        inline: 'center',
+                    // e.scrollIntoView({
+                    //     block: 'start',
+                    //     inline: 'center',
+                    //     behavior: 'smooth'
+                    // });
+                    e.parentElement!.scrollTo({
+                        top: (e as HTMLElement).offsetTop - 10,
                         behavior: 'smooth'
-                    });
+                    })
                 });
             }, 200);
             return ;
@@ -101,11 +105,15 @@ export function create(data: kitContent, status: status = "start") {
 
             target.parentElement!.querySelector('.dt-month-item-active')?.classList.remove('dt-month-item-active');
             target.classList.add('dt-month-item-active');
-            target.scrollIntoView({
-                block: 'start',
-                inline: 'center',
+            // target.scrollIntoView({
+            //     block: 'start',
+            //     inline: 'center',
+            //     behavior: 'smooth'
+            // });
+            target.parentElement!.scrollTo({
+                top: target.offsetTop - 10,
                 behavior: 'smooth'
-            });
+            })
             return ;
         }
 
@@ -120,11 +128,16 @@ export function create(data: kitContent, status: status = "start") {
            
             target.parentElement!.querySelector('.dt-month-item-active')?.classList.remove('dt-month-item-active');
             target.classList.add('dt-month-item-active');
-            target.scrollIntoView({
-                block: 'start',
-                inline: 'center',
+            // target.scrollIntoView({
+            //     block: 'start',
+            //     inline: 'nearest',
+            //     behavior: 'smooth'
+            // });
+            // console.log(target.scrollTop,' ====')
+            target.parentElement!.scrollTo({
+                top: target.offsetTop - 10,
                 behavior: 'smooth'
-            });
+            })
             return ;
         }
         
