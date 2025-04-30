@@ -53,7 +53,7 @@ export function getLimitKeyByTimetamp(startTimestamp: timeString, endTimestamp: 
         month: endTimeDate.getMonth() + 1,
         date: endTimeDate.getDate()
     }
-    const { QUICK_MAP } = quick;
+    const QUICK_MAP = quick.getQuickMap();
     for ( const key in QUICK_MAP) {
         if ( !QUICK_MAP[key as keyof typeof QUICK_MAP] ) {
             continue;
@@ -107,7 +107,7 @@ export function getTimestampByLimitKey(limitKey: kitDataLimit, timeZone: number 
         startTimeStamp: 0,
         endTimeStamp: 0
     }
-    const { QUICK_MAP } = quick;
+    const QUICK_MAP  = quick.getQuickMap();
     if ( !QUICK_MAP[limitKey] ) {
         return result;
     }

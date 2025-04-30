@@ -1,7 +1,8 @@
 import { kitContent, kitDataLimit, kitTime, kitDataLimitContent } from "../../type";
 import './quick.scss';
 import i18n from "@/i18n";
- export const QUICK_MAP = getQuickMap();
+
+let QUICK_MAP = getQuickMap();
  
 export function create(data: kitContent) {
     const ele = document.createElement('div');
@@ -11,8 +12,8 @@ export function create(data: kitContent) {
     }
 
     ele.innerHTML = render(data);
-
-
+    
+    QUICK_MAP = getQuickMap();
     QUICK_MAP.all = getAllLimit(data);
     
     ele.querySelector('.dt-quick-item-active')?.classList.remove('dt-quick-item-active');
