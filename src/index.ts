@@ -5,6 +5,8 @@ import { kitDataLimit, kitDate, kitOption, kitResult, kitTime, kitTimestampResul
 import { dataFactory } from './utils';
 import * as quick from './components/quick';
 import * as utils from "./utils";
+import i18n from "@/i18n";
+
 /**
  * open
  *
@@ -142,5 +144,7 @@ export default {
     getLimitKeyByTimetamp,
     getTimestampByLimitKey,
     getTimeStringByTimestamp: utils.getTimeStringByTimestamp,
-    getTimeStringByTimeZone: utils.getTimeStringByTimeZone
+    getTimeStringByTimeZone: utils.getTimeStringByTimeZone,
+    i18n: i18n,
 }
+export { i18n };
