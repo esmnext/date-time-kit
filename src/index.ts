@@ -104,8 +104,8 @@ export function getLimitKeyByTimetamp(startTimestamp: timeString, endTimestamp: 
      */
 export function getTimestampByLimitKey(limitKey: kitDataLimit, timeZone: number | undefined): kitTimestampResult {
     const result: kitTimestampResult = {
-        startTime: '0000-00-00 00:00:00.000',
-        endTime: '0000-00-00 00:00:00.000',
+        startTime: '0000-00-00T00:00:00.000',
+        endTime: '0000-00-00T00:00:00.000',
         startTimeStamp: 0,
         endTimeStamp: 0
     }

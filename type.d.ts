@@ -69,7 +69,7 @@ export interface kitComponent {
 }
 
 export type status = 'start' | 'end';
-export type timeString = `${number}-${number}-${number} ${number}:${number}:${number}.${number}`;
+export type timeString = `${number}-${number}-${number}T${number}:${number}:${number}.${number}`;
 export type Lang = 'zhCN' | 'enUS';
 export interface kitOption {
     root: HTMLElement,

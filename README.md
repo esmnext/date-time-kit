@@ -93,10 +93,10 @@ console.log(result);
 ```js
 const result = await dataTimeKit.open({
     root: document.getElementById('root'),
-    maxTime: "1990-01-01 00:00:00.000",
-    minTime: "2050-01-01 00:00:00.000",
-    startTime: "1990-01-01 00:00:00.000",
-    endTime: "2050-01-01 00:10:10.022",
+    maxTime: "1990-01-01T00:00:00.000",
+    minTime: "2050-01-01T00:00:00.000",
+    startTime: "1990-01-01T00:00:00.000",
+    endTime: "2050-01-01T00:10:10.022",
     timeZone: 4
 });
 console.log(result);
