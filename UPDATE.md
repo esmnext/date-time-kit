@@ -1,4 +1,6 @@
 # @gez/date-time-kit 
+## v1.0.11
+- 修复 enum export
 ## v1.0.5-alpha.31 2025-05-13
 - 修复 低版本safari 兼容问题
 
