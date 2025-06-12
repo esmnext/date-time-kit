@@ -85,13 +85,13 @@ export function getTimeStringInSeconds (hour: number, minute: number, second: nu
 
 
 export function getTimeString(date: kitDate, time: kitTime): timeString {
-    return `${getDateTimeStr(date.year, date.month, date.date)} ${getTimeStr(time.hour, time.minute, time.second, time.millisecond)}` as timeString;
+    return `${getDateTimeStr(date.year, date.month, date.date)}T${getTimeStr(time.hour, time.minute, time.second, time.millisecond)}` as timeString;
 }
 
 
 export function getTimeStringByTimestamp(timestamp: number): timeString {
     const date = new Date(timestamp);  
-    return `${getDateTimeStr(date.getFullYear(), date.getMonth() + 1, date.getDate())} ${getTimeStr(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds())}` as timeString;
+    return `${getDateTimeStr(date.getFullYear(), date.getMonth() + 1, date.getDate())}T${getTimeStr(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds())}` as timeString;
 }
 
 

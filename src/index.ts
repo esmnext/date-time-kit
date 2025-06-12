@@ -6,7 +6,7 @@ import { dataFactory } from './utils';
 import * as quick from './components/quick';
 import * as utils from "./utils";
 import i18n from "@/i18n";
-
+import { Granularity } from "./enum";
 /**
  * open
  *
@@ -143,8 +143,8 @@ export default {
     open,
     getLimitKeyByTimetamp,
     getTimestampByLimitKey,
-    getTimeStringByTimestamp: utils.getTimeStringByTimestamp,
-    getTimeStringByTimeZone: utils.getTimeStringByTimeZone,
+    ...utils,
     i18n: i18n,
+    Granularity
 }
-export { i18n };
+export { i18n, Granularity, utils };

@@ -24,7 +24,7 @@
 
         const rand = dataTimeKit.getTimestampByLimitKey('today', 2); 
         const keyName = dataTimeKit.getLimitKeyByTimetamp(rand.startTime, rand.endTime, 2); 
-        console.log(rand, keyName);
+        // console.log(rand, keyName, dataTimeKit.Granularity.second);
 
         // console.log(dataTimeKit.default.getTimeStringByTimeZone(rand.startTime, 2, 7));
         // console.log(dataTimeKit.default.getTimeStringByTimeZone(rand.startTime, 8, 7));
@@ -47,7 +47,7 @@
             "minTime": "1990-01-01T00:00:00.000",
             "maxTime": "2025-04-28T18:35:20.894",
             "enableZone": false,
-            "granularity": "minute",
+            "granularity":  dataTimeKit.Granularity.second,
             "startTime": rand.startTime,
             "endTime": rand.endTime,
             "timeZone": 2

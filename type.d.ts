@@ -1,4 +1,4 @@
-import { Granularity } from './granularity';
+export * as dateEnum from './src/enum';
 
 export declare function open(kitOpiton: kitOption): Promise<kitResult>;
 export declare function getLimitKeyByTimetamp(startTimestamp: timeString, endTimestamp: timeString, timeZone?: number | undefined): kitDataLimit | null;
@@ -33,7 +33,7 @@ export interface kitContent {
     lang: Lang,
     timeZone: number,
     enableZone: boolean,
-    granularity: Granularity
+    granularity: dateEnum.Granularity,
 }
 
 export interface kitDate {
@@ -83,7 +83,7 @@ export interface kitOption {
     lang?: Lang,
     // default time zone
     timeZone?: number,
-    granularity?: Granularity,
+    granularity?: dateEnum.Granularity,
     enableZone?: boolean | undefined
 }
 
