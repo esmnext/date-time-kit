@@ -1,5 +1,5 @@
 import './box.scss';
-import { kitComponentOption, kitContent, kitDate, kitOption, kitResult, kitTime, timeString } from '../../type';
+import { kitComponentOption, kitContent, kitDate, kitOption, kitResultPeriod, kitResultSingle, kitTime, timeString } from '../../type';
 import * as quick from './quick';
 import * as month from './month';
 import * as date from './date';
@@ -13,7 +13,7 @@ import i18n from '@/i18n';
  * @param {kitContent} data 
  * @returns {Promise<kitContent>} 
  */
-export async function create({ root }: kitOption, data: kitContent): Promise<kitResult> {
+export async function create({ root }: kitOption, data: kitContent): Promise<kitResultPeriod | kitResultSingle> {
     return new Promise(( resolve, reject ) => {
         const components: kitComponentOption[] = [];
 
@@ -73,18 +73,23 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
         document.body.appendChild(eleMask);
         // compute position
         if ( window.innerWidth > 768 ) {
-            let rect = root.getBoundingClientRect();
+            const rect = root.getBoundingClientRect();
             eleBox.style.top = `${rect.height + 5}px`;
         }
+        // update ui status
+        updateData(eleBox, dataProxy);
         
 
-        // add quick select list
-        const eleQuick = quick.create(dataProxy);
-        eleBox.insertBefore(eleQuick, eleBox.querySelector('.dt-content'));
-        components.push({
-            ele: eleQuick,
-            component: quick
-        });
+        if ( data.period ) {
+            // add quick select list
+            const eleQuick = quick.create(dataProxy);
+            eleBox.insertBefore(eleQuick, eleBox.querySelector('.dt-content'));
+            components.push({
+                ele: eleQuick,
+                component: quick
+            });
+        }
+        
 
         // add month select for start
         const eleMonthStart = month.create(dataProxy, 'start');
@@ -102,21 +107,24 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
             component: date
         });
 
-        // add month select for end
-        const eleMonthEnd = month.create(dataProxy, 'end');
-        eleBox.querySelector('.dt-end')!.appendChild(eleMonthEnd);
-        components.push({
-            ele: eleMonthEnd,
-            component: month
-        });
+        if ( data.period ) {
+            // add month select for end
+            const eleMonthEnd = month.create(dataProxy, 'end');
+            eleBox.querySelector('.dt-end')!.appendChild(eleMonthEnd);
+            components.push({
+                ele: eleMonthEnd,
+                component: month
+            });
 
-        // add date select for end
-        const eleDateEnd = date.create(dataProxy, 'end');
-        eleBox.querySelector('.dt-end')!.appendChild(eleDateEnd);
-        components.push({
-            ele: eleDateEnd,
-            component: date
-        });
+            // add date select for end
+            const eleDateEnd = date.create(dataProxy, 'end');
+            eleBox.querySelector('.dt-end')!.appendChild(eleDateEnd);
+            components.push({
+                ele: eleDateEnd,
+                component: date
+            });
+        }
+        
 
         // add time for box
         const eleTime = time.create(dataProxy);
@@ -165,17 +173,27 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
 
            
             const startTime: timeString = utils.getTimeString(startDate.date, startDate.time);
-            const endTime: timeString = utils.getTimeString(endDate.date, endDate.time);
+            
             // const startTime = utils.getTimeString(startDate);
             // const endTime = utils.getTimeString(endDate);
-            resolve({
-                startTime,
-                endTime,
-                quick: quick.getLimtKey(dataProxy),
-                startTimeStamp: new Date(startTime).getTime(),
-                endTimeStamp: new Date(endTime).getTime(),
-                timeZone: dataProxy.timeZone
-            });
+            if ( data.period ) {
+                const endTime: timeString = utils.getTimeString(endDate.date, endDate.time);
+                resolve({
+                    startTime,
+                    endTime,
+                    quick: quick.getLimitKey(dataProxy),
+                    startTimeStamp: new Date(startTime).getTime(),
+                    endTimeStamp: new Date(endTime).getTime(),
+                    timeZone: dataProxy.timeZone
+                });
+            } else {
+                resolve({
+                    time: startTime,
+                    timeStamp: new Date(startTime).getTime(),
+                    timeZone: dataProxy.timeZone
+                });
+            }
+            
         }
 
         /**
@@ -227,7 +245,7 @@ function render(data: kitContent): string {
          <div class="dt-content">
             <div class="dt-date-box">
                 <div class="dt-start dt-data-body"></div>
-                <div class="dt-end dt-data-body"></div>
+                ${data.period ? `<div class="dt-end dt-data-body"></div>` : ''}
             </div>
             <div class="dt-time-box"></div>
             <div class="dt-footer">
@@ -242,6 +260,14 @@ function render(data: kitContent): string {
 export function updateData(ele: HTMLElement, data: kitContent) {
     // ele.innerHTML = render(data);
     const doneButton = ele.querySelector('.dt-button-primary')!;
+    if ( !data.period ) {
+        if ( !data.startDate.date ) {
+            doneButton.classList.add('dt-button-disabled');
+            return;
+        }
+        doneButton.classList.remove('dt-button-disabled');
+        return;
+    }
     if ( !data.endDate.year ) {
         doneButton.classList.add('dt-button-disabled');
         return;

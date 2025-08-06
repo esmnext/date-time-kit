@@ -14,7 +14,7 @@ import { Granularity } from "./enum";
  * @param kitOpiton {kitOption} - options for the kit
  * @returns {Promise<kitContent>} - the data of the kit
  */
-export async function open(kitOpiton: kitOption): Promise<kitResult> {
+export async function open(kitOpiton: kitOption): Promise<kitResultPeriod | kitResultSingle> {
     const element = kitOpiton.root;
     const data = dataFactory(kitOpiton);
     

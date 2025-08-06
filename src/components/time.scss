@@ -97,6 +97,13 @@
         }
     }
 }
+.dt-time-select-item-disabled {
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+    &:hover {
+        background: transparent;
+    }
+}
 .dt-time-mask {
     position: absolute;
     top: 0;

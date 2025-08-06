@@ -18,6 +18,27 @@ export interface kitTimestampResult {
     startTimeStamp: number,
     endTimeStamp: number
 }
+export interface kitOption {
+    root: HTMLElement,
+    // default select
+    startTime?: timeString, 
+    endTime?: timeString, // period 为true 生效
+    // default limit
+    maxTime?: timeString, // period 为true 生效
+    minTime?: timeString, // period 为true 生效
+    // default lang
+    lang?: Lang,
+    // default time zone
+    timeZone?: number,
+    granularity?: dateEnum.Granularity,
+    enableZone?: boolean | undefined,
+    // time period
+    period?: boolean,
+ 
+    maxLength?: number, // 选择的最大时长 单位ms period 为true 生效
+    minLength?: number // 选择的最小时长 单位ms period 为true 生效
+}
+
 export interface kitContent {
     startDate: kitDate,
     endDate: kitDate,
@@ -34,6 +55,9 @@ export interface kitContent {
     timeZone: number,
     enableZone: boolean,
     granularity: dateEnum.Granularity,
+    period: boolean,
+    maxLength: number, // 选择的最大时长 单位ms period 为true 生效
+    minLength: number // 选择的最小时长 单位ms period 为true 生效
 }
 
 export interface kitDate {
@@ -54,7 +78,8 @@ export interface kitDataLimitContent {
     startDate: kitDate,
     startTime: kitTime,
     endDate: kitDate,
-    endTime: kitTime
+    endTime: kitTime,
+    length: number
 }
 
 
@@ -71,32 +96,26 @@ export interface kitComponent {
 export type status = 'start' | 'end';
 export type timeString = `${number}-${number}-${number}T${number}:${number}:${number}.${number}`;
 export type Lang = 'zhCN' | 'enUS';
-export interface kitOption {
-    root: HTMLElement,
-    // default select
-    startTime?: timeString,
-    endTime?: timeString,
-    // default limit
-    maxTime?: timeString,
-    minTime?: timeString,
-    // default lang
-    lang?: Lang,
-    // default time zone
-    timeZone?: number,
-    granularity?: dateEnum.Granularity,
-    enableZone?: boolean | undefined
-}
+
 
 
 export interface kitResult {
+    timeZone: number
+}
+export interface kitResultPeriod  extends kitResult {
     startTime: timeString,
     endTime: timeString,
     // time stamp
     startTimeStamp: number,
     endTimeStamp: number,
-    quick: kitDataLimit | null,
-    timeZone: number
+    quick: kitDataLimit | null
+    
 }
+export interface kitResultSingle  extends kitResult {
+    time: timeString,
+    timeStamp: number
+}
+
 export type kitI18n = {
     [key in Lang]: { 
         box: {
@@ -133,6 +152,7 @@ export type kitI18n = {
             endTime: string,
             startMillisecond: string,
             endMillisecond: string,
+            singleTitle: string
         }
      }
 }

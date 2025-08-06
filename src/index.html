@@ -13,18 +13,18 @@
     </style>
 </head>
 <body>
-   <div style="background-color: red;height: 200px;"></div>
+   <div style="background-color: purple;height: 200px;"></div>
    <button id="select" class="select">选择日期</button>
     <button id="select-def" class="select">默认选中</button>
     <div id="root"></div>
-    <div style="background-color: red;height: 5020px;"></div>
+    <div style="background-color: purple;height: 5020px;"></div>
     <script type="module">
         // import dataTimeKit from './index.ts';
         const dataTimeKit = await import('./index.js');
 
-        const rand = dataTimeKit.getTimestampByLimitKey('today', 2); 
+        const rand = dataTimeKit.getTimestampByLimitKey('week', 2); 
         const keyName = dataTimeKit.getLimitKeyByTimetamp(rand.startTime, rand.endTime, 2); 
-        // console.log(rand, keyName, dataTimeKit.Granularity.second);
+        console.log(rand, keyName);
 
         // console.log(dataTimeKit.default.getTimeStringByTimeZone(rand.startTime, 2, 7));
         // console.log(dataTimeKit.default.getTimeStringByTimeZone(rand.startTime, 8, 7));
@@ -45,16 +45,19 @@
         const result = await dataTimeKit.open({
             root: document.querySelector('#root'),
             "minTime": "1990-01-01T00:00:00.000",
-            "maxTime": "2025-04-28T18:35:20.894",
+            "maxTime": "2025-08-05T18:35:20.894",
             "enableZone": false,
             "granularity":  dataTimeKit.Granularity.second,
-            "startTime": rand.startTime,
-            "endTime": rand.endTime,
+            // "startTime": rand.startTime,
+            // "endTime": rand.endTime,
+            "period": true,
+            "maxLength": 60 * 60 * 1000,
+            "minLength":  60 * 60 * 1000,
             "timeZone": 2
         });
 
-        console.log('start', dataTimeKit.default.getTimeStringByTimeZone(result.startTime, 8, 2));
-        console.log('end', dataTimeKit.default.getTimeStringByTimeZone(result.endTime, 8, 2));
+        console.log('start', dataTimeKit.default.getTimeStringByTimeZone(result.time, 8, 2));
+        // console.log('end', dataTimeKit.default.getTimeStringByTimeZone(result.endTime, 8, 2));
 
         // document.querySelector('#select').addEventListener('click', async (e) => {
         //     e.stopPropagation();

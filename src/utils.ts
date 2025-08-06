@@ -1,4 +1,5 @@
 import {  kitContent, kitDate, kitDateTime, kitOption, kitTime, timeString, Lang } from "*";
+import { utils } from ".";
 import { Granularity } from './enum';
 import i18n from "./i18n";
 
@@ -98,65 +99,68 @@ export function getTimeStringByTimestamp(timestamp: number): timeString {
 /**
  * dataFactory
  *
- * @description init data for the kit according to kitOpiton
- * @param kitOpiton {kitOption} - options for the kit
+ * @description init data for the kit according to kitOption
+ * @param kitOption {kitOption} - options for the kit
  * @returns {kitContent} - data for the kit
  */
-export function dataFactory(kitOpiton: kitOption): kitContent {
+export function dataFactory(kitOption: kitOption): kitContent {
 
-    let { maxTime, minTime, startTime, endTime } = kitOpiton;
-    let temTime = maxTime;
-    maxTime = minTime;
-    minTime = temTime;
-    
-    if ( kitOpiton.timeZone !== undefined ) {
+    let { maxTime, minTime, startTime, endTime } = kitOption;
+    //TODO: 配置名字写反了 临时交换一下
+    const temTime = maxTime;
+    maxTime = minTime || utils.getTimeStringByTimestamp(Date.now() - 1000 * 60 * 60 * 24 * 365 * 5);
+    minTime = temTime || utils.getTimeStringByTimestamp(Date.now() + 1000 * 60 * 60 * 24 * 365 * 20);
+    // startTime = startTime || '0000-00-00T00:00:00.000';
+    // endTime = endTime || '0000-00-00T00:00:00.000';
+
+    if ( kitOption.timeZone !== undefined ) {
         const currentTimeZone = getCurrentTimeZone();
-        maxTime && (maxTime = getTimeStringByTimeZone(maxTime, currentTimeZone, kitOpiton.timeZone));
-        minTime && (minTime = getTimeStringByTimeZone(minTime, currentTimeZone, kitOpiton.timeZone));
-        startTime && (startTime = getTimeStringByTimeZone(startTime, currentTimeZone, kitOpiton.timeZone));
-        endTime && (endTime = getTimeStringByTimeZone(endTime, currentTimeZone, kitOpiton.timeZone));
+        maxTime =  maxTime || getTimeStringByTimeZone(maxTime, currentTimeZone, kitOption.timeZone);
+        minTime = minTime || getTimeStringByTimeZone(minTime, currentTimeZone, kitOption.timeZone);
+        startTime = startTime && getTimeStringByTimeZone(startTime, currentTimeZone, kitOption.timeZone);
+        endTime = endTime && getTimeStringByTimeZone(endTime, currentTimeZone, kitOption.timeZone);
     }
     // console.log('startTime', startTime);
     // console.log('endTime', endTime);
 
-    let maxDate = new Date(maxTime|| Date.now());
+    const maxDate = new Date(maxTime|| Date.now());
     maxDate.setFullYear(maxDate.getFullYear() + (maxTime? 0 : 5));
 
-    let minDate = new Date(minTime || Date.now());
+    const minDate = new Date(minTime || Date.now());
     minDate.setFullYear(minDate.getFullYear() - (minTime ? 0 : 20));
 
 
-    let startDate = new Date(startTime || Date.now());
-    let endDate = new Date(endTime|| Date.now());
+    const startDate = new Date(startTime || Date.now());
+    const endDate = new Date(endTime|| Date.now());
 
     // if end time month equal start time month to show month
-    let startDateShow = new Date(startTime || Date.now());
-    let endDateShow = new Date(endTime|| Date.now());
+    const startDateShow = new Date(startTime || Date.now());
+    const endDateShow = new Date(endTime|| Date.now());
     if ( startDate.getUTCFullYear() === endDate.getUTCFullYear() && startDateShow.getMonth() == endDate.getMonth() ) {
         endDateShow.setMonth(endDate.getMonth() + 1);
     }
 
     // init time zone
     let timeZone = 0;
-    if (kitOpiton.timeZone !== undefined) {
-        timeZone = kitOpiton.timeZone;
+    if (kitOption.timeZone !== undefined) {
+        timeZone = kitOption.timeZone;
     } else {
         // get current time zone
         timeZone = -new Date().getTimezoneOffset() / 60;
     }
 
     // default enable zone
-    if ( kitOpiton.enableZone === undefined ) {
-        kitOpiton.enableZone = true;
+    if ( kitOption.enableZone === undefined ) {
+        kitOption.enableZone = true;
     }
 
-    kitOpiton.lang  = kitOpiton.lang  || 'enUS';
-    kitOpiton.lang  = kitOpiton.lang.replace(/\-/, '') as Lang;
-    if ( 
-        !i18n[kitOpiton.lang] 
-    ) {
-        kitOpiton.lang = 'enUS';
+    // init language
+    kitOption.lang  = kitOption.lang  || navigator.language as Lang;
+    kitOption.lang  = kitOption.lang.replace(/-/, '') as Lang;
+    if ( !i18n[kitOption.lang] ) {
+        kitOption.lang = 'enUS';
     }
+    
     return {
         startDate: startTime ? initDate(startDate) : initDate(),
         endDate: endTime? initDate(endDate) : initDate(),
@@ -169,10 +173,13 @@ export function dataFactory(kitOpiton: kitOption): kitContent {
         maxTime: initTime(minDate),
         minDate: initDate(maxDate),
         minTime: initTime(maxDate),
-        lang: kitOpiton.lang || 'enUS',
+        lang: kitOption.lang || 'enUS',
         timeZone,
-        granularity: kitOpiton.granularity || Granularity.day,
-        enableZone: kitOpiton.enableZone
+        granularity: kitOption.granularity || Granularity.day,
+        enableZone: kitOption.enableZone,
+        period: !!kitOption.period,
+        maxLength: kitOption.maxLength || 0,
+        minLength: kitOption.minLength || 0,
     }
 }
 

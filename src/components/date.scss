@@ -177,7 +177,15 @@
         }
     }
 }
-
+.dt-data-item-dis-sel {
+    cursor: not-allowed;
+    &:hover {
+        .dt-data-circle {
+            // background: transparent;
+            transform: scale(1);
+        }
+    }
+}
 
 .dt-data-item.dt-data-item-start.dt-data-item-end {
     .dt-data-rect {

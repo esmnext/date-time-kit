@@ -1,4 +1,5 @@
-import { kitContent, kitDataLimit, kitTime, kitDataLimitContent } from "../../type";
+import * as utils from "../utils";
+import { kitContent, kitDataLimit,  kitDataLimitContent } from "../../type";
 import './quick.scss';
 import i18n from "@/i18n";
 
@@ -17,7 +18,7 @@ export function create(data: kitContent) {
     QUICK_MAP.all = getAllLimit(data);
     
     ele.querySelector('.dt-quick-item-active')?.classList.remove('dt-quick-item-active');
-    const limitKey = getLimtKey(data);
+    const limitKey = getLimitKey(data);
     limitKey && ele.querySelector('.dt-quick-item[data-limit="' + limitKey + '"]')!.classList.add('dt-quick-item-active');
     // add event
     ele.addEventListener('click', (e) => {
@@ -99,7 +100,17 @@ function render(data: kitContent) {
     
 
     for ( const key in QUICK_MAP) {
-        html += `<div class="dt-quick-item" data-limit="${key}">${i18n[data.lang].quick[key as keyof typeof QUICK_MAP]}</div>`;
+        const limitKey = key as keyof typeof QUICK_MAP;
+        const limitData = QUICK_MAP[limitKey];
+        console.log(key, limitData, data.maxLength);
+        if ( !limitData || limitData.length >= data.maxLength ) {
+            continue;
+        }
+
+        html += `<div class="dt-quick-item" data-limit="${key}">${i18n[data.lang].quick[limitKey]}</div>`;
+    }
+    if ( !html ) {
+        return '';
     }
     return `
         ${html}
@@ -173,15 +184,22 @@ function renderTimeZoneList(data: kitContent) {
 }
 export function updateData(ele: HTMLElement, data: kitContent) {
     // ele.innerHTML = render(data);
-    ele.querySelector('.dt-time-zone-text')!.innerHTML = renderTimeZoneText(data);
-
+    if ( !data.period ) {
+        return ;
+    }
+    const textElement = ele.querySelector('.dt-time-zone-text');
+    
+    if (!textElement ) {
+        return;
+    }
+    textElement.innerHTML = renderTimeZoneText(data);
 
     ele.querySelector('.dt-quick-item-active')?.classList.remove('dt-quick-item-active');
-    const limitKey = getLimtKey(data);
+    const limitKey = getLimitKey(data);
     limitKey && ele.querySelector('.dt-quick-item[data-limit="' + limitKey + '"]')!.classList.add('dt-quick-item-active');
 }
 
-export function getLimtKey(data: kitContent): kitDataLimit | null {
+export function getLimitKey(data: kitContent): kitDataLimit | null {
     for ( const key in QUICK_MAP) {
         if ( !QUICK_MAP[key as keyof typeof QUICK_MAP] ) {
             return null;
@@ -247,7 +265,7 @@ function endTimeFactory() {
 }
 
 function limitFactory(startTime: Date, endTime: Date) {
-    return {
+    const result =  {
         startDate: {
             year: startTime.getFullYear(),
             month: startTime.getMonth() + 1,
@@ -259,8 +277,13 @@ function limitFactory(startTime: Date, endTime: Date) {
             month: endTime.getMonth() + 1,
             date: endTime.getDate()
         },
-        endTime: endTimeFactory()
+        endTime: endTimeFactory(),
+        length:  0
     }
+
+    result.length = new Date(utils.getTimeString(result.endDate, result.endTime)).getTime() - 
+    new Date(utils.getTimeString(result.startDate, result.startTime)).getTime();
+    return result;
 }
 
 function getAllLimit(data: kitContent): kitDataLimitContent {
@@ -269,6 +292,7 @@ function getAllLimit(data: kitContent): kitDataLimitContent {
         startTime: data.minTime,
         endDate: data.maxDate,
         endTime: data.maxTime,
+        length: data.maxTime.millisecond - data.minTime.millisecond
     }
 }
 

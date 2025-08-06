@@ -6,6 +6,9 @@
     padding: var(--spacing-size-small);
     background: var(--color-surface);
     text-align: left;
+    &:empty {
+        display: none;
+    }
 }
 .dt-quick-zone-disabled {
     .dt-time-zone-icon {
@@ -92,6 +95,7 @@
     justify-content: space-between;
     border-radius: var(--radius);
     z-index: var(--z-pop);
+    margin-top: auto;
 }
 
 .dt-time-zone-text {

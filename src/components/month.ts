@@ -344,6 +344,9 @@ export function updateData(ele: HTMLElement, data: kitContent) {
  */
 function getBoxClass(data: kitContent, status: status) {
     const classList = ['dt-month'];
+    if ( !data.period ) {
+        return classList;
+    }
 
     // hide month switch button
     const classNameM = status === 'start' ? 'dt-month-hide-right-m' : 'dt-month-hide-left-m';

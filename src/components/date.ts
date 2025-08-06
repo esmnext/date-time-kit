@@ -20,19 +20,12 @@ export function create(data: kitContent, status: status = "start") {
     ele.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
         // click item
-        if ( 
-            target.classList.contains('dt-data-item') ||
-            target.classList.contains('dt-data-rect') ||
-            target.classList.contains('dt-data-circle') ||
-            target.classList.contains('dt-data-text')
-        ) {
+        const element = target.closest('.dt-data-item');
+        if ( element ) {
 
-            let itemEle = target;
-            while ( !itemEle.classList.contains('dt-data-item') ) {
-                itemEle = itemEle.parentElement as HTMLElement;
-            }
             // disabled
-            if ( itemEle.classList.contains('dt-data-item-disabled') ) {
+            if ( element.classList.contains('dt-data-item-disabled') ||
+                 element.classList.contains('dt-data-item-dis-sel') ) {
                 return;
             }
 
@@ -42,8 +35,15 @@ export function create(data: kitContent, status: status = "start") {
                 month: itemDate.getMonth() + 1,
                 date: itemDate.getDate()
             };
-            // start
+
+            if ( !data.period ) {
+                data.startDate = date;
+                return ;
+            }
+            // time period logic
+            // end select
             if ( data.startDate.year && !data.endDate.year ) {
+                // if start date is bigger than end date, then swap them
                 if(new Date(data.startDate.year, data.startDate.month - 1, data.startDate.date).getTime() > itemDate.getTime()) {
                         data.endDate = data.startDate;
                         data.startDate = date;
@@ -51,30 +51,32 @@ export function create(data: kitContent, status: status = "start") {
                 }
                 return data.endDate = date;
             }
-            // end 
+            // clean move data
             if ( data.moveDate.year) {
                 data.moveDate = {year: 0, month: 0, date: 0};
                 return;
             }
 
-            // start
+            // start select
             data.moveDate = date;
             data.startDate = date;
-            data.endDate = {year: 0, month: 0, date: 0};
+            data.endDate = date;
+            // data.endDate = {year: 0, month: 0, date: 0};
+            
             return;
             
         }
 
     });
     ele.addEventListener('mousemove', (e) => {
+        if( !data.period ) {
+            return;
+        }
+
         const target = e.target as HTMLElement;
-        if ( 
-            target.classList.contains('dt-data-item') ||
-            target.classList.contains('dt-data-rect') ||
-            target.classList.contains('dt-data-circle') ||
-            target.classList.contains('dt-data-text')
-        ) {
-            if ( target.classList.contains('dt-data-item-disabled') ) {
+        const element = target.closest('.dt-data-item');
+        if ( element ) {
+            if ( element.classList.contains('dt-data-item-disabled') ) {
                 return;
             }
             const moveDate = data.moveDate;
@@ -180,16 +182,21 @@ function renderDayByMonth(data: kitContent, date: Date = new Date()) {
    
     // const startDate = `${data.startDate.year}-${data.startDate.month}-${data.startDate.date}`;
     // const endDate = `${data.endDate.year}-${data.endDate.month}-${data.endDate.date}`;
-    const startDate = utils.getDateTimeStr(data.startDate.year, data.startDate.month, data.startDate.date);
-    const endDate = utils.getDateTimeStr(data.endDate.year, data.endDate.month, data.endDate.date);
+    const timeTem = {hour: 0,minute: 0,second: 0,millisecond: 0}
+    const startDate = utils.getTimeString(data.startDate, timeTem);
+    const endDate = utils.getTimeString(data.endDate, timeTem);
 
-    const minDateObj = new Date(utils.getDateTimeStr(data.minDate.year, data.minDate.month, data.minDate.date));
-    const maxDateObj = new Date(utils.getDateTimeStr(data.maxDate.year, data.maxDate.month, data.maxDate.date));
+    const minDateObj = new Date(utils.getTimeString(data.minDate, timeTem));
+    const maxDateObj = new Date(utils.getTimeString(data.maxDate, timeTem));
 
     for (let i = 1; i <= days; i++) {
         const classList = ['dt-data-item'];
         // const renderDate = `${date.getFullYear()}-${month}-${i}`;
-        const renderDate = utils.getDateTimeStr(date.getFullYear(), month, i);
+        const renderDate = utils.getTimeString({
+            year: date.getFullYear(),
+            month: month,
+            date: i
+        }, timeTem);
         const renderDateObj = new Date(renderDate);
 
         if ( currentString === renderDate ) {
@@ -197,7 +204,7 @@ function renderDayByMonth(data: kitContent, date: Date = new Date()) {
             classList.push('dt-data-item-current');
         }
         
-        if ( data.startDate.year && data.endDate.year ) {
+        if ( data.period && data.startDate.year && data.endDate.year ) {
             if ( new Date(startDate) < renderDateObj && new Date(endDate) > renderDateObj ) {
                 classList.push('dt-data-item-sel');
             }
@@ -220,21 +227,39 @@ function renderDayByMonth(data: kitContent, date: Date = new Date()) {
             classList.push('dt-data-item-disabled');
         }
         
-        // if ( data.startDateShow.year && data.endDateShow.year ) {
-        //     const startDateShow = `${data.startDateShow.year}-${data.startDateShow.month}-${data.startDateShow.date}`;
-        //     const endDateShow = `${data.endDateShow.year}-${data.endDateShow.month}-${data.endDateShow.date}`; 
-        //     if ( new Date(startDateShow) < new Date(renderDate) && new Date(endDateShow) > new Date(renderDate) ) {
-        //         classList.push('dt-data-item-sel');
-        //     }
+        if ( data.period && data.startDate.year  && data.moveDate.year) {
+            const dayLength =  1000 * 60 * 60 * 24;
+            const maxLength = data.maxLength < dayLength ? dayLength : data.maxLength;
+            // subtract 1 day because the selected day is also counted
+            const minLength = data.minLength < dayLength ? dayLength : data.minLength;
+            // minLength -= dayLength;
 
-        //     if ( startDateShow === renderDate ) {
-        //         classList.push('dt-data-item-start');
-        //     }
-
-        //     if ( endDateShow === renderDate ) {
-        //         classList.push('dt-data-item-end');
-        //     }
-        // }
+            const startTimeStamp = new Date(utils.getTimeString(data.startDate, data.startTime));
+            const endTimeStamp = new Date(utils.getTimeString(data.endDate, data.endTime));
+            // if length is 0 not limit
+            if ( data.maxLength && startTimeStamp.getTime() + maxLength < renderDateObj.getTime() ) {
+                
+                classList.push('dt-data-item-disabled');
+            }
+            if ( data.maxLength && endTimeStamp.getTime() - maxLength > renderDateObj.getTime() ) {
+                
+                classList.push('dt-data-item-disabled');
+            }
+            if ( data.minLength && 
+                startTimeStamp.getTime() + minLength > renderDateObj.getTime() &&
+                endTimeStamp.getTime() - minLength < renderDateObj.getTime()
+            ) {
+                if ( startDate !== renderDate  ) {
+                    classList.push('dt-data-item-disabled');
+                    
+                } 
+                if ( startDate === renderDate &&  data.minLength > dayLength ) {
+                    classList.push('dt-data-item-dis-sel');
+                }
+                
+            }
+        }
+        
         
         dataHTML += `
             <div class="${classList.join(' ')}" data-date="${renderDate}">
@@ -261,14 +286,5 @@ function renderDayByMonth(data: kitContent, date: Date = new Date()) {
 }
 
 export function updateData(ele: HTMLElement, data: kitContent) {
-    // const status = ele.getAttribute('data-status') as status;
-    // const showKey = status === 'start' ? 'startDateShow' : 'endDateShow';
-    // const currentDateStr = ele.querySelector('.dt-date-content')?.getAttribute('data-date');
-    // const currentDate = new Date(currentDateStr as string);
-    // if ( data[showKey].year === currentDate.getFullYear() && data[showKey].month === currentDate.getMonth() + 1  ) {
-    //     return;
-    // }
-
-
     ele.innerHTML = render(data, ele.getAttribute('data-status') as status);
 }

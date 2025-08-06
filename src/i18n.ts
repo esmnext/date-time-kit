@@ -36,6 +36,7 @@ export default {
       endTime: 'End Time',
       startMillisecond: 'Start Millisecond',
       endMillisecond: 'End Millisecond',
+      singleTitle: 'Time Select'
     },
   },
   zhCN: {
@@ -73,6 +74,7 @@ export default {
       endTime: '结束时间',
       startMillisecond: '毫秒',
       endMillisecond: '毫秒',
+      singleTitle: '时间选择'
     },
   },
   zhTW: {
@@ -110,6 +112,8 @@ export default {
       endTime: '結束時間',
       startMillisecond: '毫秒',
       endMillisecond: '毫秒',
+      singleTitle: '时间选择'
+
     },
   },
   idID: {
@@ -143,6 +147,8 @@ export default {
       endTime: 'Waktu Selesai',
       startMillisecond: 'Milidetik Mulai',
       endMillisecond: 'Milidetik Selesai',
+      singleTitle: '时间选择'
+
     },
     box: {
       confirm: 'Selesai',
@@ -180,6 +186,8 @@ export default {
       endTime: 'Thời gian kết thúc',
       startMillisecond: 'Mili giây bắt đầu',
       endMillisecond: 'Mili giây kết thúc',
+      singleTitle: '时间选择'
+
     },
     box: {
       confirm: 'Hoàn tất',
@@ -217,6 +225,8 @@ export default {
       endTime: 'เวลาสิ้นสุด',
       startMillisecond: 'มิลลิวินาทีเริ่มต้น',
       endMillisecond: 'มิลลิวินาทีสิ้นสุด',
+      singleTitle: '时间选择'
+
     },
     box: {
       confirm: 'เสร็จสิ้น',
@@ -255,6 +265,8 @@ export default {
       endTime: 'Waktu Tamat',
       startMillisecond: 'Milisaat Mula',
       endMillisecond: 'Milisaat Tamat',
+      singleTitle: '时间选择'
+
     },
     box: {
       confirm: 'Selesai',
@@ -292,6 +304,7 @@ export default {
       endTime: '종료 시간',
       startMillisecond: '시작 밀리초',
       endMillisecond: '종료 밀리초',
+      singleTitle: '时间选择'
     },
     box: {
       confirm: '완료',
