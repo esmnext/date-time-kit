@@ -103,7 +103,7 @@ function render(data: kitContent) {
         const limitKey = key as keyof typeof QUICK_MAP;
         const limitData = QUICK_MAP[limitKey];
         console.log(key, limitData, data.maxLength);
-        if ( !limitData || limitData.length >= data.maxLength ) {
+        if ( data.maxLength && (!limitData || limitData.length >= data.maxLength) ) {
             continue;
         }
 

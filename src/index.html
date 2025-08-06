@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl" >
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -45,15 +45,16 @@
         const result = await dataTimeKit.open({
             root: document.querySelector('#root'),
             "minTime": "1990-01-01T00:00:00.000",
-            "maxTime": "2025-08-05T18:35:20.894",
+            "maxTime": "2025-08-30T18:35:20.894",
             "enableZone": false,
             "granularity":  dataTimeKit.Granularity.second,
             // "startTime": rand.startTime,
             // "endTime": rand.endTime,
             "period": true,
-            "maxLength": 60 * 60 * 1000,
-            "minLength":  60 * 60 * 1000,
-            "timeZone": 2
+            // "maxLength": 60 * 60 * 1000,
+            // "minLength":  60 * 60 * 1000,
+            "timeZone": 2,
+            "lang": 'arAE'
         });
 
         console.log('start', dataTimeKit.default.getTimeStringByTimeZone(result.time, 8, 2));

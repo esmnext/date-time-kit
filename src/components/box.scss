@@ -25,7 +25,7 @@
 }
 .dt-date-box {
     display: flex;
-    
+    direction: ltr; // 禁止阿拉伯语言影响布局
     flex: 1;
 }
 .dt-data-body {
@@ -56,6 +56,7 @@
     font-family: var(--font-fimily);
     font-size: var(--font-size);
     transition: all 0.2s ease-in-out;
+    min-width: 60px;
     &:hover {
         box-shadow: var(--shadow-hover);
         transform: scale(1.02); /* 轻微放大 */

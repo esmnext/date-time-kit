@@ -247,17 +247,18 @@ export function updateData(ele: HTMLElement, data: kitContent) {
 
     for ( let i = 0, j = 59; i < 60; i++, j-- ) {
         const ele3 = hourEndEle[i];
-        if ( ele3 && j < disabledItem.hour ) {
-            ele3.classList.add('dt-time-select-item-disabled');
-        } else {
-            ele3.classList.remove('dt-time-select-item-disabled');
+        if ( ele3 ) {
+            if( j < disabledItem.hour) {
+                ele3.classList.add('dt-time-select-item-disabled');
+            } else {
+                ele3.classList.remove('dt-time-select-item-disabled');
+            }
         }
-
-        const ele = minuteEndEle[i];
+        const ele0 = minuteEndEle[i];
         if ( j < disabledItem.minute ) {
-            ele.classList.add('dt-time-select-item-disabled');
+            ele0.classList.add('dt-time-select-item-disabled');
         } else {
-            ele.classList.remove('dt-time-select-item-disabled');
+            ele0.classList.remove('dt-time-select-item-disabled');
         }
 
         const ele2 = secondEndEle[i];
