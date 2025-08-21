@@ -1,10 +1,12 @@
 import { defineConfig } from '@rsbuild/core';
+import { pluginDts } from 'rsbuild-plugin-dts';
 
 export default defineConfig({
     html: {
         template: './src/examples/index.html',
         scriptLoading: 'module'
     },
+    plugins: [pluginDts()],
     tools: {
         rspack: {
             output: {
