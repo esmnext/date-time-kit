@@ -284,9 +284,8 @@ export function dataFactory(kitOption: kitOption): kitContent {
 
     // init language
     kitOption.lang = kitOption.lang || navigator.language as Lang;
-    kitOption.lang = kitOption.lang.replace(/-/, '') as Lang;
     if (!i18n[kitOption.lang]) {
-        kitOption.lang = 'enUS';
+        kitOption.lang = 'en-US';
     }
 
     return {
@@ -301,7 +300,7 @@ export function dataFactory(kitOption: kitOption): kitContent {
         maxTime: initTime(minDate),
         minDate: initDate(maxDate),
         minTime: initTime(maxDate),
-        lang: kitOption.lang || 'enUS',
+        lang: kitOption.lang || 'en-US',
         timeZone,
         granularity: kitOption.granularity || Granularity.day,
         enableZone: kitOption.enableZone,

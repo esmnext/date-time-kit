@@ -16,7 +16,7 @@ import dataTimeKit from '@/export';
 //     startTime: rand.startTime,
 //     endTime: rand.endTime,
 //     timeZone: 2,
-//     lang: 'zhCN',
+//     lang: 'zh-CN',
 //     granularity: 'minute',
 //     enableZone: false
 // });
@@ -33,7 +33,7 @@ import dataTimeKit from '@/export';
 //     // "maxLength": 60 * 60 * 1000,
 //     // "minLength":  60 * 60 * 1000,
 //     "timeZone": 2,
-//     // "lang": 'arAE'
+//     // "lang": 'ar-AE'
 // });
 
 // console.log('start', dataTimeKit.default.getTimeStringByTimeZone(result.time, 8, 2));
@@ -57,7 +57,7 @@ document.querySelector('#select-def')?.addEventListener('click', async (e) => {
         minTime: '2050-01-02T00:00:00.000',
         startTime: '1990-01-01T00:00:00.000',
         endTime: '2050-01-01T00:10:10.022',
-        lang: 'zhCN'
+        lang: 'zh-CN'
     });
     console.log(data);
 });
