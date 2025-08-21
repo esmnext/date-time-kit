@@ -213,7 +213,7 @@ function renderTimeString(data: kitContent) {
         if (data.granularity <= Granularity.second) {
             return `${utils.getDateTimeStr(data.startDate.year, data.startDate.month, data.startDate.date)} ${utils.getTimeStringInSeconds(data.startTime.hour, data.startTime.minute, data.startTime.second)}`;
         }
-        return utils.getTimeString(data.startDate, data.startTime);
+        return utils.kitDate2timeString(data.startDate, data.startTime);
     }
     if (data.granularity <= Granularity.day) {
         return `${utils.getDateTimeStr(data.startDate.year, data.startDate.month, data.startDate.date)}
@@ -225,7 +225,7 @@ function renderTimeString(data: kitContent) {
         <span>-</span> 
         ${utils.getDateTimeStr(data.endDate.year, data.endDate.month, data.endDate.date)}  ${utils.getTimeStringInSeconds(data.endTime.hour, data.endTime.minute, data.endTime.second)}`;
     }
-    return `${utils.getTimeString(data.startDate, data.startTime)} <span>-</span> ${utils.getTimeString(data.endDate, data.endTime)}`;
+    return `${utils.kitDate2timeString(data.startDate, data.startTime)} <span>-</span> ${utils.kitDate2timeString(data.endDate, data.endTime)}`;
 }
 /**
  * Updates the element with the given kitContent data.
@@ -273,8 +273,8 @@ function getDisabledItem(data: kitContent) {
         return { hour: 23, minute: 59, second: 59 }
     }
 
-    const startTimeStamp = new Date(utils.getTimeString(data.startDate, data.startTime));
-    const endTimeStamp = new Date(utils.getTimeString(data.endDate, data.endTime));
+    const startTimeStamp = new Date(utils.kitDate2timeString(data.startDate, data.startTime));
+    const endTimeStamp = new Date(utils.kitDate2timeString(data.endDate, data.endTime));
     const gap = endTimeStamp.getTime() - startTimeStamp.getTime();
     const result = { hour: 0, minute: 0, second: 0 };
     const gapLength = data.maxLength - gap;

@@ -1,3 +1,4 @@
+import type { kitDataLimit } from "./types";
 
 export type Lang = 'en-US' | 'zh-CN' | 'zh-TW' | 'id-ID' | 'vi-VN' | 'th-TH' | 'ms-MY' | 'ko-KR' | 'ar-AE';
 
@@ -8,17 +9,8 @@ export type kitI18nCfg = {
         select: string;
     },
     quick: {
-        all: string;
-        today: string;
-        yesterday: string;
-        week: string;
-        lastWeek: string;
-        last7Days: string;
-        month: string;
-        last30Days: string;
-        last180Days: string;
-        last6Month: string;
-        year: string;
+        [k in kitDataLimit]: string;
+    } & {
         timezone: string;
         recommend: string;
         timezoneList: string;

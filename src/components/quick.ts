@@ -1,5 +1,5 @@
 import * as utils from "../utils";
-import { kitContent, kitDataLimit, kitDataLimitContent } from "../types";
+import { kitContent, kitDataLimit, kitDataLimitContent, kitTimestampResult, timeString } from "../types";
 import './quick.scss';
 import i18n from "../i18n";
 
@@ -20,7 +20,7 @@ export function create(data: kitContent) {
     ele.querySelector('.dt-quick-item-active')?.classList.remove('dt-quick-item-active');
     const limitKey = getLimitKey(data);
     if (limitKey)
-        ele.querySelector('.dt-quick-item[data-limit="' + limitKey + '"]')!.classList.add('dt-quick-item-active');
+        ele.querySelector('.dt-quick-item[data-limit="' + limitKey + '"]')?.classList.add('dt-quick-item-active');
     // add event
     ele.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
@@ -67,10 +67,7 @@ export function create(data: kitContent) {
 }
 
 function setDate(limit: kitDataLimit, data: kitContent) {
-
-    if (!QUICK_MAP[limit]) {
-        return;
-    }
+    if (!QUICK_MAP[limit]) return;
     data.startDate = QUICK_MAP[limit].startDate;
     data.startTime = QUICK_MAP[limit].startTime;
     data.endDate = QUICK_MAP[limit].endDate;
@@ -84,101 +81,81 @@ function setDate(limit: kitDataLimit, data: kitContent) {
     if (endData.getFullYear() === startData.getFullYear() && endData.getMonth() == startData.getMonth()) {
         endData.setMonth(endData.getMonth() + 1);
     }
-    data.moveDate = {
-        year: 0,
-        month: 0,
-        date: 0
-    }
+    data.moveDate = utils.initKitDate();
     data.endDateShow = {
         ...data.endDate,
         year: endData.getFullYear(),
         month: endData.getMonth() + 1
     };
-
 }
+
 function render(data: kitContent) {
     let html = '';
-
-
     for (const key in QUICK_MAP) {
-        const limitKey = key as keyof typeof QUICK_MAP;
+        const limitKey = key as kitDataLimit;
         const limitData = QUICK_MAP[limitKey];
-        console.log(key, limitData, data.maxLength);
-        if (data.maxLength && (!limitData || limitData.length >= data.maxLength)) {
+        if (data.maxLength && (!limitData || limitData.length >= data.maxLength))
             continue;
-        }
-
         html += `<div class="dt-quick-item" data-limit="${key}">${i18n[data.lang].quick[limitKey]}</div>`;
     }
-    if (!html) {
-        return '';
-    }
-    return `
-        ${html}
-        <div class="dt-time-zone">
-            <div class="dt-time-zone-text">${renderTimeZoneText(data)}</div>
-            <div class="dt-time-zone-icon"></div>
-            <div class="dt-time-zone-select">
-                ${renderTimeZoneList(data)}
-            </div>
-        </div>
-        <div class="dt-time-zone-mask"></div>
-    `;
+    return !html ? '' : `${html
+        }<div class="dt-time-zone"
+  ><div class="dt-time-zone-text">${renderTimeZoneText(data)}</div
+  ><div class="dt-time-zone-icon"></div
+  ><div class="dt-time-zone-select">${renderTimeZoneList(data)}</div
+></div
+><div class="dt-time-zone-mask"></div>`;
 }
 
+const utcText = (timeZone: number) => {
+    return timeZone === 0
+        ? 'UTC' as const : timeZone > 0
+            ? `UTC+${timeZone}` as const
+            : `UTC-${timeZone}` as const;
+};
 
 function renderTimeZoneText(data: kitContent) {
-    if (data.timeZone >= 0) {
-        return `
-           ${i18n[data.lang].quick.timezone}: UTC+${data.timeZone}
-        `;
-    }
-    return `
-       ${i18n[data.lang].quick.timezone}: UTC${data.timeZone}
-    `;
+    return `${i18n[data.lang].quick.timezone}: ${utcText(data.timeZone)}` as const;
 }
 
 function renderTimeZoneList(data: kitContent) {
-    // get current time zone
-    const currentZone = -new Date().getTimezoneOffset() / 60;
+    const currentZone = utils.getCurrentTimeZone();
     let html = `<div class="dt-time-zone-select-title">${i18n[data.lang].quick.recommend}</div>`;
 
     // render recommend
     if (currentZone >= 0) {
-        html += `<div class="dt-time-zone-item${data.timeZone === currentZone ? ' dt-time-zone-select-active' : ''}"" data-timezone="${currentZone}">
-            <span class="dt-time-zone-item-icon"></span><span>UTC+${currentZone}</span>
+        html += `<div class="dt-time-zone-item${data.timeZone === currentZone
+            ? ' dt-time-zone-select-active'
+            : ''
+            }" data-timezone="${currentZone}">
+            <span class="dt-time-zone-item-icon"></span>
+            <span>${utcText(currentZone)}</span>
         </div>`;
     } else {
-        html += `<div class="dt-time-zone-item${data.timeZone === 2 ? ' dt-time-zone-select-active' : ''}"" data-timezone="${currentZone}">
-            <span class="dt-time-zone-item-icon"></span><span>UTC${currentZone}</span>
+        html += `<div class="dt-time-zone-item${data.timeZone === 2
+            ? ' dt-time-zone-select-active'
+            : ''
+            }" data-timezone="${currentZone}">
+            <span class="dt-time-zone-item-icon"></span>
+            <span>${utcText(currentZone)}</span>
         </div>`;
     }
 
     html += `<div class="dt-time-zone-item" data-timezone="2">
-        <span class="dt-time-zone-item-icon"></span><span>UTC+2</span>
+        <span class="dt-time-zone-item-icon"></span>
+        <span>${utcText(2)}</span>
     </div>`;
     html += `<div class="dt-time-zone-select-title">${i18n[data.lang].quick.timezoneList}</div>`;
 
     // render all time zone
-    for (let i = 0; i <= 12; i++) {
-
-        if (i === currentZone) {
-            continue;
-        }
-        if (i === 2) {
-            continue;
-        }
-        html += `<div class="dt-time-zone-item${i === data.timeZone ? ' dt-time-zone-select-active' : ''}" data-timezone="${i}">
+    for (let i = -12; i <= 12; ++i) {
+        if (i === currentZone || i === 2) continue;
+        html += `<div class="dt-time-zone-item${i === data.timeZone
+            ? ' dt-time-zone-select-active'
+            : ''
+            }" data-timezone="${i}">
             <span class="dt-time-zone-item-icon"></span>
-            <span>UTC+${i}</span>
-        </div>`;
-    }
-    for (let i = 12; i > 0; i--) {
-        if (i === currentZone) {
-            continue;
-        }
-        html += `<div class="dt-time-zone-item${i === data.timeZone ? ' dt-time-zone-select-active' : ''}" data-timezone="-${i}">
-            <span class="dt-time-zone-item-icon"></span><span>UTC-${i}</span>
+            <span>${utcText(i)}</span>
         </div>`;
     }
     return html;
@@ -201,38 +178,44 @@ export function updateData(ele: HTMLElement, data: kitContent) {
         ele.querySelector('.dt-quick-item[data-limit="' + limitKey + '"]')!.classList.add('dt-quick-item-active');
 }
 
+const quickEqData = (
+    key: kitDataLimit,
+    data: Pick<kitContent, 'endTime' | 'startTime' | 'startDate' | 'endDate'>
+) => {
+    const quick = QUICK_MAP[key];
+    if (!quick) return false;
+    return (
+        quick.endTime.hour === data.endTime.hour &&
+        quick.endTime.minute === data.endTime.minute &&
+        quick.endTime.second === data.endTime.second &&
+        quick.endTime.millisecond === data.endTime.millisecond &&
+
+        quick.startTime.hour === data.startTime.hour &&
+        quick.startTime.minute === data.startTime.minute &&
+        quick.startTime.second === data.startTime.second &&
+        quick.startTime.millisecond === data.startTime.millisecond &&
+
+        quick.startDate.year === data.startDate.year &&
+        quick.startDate.month === data.startDate.month &&
+        quick.startDate.date === data.startDate.date &&
+
+        quick.endDate.year === data.endDate.year &&
+        quick.endDate.month === data.endDate.month &&
+        quick.endDate.date === data.endDate.date
+    );
+};
+
 export function getLimitKey(data: kitContent): kitDataLimit | null {
-    for (const key in QUICK_MAP) {
-        if (!QUICK_MAP[key as keyof typeof QUICK_MAP]) {
-            return null;
-        }
-
-        if (
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.hour === data.endTime.hour &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.minute === data.endTime.minute &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.second === data.endTime.second &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.millisecond === data.endTime.millisecond &&
-
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startTime.hour === data.startTime.hour &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startTime.minute === data.startTime.minute &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startTime.second === data.startTime.second &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startTime.millisecond === data.startTime.millisecond &&
-
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startDate.year === data.startDate.year &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startDate.month === data.startDate.month &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startDate.date === data.startDate.date &&
-
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.year === data.endDate.year &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.month === data.endDate.month &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.date === data.endDate.date
-
-        ) {
-            return key as kitDataLimit;
+    for (const _key in QUICK_MAP) {
+        const key = _key as kitDataLimit;
+        if (!QUICK_MAP[key]) return null;
+        if (quickEqData(key, data)) {
+            return key;
         }
     }
     return null;
 }
-export function getQuickMap(): { [key in kitDataLimit]: kitDataLimitContent | null } {
+export function getQuickMap(): Record<kitDataLimit, kitDataLimitContent | null> {
     return {
         all: null,
         today: getTodayLimit(),
@@ -245,46 +228,24 @@ export function getQuickMap(): { [key in kitDataLimit]: kitDataLimitContent | nu
         last180Days: getLast180DaysLimit(),
         last6Month: getLast6MonthLimit(),
         year: getYearLimit()
-    }
+    };
 }
 
-
-function startTimeFactory() {
-    return {
-        hour: 0,
-        minute: 0,
-        second: 0,
-        millisecond: 0
-    }
-}
-function endTimeFactory() {
-    return {
-        hour: 23,
-        minute: 59,
-        second: 59,
-        millisecond: 999
-    }
-}
-
-function limitFactory(startTime: Date, endTime: Date) {
+function limitFactory(startTime = new Date(), endTime = startTime) {
     const result = {
-        startDate: {
-            year: startTime.getFullYear(),
-            month: startTime.getMonth() + 1,
-            date: startTime.getDate()
+        startDate: utils.initKitDate(startTime),
+        startTime: utils.initKitTime(),
+        endDate: utils.initKitDate(endTime),
+        endTime: {
+            hour: 23,
+            minute: 59,
+            second: 59,
+            millisecond: 999
         },
-        startTime: startTimeFactory(),
-        endDate: {
-            year: endTime.getFullYear(),
-            month: endTime.getMonth() + 1,
-            date: endTime.getDate()
-        },
-        endTime: endTimeFactory(),
         length: 0
-    }
-
-    result.length = new Date(utils.getTimeString(result.endDate, result.endTime)).getTime() -
-        new Date(utils.getTimeString(result.startDate, result.startTime)).getTime();
+    };
+    result.length = new Date(utils.kitDate2timeString(result.endDate, result.endTime)).getTime() -
+        new Date(utils.kitDate2timeString(result.startDate, result.startTime)).getTime();
     return result;
 }
 
@@ -295,19 +256,17 @@ function getAllLimit(data: kitContent): kitDataLimitContent {
         endDate: data.maxDate,
         endTime: data.maxTime,
         length: data.maxTime.millisecond - data.minTime.millisecond
-    }
+    };
 }
 
 function getTodayLimit(): kitDataLimitContent {
-    const current = new Date();
-    return limitFactory(current, current);
+    return limitFactory();
 }
 
 function getYesterdayLimit(): kitDataLimitContent {
     const current = new Date();
     const startTime = new Date(current.getFullYear(), current.getMonth(), current.getDate() - 1);
-    const endTime = new Date(current.getFullYear(), current.getMonth(), current.getDate() - 1);
-    return limitFactory(startTime, endTime);
+    return limitFactory(startTime);
 }
 
 // week: 'This Week',
@@ -366,4 +325,63 @@ function getYearLimit() {
     const startTime = new Date(current.getFullYear(), 0, 1);
     const endTime = new Date(current.getFullYear() + 1, 0, 0);
     return limitFactory(startTime, endTime);
+}
+
+export function getLimitKeyByTimestamp(
+    startTimestamp: timeString,
+    endTimestamp: timeString,
+    timeZone?: number
+): kitDataLimit | null {
+    const currentTimeZone = utils.getCurrentTimeZone();
+    if (timeZone === void 0) {
+        timeZone = currentTimeZone;
+    }
+
+    const startTimeDate = new Date(utils.getTimeStringByTimeZone(startTimestamp, currentTimeZone, timeZone));
+    const endTimeDate = new Date(utils.getTimeStringByTimeZone(endTimestamp, currentTimeZone, timeZone));
+
+    const endTime = utils.initKitTime(endTimeDate);
+    const startTime = utils.initKitTime(startTimeDate);
+    const startDate = utils.initKitDate(startTimeDate);
+    const endDate = utils.initKitDate(endTimeDate);
+
+    const QUICK_MAP = getQuickMap();
+    for (const _key in QUICK_MAP) {
+        const key = _key as kitDataLimit;
+        if (!QUICK_MAP[key]) continue;
+        if (quickEqData(key, { endTime, startTime, startDate, endDate })) {
+            return key;
+        }
+    }
+    return null;
+}
+
+export function getTimestampByLimitKey(
+    limitKey: kitDataLimit,
+    timeZone = utils.getCurrentTimeZone()
+): kitTimestampResult {
+    const result: kitTimestampResult = {
+        startTime: '0000-00-00T00:00:00.000',
+        endTime: '0000-00-00T00:00:00.000',
+        startTimeStamp: 0,
+        endTimeStamp: 0
+    }
+    const QUICK_MAP = getQuickMap();
+    if (!QUICK_MAP[limitKey]) return result;
+
+    const startDateTime = utils.getKitTimeByTimeZone({
+        date: QUICK_MAP[limitKey].startDate,
+        time: QUICK_MAP[limitKey].startTime
+    }, timeZone);
+
+    const endDateTime = utils.getKitTimeByTimeZone({
+        date: QUICK_MAP[limitKey].endDate,
+        time: QUICK_MAP[limitKey].endTime
+    }, timeZone);
+
+    result.startTime = utils.kitDate2timeString(startDateTime.date, startDateTime.time);
+    result.endTime = utils.kitDate2timeString(endDateTime.date, endDateTime.time);
+    result.startTimeStamp = new Date(result.startTime).getTime();
+    result.endTimeStamp = new Date(result.endTime).getTime();
+    return result;
 }

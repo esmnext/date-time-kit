@@ -6,156 +6,26 @@ import {
     kitOption,
     kitTime,
     timeString,
-    kitDataLimit,
-    kitTimestampResult,
 } from "./types";
 import i18n, { Lang } from "./i18n";
-import { getQuickMap } from './components/quick';
-
-export function getLimitKeyByTimestamp(
-    startTimestamp: timeString,
-    endTimestamp: timeString,
-    timeZone?: number
-): kitDataLimit | null {
-    const currentTimeZone = getCurrentTimeZone();
-    if (timeZone === void 0) {
-        timeZone = currentTimeZone;
-    }
-
-    const startTimeDate = new Date(getTimeStringByTimeZone(startTimestamp, currentTimeZone, timeZone));
-    const endTimeDate = new Date(getTimeStringByTimeZone(endTimestamp, currentTimeZone, timeZone));
-    const endTime: kitTime = {
-        hour: endTimeDate.getHours(),
-        minute: endTimeDate.getMinutes(),
-        second: endTimeDate.getSeconds(),
-        millisecond: endTimeDate.getMilliseconds()
-    }
-    const startTime: kitTime = {
-        hour: startTimeDate.getHours(),
-        minute: startTimeDate.getMinutes(),
-        second: startTimeDate.getSeconds(),
-        millisecond: startTimeDate.getMilliseconds()
-    }
-    const startDate: kitDate = {
-        year: startTimeDate.getFullYear(),
-        month: startTimeDate.getMonth() + 1,
-        date: startTimeDate.getDate()
-    }
-
-    const endDate: kitDate = {
-        year: endTimeDate.getFullYear(),
-        month: endTimeDate.getMonth() + 1,
-        date: endTimeDate.getDate()
-    }
-    const QUICK_MAP = getQuickMap();
-    for (const key in QUICK_MAP) {
-        if (!QUICK_MAP[key as keyof typeof QUICK_MAP]) {
-            continue;
-        }
-
-        if (
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.hour === endTime.hour &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.minute === endTime.minute &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.second === endTime.second &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.millisecond === endTime.millisecond &&
-
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startTime.hour === startTime.hour &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startTime.minute === startTime.minute &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startTime.second === startTime.second &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startTime.millisecond === startTime.millisecond &&
-
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startDate.year === startDate.year &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startDate.month === startDate.month &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startDate.date === startDate.date &&
-
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.year === endDate.year &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.month === endDate.month &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.date === endDate.date
-
-        ) {
-            return key as kitDataLimit;
-        }
-    }
-    return null;
-}
-
-/**
- * 
- * @param {kitDataLimit} limitKey
- * @returns {kitTimestampResult}
- * 
- * @description 
- *  limitKey
- *  QUICK_MAP
- *  QUICK_MAP[limitKey]
- *  QUICK_MAP[limitKey].startDate, QUICK_MAP[limitKey].startTime
- *  QUICK_MAP[limitKey].endDate, QUICK_MAP[limitKey].endTime
- *  Date(result.startTime).getTime()
- *  Date(result.endTime).getTime()
- *  kitTimestampResult
- */
-export function getTimestampByLimitKey(
-    limitKey: kitDataLimit,
-    timeZone?: number
-): kitTimestampResult {
-    const result: kitTimestampResult = {
-        startTime: '0000-00-00T00:00:00.000',
-        endTime: '0000-00-00T00:00:00.000',
-        startTimeStamp: 0,
-        endTimeStamp: 0
-    }
-    const QUICK_MAP = getQuickMap();
-    if (!QUICK_MAP[limitKey]) {
-        return result;
-    }
-    if (timeZone === void 0) {
-        timeZone = getCurrentTimeZone();
-    }
-
-    const startDateTime = getKitTimeByTimeZone({
-        date: QUICK_MAP[limitKey].startDate,
-        time: QUICK_MAP[limitKey].startTime
-    }, timeZone);
-
-
-    const endDateTime = getKitTimeByTimeZone({
-        date: QUICK_MAP[limitKey].endDate,
-        time: QUICK_MAP[limitKey].endTime
-    }, timeZone);
-
-    result.startTime = getTimeString(startDateTime.date, startDateTime.time);
-    result.endTime = getTimeString(endDateTime.date, endDateTime.time);
-
-    // result.startTime = getTimeString(QUICK_MAP[limitKey].startDate, QUICK_MAP[limitKey].startTime);
-    // result.endTime = getTimeString(QUICK_MAP[limitKey].endDate, QUICK_MAP[limitKey].endTime);
-    result.startTimeStamp = new Date(result.startTime).getTime();
-    result.endTimeStamp = new Date(result.endTime).getTime();
-    return result;
-
-}
 
 /**
  * Shows the element by adding the "dt-show" class.
  * @param element - Element to be shown.
  */
-export function showBox(element: Element) {
-    element.classList.add('dt-show');
-}
-
-
+export const showBox = (element: Element) => element.classList.add('dt-show');
 /**
  * Hides the element by removing the "dt-show" class and then removing the element
- * from the DOM after 350ms.
+ * from the DOM.
  * @param element - Element to be hidden.
+ * @param removeDelay - Delay in milliseconds before the element is removed from the DOM.
  */
-export function hideBox(element: Element) {
+export const hideBox = (element: Element, removeDelay = 350) => {
     element.classList.remove('dt-show');
     setTimeout(() => {
-        element.parentElement!.removeChild(element);
-    }, 350);
-}
-
-
+        element.parentElement?.removeChild(element);
+    }, removeDelay);
+};
 
 /**
  * Returns a debounced version of the provided function, ensuring that the 
@@ -176,139 +46,7 @@ export function debounce(fn: Function, delay = 10) {
     }
 }
 
-/**
- * Format a date as a string in the format "YYYY-MM-DD".
- * If the date parameter is undefined, only the year and month are returned.
- * @param year The year of the date.
- * @param date The date of the month. If undefined, only the year and month are returned.
- * @returns The formatted date string.
- */
-
-export function getDateTimeStr(year: number, month: number, date: number | undefined = undefined): string {
-    if (date === undefined) {
-        return `${year.toString().padStart(4, '0')}-${month.toString().padStart(2, '0')}`;
-    }
-    return `${year.toString().padStart(4, '0')}-${month.toString().padStart(2, '0')}-${date.toString().padStart(2, '0')}`;
-}
-
-
-/**
- * Formats the given time parameters into a string with the format "HH:MM:SS:MMM".
- * Each component (hour, minute, second, millisecond) is padded with leading zeros 
- * to ensure a consistent two-digit (for hour, minute, second) or three-digit 
- * (for millisecond) format.
- * 
- * @param hour - The hour component of the time.
- * @param minute - The minute component of the time.
- * @param second - The second component of the time.
- * @param millisecond - The millisecond component of the time.
- * @returns A string representing the formatted time.
- */
-
-export function getTimeStr(hour: number, minute: number, second: number, millisecond: number): string {
-    return `${getTimeStringInSeconds(hour, minute, second)}.${millisecond.toString().padStart(3, '0')}`;
-}
-export function getTimeStringInSeconds(hour: number, minute: number, second: number): string {
-    return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`;
-}
-
-
-export function getTimeString(date: kitDate, time: kitTime): timeString {
-    return `${getDateTimeStr(date.year, date.month, date.date)}T${getTimeStr(time.hour, time.minute, time.second, time.millisecond)}` as timeString;
-}
-
-
-export function getTimeStringByTimestamp(timestamp: number): timeString {
-    const date = new Date(timestamp);
-    return `${getDateTimeStr(date.getFullYear(), date.getMonth() + 1, date.getDate())}T${getTimeStr(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds())}` as timeString;
-}
-
-
-/**
- * dataFactory
- *
- * @description init data for the kit according to kitOption
- * @param kitOption {kitOption} - options for the kit
- * @returns {kitContent} - data for the kit
- */
-export function dataFactory(kitOption: kitOption): kitContent {
-
-    let { maxTime, minTime, startTime, endTime } = kitOption;
-    //TODO: 配置名字写反了 临时交换一下
-    const temTime = maxTime;
-    maxTime = minTime || getTimeStringByTimestamp(Date.now() - 1000 * 60 * 60 * 24 * 365 * 5);
-    minTime = temTime || getTimeStringByTimestamp(Date.now() + 1000 * 60 * 60 * 24 * 365 * 20);
-    // startTime = startTime || '0000-00-00T00:00:00.000';
-    // endTime = endTime || '0000-00-00T00:00:00.000';
-
-    if (kitOption.timeZone !== undefined) {
-        const currentTimeZone = getCurrentTimeZone();
-        maxTime = maxTime || getTimeStringByTimeZone(maxTime, currentTimeZone, kitOption.timeZone);
-        minTime = minTime || getTimeStringByTimeZone(minTime, currentTimeZone, kitOption.timeZone);
-        startTime = startTime && getTimeStringByTimeZone(startTime, currentTimeZone, kitOption.timeZone);
-        endTime = endTime && getTimeStringByTimeZone(endTime, currentTimeZone, kitOption.timeZone);
-    }
-    // console.log('startTime', startTime);
-    // console.log('endTime', endTime);
-
-    const maxDate = new Date(maxTime || Date.now());
-    maxDate.setFullYear(maxDate.getFullYear() + (maxTime ? 0 : 5));
-
-    const minDate = new Date(minTime || Date.now());
-    minDate.setFullYear(minDate.getFullYear() - (minTime ? 0 : 20));
-
-
-    const startDate = new Date(startTime || Date.now());
-    const endDate = new Date(endTime || Date.now());
-
-    // if end time month equal start time month to show month
-    const startDateShow = new Date(startTime || Date.now());
-    const endDateShow = new Date(endTime || Date.now());
-    if (startDate.getUTCFullYear() === endDate.getUTCFullYear() && startDateShow.getMonth() == endDate.getMonth()) {
-        endDateShow.setMonth(endDate.getMonth() + 1);
-    }
-
-    // init time zone
-    let timeZone = 0;
-    if (kitOption.timeZone !== undefined) {
-        timeZone = kitOption.timeZone;
-    } else {
-        // get current time zone
-        timeZone = -new Date().getTimezoneOffset() / 60;
-    }
-
-    // default enable zone
-    if (kitOption.enableZone === undefined) {
-        kitOption.enableZone = true;
-    }
-
-    // init language
-    kitOption.lang = kitOption.lang || navigator.language as Lang;
-    if (!i18n[kitOption.lang]) {
-        kitOption.lang = 'en-US';
-    }
-
-    return {
-        startDate: startTime ? initDate(startDate) : initDate(),
-        endDate: endTime ? initDate(endDate) : initDate(),
-        startTime: startTime ? initTime(startDate) : initTime(),
-        endTime: endTime ? initTime(endDate) : initTime(),
-        startDateShow: initDate(startDateShow),
-        endDateShow: initDate(endDateShow),
-        moveDate: initDate(),
-        maxDate: initDate(minDate),
-        maxTime: initTime(minDate),
-        minDate: initDate(maxDate),
-        minTime: initTime(maxDate),
-        lang: kitOption.lang || 'en-US',
-        timeZone,
-        granularity: kitOption.granularity || Granularity.day,
-        enableZone: kitOption.enableZone,
-        period: !!kitOption.period,
-        maxLength: kitOption.maxLength || 0,
-        minLength: kitOption.minLength || 0,
-    }
-}
+export const getCurrentTimeZone = () => -new Date().getTimezoneOffset() / 60;
 
 /**
  * Convert a Date object to a kitDate object.
@@ -316,21 +54,24 @@ export function dataFactory(kitOption: kitOption): kitContent {
  * @param date The Date object to convert.
  * @returns A kitDate object.
  */
-function initDate(date: Date | undefined = undefined): kitDate {
-    if (!date) {
-        return {
-            year: 0,
-            month: 0,
-            date: 0
-        }
-    }
-
-    return {
+export const initKitDate = (date?: Date): kitDate => !date
+    ? {
+        year: 0,
+        month: 0,
+        date: 0
+    } : {
         year: date.getFullYear(),
         month: date.getMonth() + 1,
         date: date.getDate()
-    }
-}
+    };
+
+/**
+ * Convert a kitDate object to a Date object.
+ * @param date The kitDate object to convert.
+ * @returns A Date object representing the same date as the kitDate object.
+ */
+export const kitDate2Date = (date: kitDate) =>
+    new Date(date.year, date.month - 1, date.date);
 
 /**
  * Convert a Date object to a kitTime object.
@@ -338,28 +79,135 @@ function initDate(date: Date | undefined = undefined): kitDate {
  * @param date The Date object to convert.
  * @returns A kitTime object representing the time of the provided Date object.
  */
-
-function initTime(date: Date | undefined = undefined): kitTime {
-    if (!date) {
-        return {
-            hour: 0,
-            minute: 0,
-            second: 0,
-            millisecond: 0
-        }
-    }
-    return {
+export const initKitTime = (date?: Date): kitTime => !date
+    ? {
+        hour: 0,
+        minute: 0,
+        second: 0,
+        millisecond: 0
+    } : {
         hour: date.getHours(),
         minute: date.getMinutes(),
         second: date.getSeconds(),
         millisecond: date.getMilliseconds()
+    };
+
+/**
+ * Format a date as a string in the format "YYYY-MM-DD".
+ * If the date parameter is undefined, only the year and month are returned (YYYY-MM).
+ * @param year The year of the date.
+ * @param month The month of the date (1-12).
+ * @param date The date of the month. If undefined, only the year and month are returned.
+ * @returns The formatted date string.
+ */
+export const getDateTimeStr = <
+    T extends number | undefined = undefined
+>(year: number, month: number, date?: T) =>
+    `${year.toString().padStart(4, '0')}-${month.toString().padStart(2, '0')}${date === void 0 ? '' : `-${date.toString().padStart(2, '0')}`
+    }` as undefined extends T ? `${number}-${number}` : `${number}-${number}-${number}`;
+
+export const getTimeStringInSeconds = (hour: number, minute: number, second: number) =>
+    `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')
+    }` as `${number}:${number}:${number}`;
+/**
+ * Formats the given time parameters into a string with the format "HH:MM:SS:MMM".
+ * Each component (hour, minute, second, millisecond) is padded with leading zeros
+ * to ensure a consistent two-digit (for hour, minute, second) or three-digit
+ * (for millisecond) format.
+ * @param hour - The hour component of the time.
+ * @param minute - The minute component of the time.
+ * @param second - The second component of the time.
+ * @param millisecond - The millisecond component of the time.
+ * @returns A string representing the formatted time.
+ */
+export const getTimeStr = (hour: number, minute: number, second: number, millisecond: number) =>
+    `${getTimeStringInSeconds(hour, minute, second)}.${millisecond.toString().padStart(3, '0')}` as `${number}:${number}:${number}.${number}`;
+
+export const kitDate2timeString = (date: kitDate, time: kitTime): timeString =>
+    `${getDateTimeStr(date.year, date.month, date.date)}T${getTimeStr(time.hour, time.minute, time.second, time.millisecond)}`;
+
+export function getTimeStringByTimestamp(timestamp: number): timeString {
+    const date = new Date(timestamp);
+    return `${getDateTimeStr(date.getFullYear(), date.getMonth() + 1, date.getDate())}T${getTimeStr(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds())}`;
+}
+
+
+/**
+ * init data for the kit according to kitOption
+ * @param kitOption {kitOption} - options for the kit
+ * @returns {kitContent} - data for the kit
+ */
+export function dataFactory(kitOption: kitOption): kitContent {
+    let { maxTime, minTime, startTime, endTime } = kitOption;
+    const now = Date.now();
+    //TODO: 配置名字写反了 临时交换一下
+    const temTime = maxTime;
+    maxTime = minTime || getTimeStringByTimestamp(now - 1000 * 60 * 60 * 24 * 365 * 5);
+    minTime = temTime || getTimeStringByTimestamp(now + 1000 * 60 * 60 * 24 * 365 * 20);
+
+    if (kitOption.timeZone !== void 0) {
+        const currentTimeZone = getCurrentTimeZone();
+        maxTime = maxTime || getTimeStringByTimeZone(maxTime, currentTimeZone, kitOption.timeZone);
+        minTime = minTime || getTimeStringByTimeZone(minTime, currentTimeZone, kitOption.timeZone);
+        startTime = startTime && getTimeStringByTimeZone(startTime, currentTimeZone, kitOption.timeZone);
+        endTime = endTime && getTimeStringByTimeZone(endTime, currentTimeZone, kitOption.timeZone);
     }
-}
+
+    const maxDate = new Date(maxTime || now);
+    maxDate.setFullYear(maxDate.getFullYear() + (maxTime ? 0 : 5));
+
+    const minDate = new Date(minTime || now);
+    minDate.setFullYear(minDate.getFullYear() - (minTime ? 0 : 20));
 
 
-export function getCurrentTimeZone(): number {
-    return -new Date().getTimezoneOffset() / 60;
+    const startDate = new Date(startTime || now);
+    const endDate = new Date(endTime || now);
+
+    // if end time month equal start time month to show month
+    const startDateShow = new Date(startTime || now);
+    const endDateShow = new Date(endTime || now);
+    if (startDate.getUTCFullYear() === endDate.getUTCFullYear() && startDateShow.getMonth() == endDate.getMonth()) {
+        endDateShow.setMonth(endDate.getMonth() + 1);
+    }
+
+    // init time zone
+    const timeZone = kitOption.timeZone !== void 0
+        ? kitOption.timeZone
+        : getCurrentTimeZone();
+
+    // default enable zone
+    if (kitOption.enableZone === void 0) {
+        kitOption.enableZone = true;
+    }
+
+    // init language
+    kitOption.lang ||= navigator.language as Lang;
+    if (!i18n[kitOption.lang]) {
+        kitOption.lang = 'en-US';
+    }
+
+    return {
+        startDate: startTime ? initKitDate(startDate) : initKitDate(),
+        endDate: endTime ? initKitDate(endDate) : initKitDate(),
+        startTime: startTime ? initKitTime(startDate) : initKitTime(),
+        endTime: endTime ? initKitTime(endDate) : initKitTime(),
+        startDateShow: initKitDate(startDateShow),
+        endDateShow: initKitDate(endDateShow),
+        moveDate: initKitDate(),
+        maxDate: initKitDate(minDate),
+        maxTime: initKitTime(minDate),
+        minDate: initKitDate(maxDate),
+        minTime: initKitTime(maxDate),
+        lang: kitOption.lang || 'en-US',
+        timeZone,
+        granularity: kitOption.granularity || Granularity.day,
+        enableZone: kitOption.enableZone,
+        period: !!kitOption.period,
+        maxLength: kitOption.maxLength || 0,
+        minLength: kitOption.minLength || 0,
+    };
 }
+
 
 /**
  * Converts a Date object from its current timezone to a different timezone.
@@ -372,66 +220,31 @@ export function getCurrentTimeZone(): number {
  * @param timeZone The number of hours to offset the timezone. If undefined, it will use the current timezone.
  * @returns A new Date object with the same date and time as the original, but in the specified timezone.
  */
-export function getDateByTimeZone(date: Date, targetTimeZone: number | undefined, currentTimeZone?: number | undefined): Date {
-    const localTimeZone = getCurrentTimeZone();
+export const getDateByTimeZone = (
+    date: Date,
+    targetTimeZone = getCurrentTimeZone(),
+    currentTimeZone = getCurrentTimeZone(),
+) => new Date(date.getTime() + (currentTimeZone * 60 * 60 * 1000) - (targetTimeZone * 60 * 60 * 1000));
 
-    if (currentTimeZone === undefined) {
-        currentTimeZone = localTimeZone;
-    }
-    if (targetTimeZone === undefined) {
-        targetTimeZone = currentTimeZone;
-    }
-
-    const result = new Date(date.getTime() + (currentTimeZone * 60 * 60 * 1000) - (targetTimeZone * 60 * 60 * 1000));
-    return result;
-}
-
-export function getKitTimeByTimeZone(datetime: kitDateTime, timeZone: number): kitDateTime {
-    if (timeZone === undefined) {
-        timeZone = getCurrentTimeZone();
-    }
+export function getKitTimeByTimeZone(
+    datetime: kitDateTime,
+    timeZone = getCurrentTimeZone()
+): kitDateTime {
     let result = new Date(datetime.date.year, datetime.date.month - 1, datetime.date.date,
         datetime.time.hour, datetime.time.minute, datetime.time.second, datetime.time.millisecond);
     result = getDateByTimeZone(result, timeZone);
     return {
-        date: {
-            year: result.getFullYear(),
-            month: result.getMonth() + 1,
-            date: result.getDate()
-        },
-        time: {
-            hour: result.getHours(),
-            minute: result.getMinutes(),
-            second: result.getSeconds(),
-            millisecond: result.getMilliseconds()
-        }
-    }
+        date: initKitDate(result),
+        time: initKitTime(result),
+    };
 }
 
 export function getTimeStringByTimeZone(
     datetime: timeString,
-    targetTimeZone: number | undefined,
-    currentTimeZone?: number | undefined
+    targetTimeZone = getCurrentTimeZone(),
+    currentTimeZone = getCurrentTimeZone()
 ): timeString {
-
-    if (targetTimeZone === undefined) {
-        targetTimeZone = getCurrentTimeZone();
-    }
-    if (currentTimeZone === undefined) {
-        currentTimeZone = getCurrentTimeZone();
-
-    }
-
     let result = new Date(datetime);
     result = getDateByTimeZone(result, targetTimeZone, currentTimeZone);
-    return getTimeString({
-        year: result.getFullYear(),
-        month: result.getMonth() + 1,
-        date: result.getDate()
-    }, {
-        hour: result.getHours(),
-        minute: result.getMinutes(),
-        second: result.getSeconds(),
-        millisecond: result.getMilliseconds()
-    });
+    return kitDate2timeString(initKitDate(result), initKitTime(result));
 }

@@ -1,5 +1,13 @@
 import './box.scss';
-import { kitComponentOption, kitContent, kitDate, kitOption, kitResultPeriod, kitResultSingle, kitTime, timeString } from '../types';
+import {
+    kitComponentOption,
+    kitContent,
+    kitDate,
+    kitOption,
+    kitResultPeriod,
+    kitResultSingle,
+    kitTime
+} from '../types';
 import * as quick from './quick';
 import * as month from './month';
 import * as date from './date';
@@ -168,12 +176,10 @@ export const create = ({ root }: kitOption, data: kitContent) =>
             }, dataProxy.timeZone);
 
 
-            const startTime: timeString = utils.getTimeString(startDate.date, startDate.time);
+            const startTime = utils.kitDate2timeString(startDate.date, startDate.time);
 
-            // const startTime = utils.getTimeString(startDate);
-            // const endTime = utils.getTimeString(endDate);
             if (data.period) {
-                const endTime: timeString = utils.getTimeString(endDate.date, endDate.time);
+                const endTime = utils.kitDate2timeString(endDate.date, endDate.time);
                 resolve({
                     startTime,
                     endTime,
@@ -201,7 +207,6 @@ export const create = ({ root }: kitOption, data: kitContent) =>
          *
          * @param e - The mouse event triggered by a click.
          */
-
         function eventLoop(e: MouseEvent) {
             e.stopPropagation();
             const target = e.target as HTMLElement;
@@ -233,25 +238,21 @@ export const create = ({ root }: kitOption, data: kitContent) =>
  * the date selection boxes for start and end dates, a time selection box,
  * and footer buttons for 'Cancel' and 'Done' actions.
  */
-function render(data: kitContent): string {
-    return `
-         <div class="dt-content">
-            <div class="dt-date-box">
-                <div class="dt-start dt-data-body"></div>
-                ${data.period ? `<div class="dt-end dt-data-body"></div>` : ''}
-            </div>
-            <div class="dt-time-box"></div>
-            <div class="dt-footer">
-                <button class="dt-button dt-button-cancel">${i18n[data.lang].box.cancel}</button>
-                <button class="dt-button dt-button-primary">${i18n[data.lang].box.confirm}</button>
-            </div>
-         </div>
-    `;
-}
+const render = (data: kitContent) => `
+<div class="dt-content"
+  ><div class="dt-date-box"
+    ><div class="dt-start dt-data-body"></div${data.period ? `
+    ><div class="dt-end dt-data-body"></div` : ''}
+  ></div
+  ><div class="dt-time-box"></div
+  ><div class="dt-footer"
+    ><button class="dt-button dt-button-cancel">${i18n[data.lang].box.cancel}</button
+    ><button class="dt-button dt-button-primary">${i18n[data.lang].box.confirm}</button
+  ></div
+></div>`;
 
 
 export function updateData(ele: HTMLElement, data: kitContent) {
-    // ele.innerHTML = render(data);
     const doneButton = ele.querySelector('.dt-button-primary')!;
     if (!data.period) {
         if (!data.startDate.date) {
@@ -269,7 +270,6 @@ export function updateData(ele: HTMLElement, data: kitContent) {
         doneButton.classList.add('dt-button-disabled');
         return;
     }
-
 
     doneButton.classList.remove('dt-button-disabled');
 }
