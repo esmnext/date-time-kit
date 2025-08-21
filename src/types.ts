@@ -1,4 +1,6 @@
 
+import { Lang } from './i18n';
+
 export enum Granularity {
     day,
     second,
@@ -88,8 +90,6 @@ export interface kitComponent {
 
 export type status = 'start' | 'end';
 export type timeString = `${number}-${number}-${number}T${number}:${number}:${number}.${number}`;
-export type Lang = 'zhCN' | 'enUS';
-
 
 
 export interface kitResult {
@@ -106,47 +106,6 @@ export interface kitResultPeriod extends kitResult {
 export interface kitResultSingle extends kitResult {
     time: timeString;
     timeStamp: number;
-}
-
-export type kitI18n = {
-    [key in Lang]: {
-        box: {
-            confirm: string;
-            cancel: string;
-        },
-        quick: {
-            all: string;
-            today: string;
-            yesterday: string;
-            week: string;
-            lastWeek: string;
-            last7Days: string;
-            month: string;
-            last30Days: string;
-            last180Days: string;
-            last6Month: string;
-            year: string;
-            timezone: string;
-            recommend: string;
-            timezoneList: string;
-        },
-        date: {
-            sun: string;
-            mon: string;
-            tue: string;
-            wed: string;
-            thu: string;
-            fri: string;
-            sat: string;
-        },
-        time: {
-            startTime: string;
-            endTime: string;
-            startMillisecond: string;
-            endMillisecond: string;
-            singleTitle: string;
-        }
-    }
 }
 
 export interface kitDateTime {

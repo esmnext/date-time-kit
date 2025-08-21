@@ -1,6 +1,47 @@
-import { kitI18n } from './types';
 
-export default {
+export type Lang = 'enUS' | 'zhCN' | 'zhTW' | 'idID' | 'viVN' | 'thTH' | 'msMY' | 'koKR' | 'arAE';
+
+export type kitI18n = Record<Lang, {
+    box: {
+        confirm: string;
+        cancel: string;
+        select: string;
+    },
+    quick: {
+        all: string;
+        today: string;
+        yesterday: string;
+        week: string;
+        lastWeek: string;
+        last7Days: string;
+        month: string;
+        last30Days: string;
+        last180Days: string;
+        last6Month: string;
+        year: string;
+        timezone: string;
+        recommend: string;
+        timezoneList: string;
+    },
+    date: {
+        sun: string;
+        mon: string;
+        tue: string;
+        wed: string;
+        thu: string;
+        fri: string;
+        sat: string;
+    },
+    time: {
+        startTime: string;
+        endTime: string;
+        startMillisecond: string;
+        endMillisecond: string;
+        singleTitle: string;
+    }
+}>;
+
+const i18n: kitI18n = {
   enUS: {
     box: {
       confirm: 'Done',
@@ -358,4 +399,6 @@ export default {
       "singleTitle": "تحديد الوقت"
     }
   }
-} as kitI18n;
+};
+
+export default i18n;

@@ -1,7 +1,7 @@
 import * as utils from "../utils";
 import { kitContent, kitDataLimit, kitDataLimitContent } from "../types";
 import './quick.scss';
-import i18n from "@/i18n";
+import i18n from "../i18n";
 
 let QUICK_MAP = getQuickMap();
 

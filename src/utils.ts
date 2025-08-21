@@ -6,11 +6,10 @@ import {
     kitOption,
     kitTime,
     timeString,
-    Lang,
     kitDataLimit,
     kitTimestampResult,
 } from "./types";
-import i18n from "./i18n";
+import i18n, { Lang } from "./i18n";
 import { getQuickMap } from './components/quick';
 
 export function getLimitKeyByTimestamp(
