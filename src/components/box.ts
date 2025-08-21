@@ -1,20 +1,15 @@
 import './box.scss';
-import { kitComponentOption, kitContent, kitDate, kitOption, kitResultPeriod, kitResultSingle, kitTime, timeString } from '../../type';
+import { kitComponentOption, kitContent, kitDate, kitOption, kitResultPeriod, kitResultSingle, kitTime, timeString } from '../types';
 import * as quick from './quick';
 import * as month from './month';
 import * as date from './date';
 import * as time from './time';
 import * as utils from '../utils';
-import i18n from '@/i18n';
+import i18n from '../i18n';
 
-/**
- * create date time picker
- * @param {kitOption} options 
- * @param {kitContent} data 
- * @returns {Promise<kitContent>} 
- */
-export async function create({ root }: kitOption, data: kitContent): Promise<kitResultPeriod | kitResultSingle> {
-    return new Promise((resolve, reject) => {
+/** create date time picker */
+export const create = ({ root }: kitOption, data: kitContent) =>
+    new Promise<kitResultPeriod | kitResultSingle>((resolve, reject) => {
         const components: kitComponentOption[] = [];
 
         if (root.querySelector('.dt-box')) {
@@ -227,20 +222,17 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
         eleMask.addEventListener('click', cancel);
         // show box 
         utils.showBox(eleBox);
-
     });
-}
 
 
 
 /**
  * Renders the HTML structure for the datetime picker component.
  * 
- * @returns {string} The HTML markup for the datetime picker, including
- * the date selection boxes for start and end dates, a time selection box, 
+ * @returns The HTML markup for the datetime picker, including
+ * the date selection boxes for start and end dates, a time selection box,
  * and footer buttons for 'Cancel' and 'Done' actions.
  */
-
 function render(data: kitContent): string {
     return `
          <div class="dt-content">

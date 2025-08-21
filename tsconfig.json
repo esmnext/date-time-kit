@@ -19,10 +19,8 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "types": ["./type.d.ts"],
     "paths": {
       "@/*": ["./src/*"],
-      "*": ["./type.d.ts"]
     }
   },
   "exclude": ["node_modules", "dist"],

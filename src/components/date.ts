@@ -1,11 +1,12 @@
-import { kitContent, status } from "../../type";
+import { kitContent, status } from "../types";
 import './date.scss';
-import i18n from "@/i18n";
+import i18n from "../i18n";
 import * as utils from '../utils';
+
 /**
  * create a date box
- * @param data - the data of date box
- * @param status - the status of date box, default is "start"
+ * @param data the data of date box
+ * @param status the status of date box, default is `start`
  * @returns the element of date box
  */
 export function create(data: kitContent, status: status = "start") {

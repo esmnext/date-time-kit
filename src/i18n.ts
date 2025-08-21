@@ -1,4 +1,4 @@
-import { kitI18n } from '*';
+import { kitI18n } from './types';
 
 export default {
   enUS: {

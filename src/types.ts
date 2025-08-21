@@ -1,17 +1,10 @@
-export * as dateEnum from './src/enum';
 
-export declare function open(kitOption: kitOption): Promise<kitResult>;
-export declare function getLimitKeyByTimestamp(startTimestamp: timeString, endTimestamp: timeString, timeZone?: number | undefined): kitDataLimit | null;
-export declare function getTimestampByLimitKey(limit: kitDataLimit, timeZone?: number | undefined): kitTimestampResult;
-export declare function getTimeStringByTimestamp(timestamp: number): timeString;
-export declare function getTimeStringByTimeZone(timeString: timeString, timeZone: number, currentTimeZone?: number): timeString;
-export default {
-    open,
-    getLimitKeyByTimestamp,
-    getTimestampByLimitKey,
-    getTimeStringByTimestamp,
-    getTimeStringByTimeZone
+export enum Granularity {
+    day,
+    second,
+    millisecond
 }
+
 export interface kitTimestampResult {
     startTime: timeString;
     endTime: timeString;
@@ -30,7 +23,7 @@ export interface kitOption {
     lang?: Lang;
     // default time zone
     timeZone?: number;
-    granularity?: dateEnum.Granularity;
+    granularity?: Granularity;
     enableZone?: boolean | undefined;
     // time period
     period?: boolean;
@@ -54,7 +47,7 @@ export interface kitContent {
     lang: Lang;
     timeZone: number;
     enableZone: boolean;
-    granularity: dateEnum.Granularity;
+    granularity: Granularity;
     period: boolean;
     maxLength: number; // 选择的最大时长 单位ms period 为true 生效
     minLength: number; // 选择的最小时长 单位ms period 为true 生效

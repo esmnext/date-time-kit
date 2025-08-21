@@ -1,5 +1,4 @@
-import { Granularity } from "@/enum";
-import { kitContent, status } from "../../type";
+import { kitContent, status, Granularity } from "../types";
 import './time.scss';
 import i18n from "@/i18n";
 import * as utils from '../utils';

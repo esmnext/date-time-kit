@@ -1,7 +1,139 @@
-import { kitContent, kitDate, kitDateTime, kitOption, kitTime, timeString, Lang } from "*";
-import { utils } from ".";
-import { Granularity } from './enum';
+import {
+    Granularity,
+    kitContent,
+    kitDate,
+    kitDateTime,
+    kitOption,
+    kitTime,
+    timeString,
+    Lang,
+    kitDataLimit,
+    kitTimestampResult,
+} from "./types";
 import i18n from "./i18n";
+import { getQuickMap } from './components/quick';
+
+export function getLimitKeyByTimestamp(
+    startTimestamp: timeString,
+    endTimestamp: timeString,
+    timeZone?: number
+): kitDataLimit | null {
+    const currentTimeZone = getCurrentTimeZone();
+    if (timeZone === void 0) {
+        timeZone = currentTimeZone;
+    }
+
+    const startTimeDate = new Date(getTimeStringByTimeZone(startTimestamp, currentTimeZone, timeZone));
+    const endTimeDate = new Date(getTimeStringByTimeZone(endTimestamp, currentTimeZone, timeZone));
+    const endTime: kitTime = {
+        hour: endTimeDate.getHours(),
+        minute: endTimeDate.getMinutes(),
+        second: endTimeDate.getSeconds(),
+        millisecond: endTimeDate.getMilliseconds()
+    }
+    const startTime: kitTime = {
+        hour: startTimeDate.getHours(),
+        minute: startTimeDate.getMinutes(),
+        second: startTimeDate.getSeconds(),
+        millisecond: startTimeDate.getMilliseconds()
+    }
+    const startDate: kitDate = {
+        year: startTimeDate.getFullYear(),
+        month: startTimeDate.getMonth() + 1,
+        date: startTimeDate.getDate()
+    }
+
+    const endDate: kitDate = {
+        year: endTimeDate.getFullYear(),
+        month: endTimeDate.getMonth() + 1,
+        date: endTimeDate.getDate()
+    }
+    const QUICK_MAP = getQuickMap();
+    for (const key in QUICK_MAP) {
+        if (!QUICK_MAP[key as keyof typeof QUICK_MAP]) {
+            continue;
+        }
+
+        if (
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.hour === endTime.hour &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.minute === endTime.minute &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.second === endTime.second &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.millisecond === endTime.millisecond &&
+
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startTime.hour === startTime.hour &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startTime.minute === startTime.minute &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startTime.second === startTime.second &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startTime.millisecond === startTime.millisecond &&
+
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startDate.year === startDate.year &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startDate.month === startDate.month &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.startDate.date === startDate.date &&
+
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.year === endDate.year &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.month === endDate.month &&
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.date === endDate.date
+
+        ) {
+            return key as kitDataLimit;
+        }
+    }
+    return null;
+}
+
+/**
+ * 
+ * @param {kitDataLimit} limitKey
+ * @returns {kitTimestampResult}
+ * 
+ * @description 
+ *  limitKey
+ *  QUICK_MAP
+ *  QUICK_MAP[limitKey]
+ *  QUICK_MAP[limitKey].startDate, QUICK_MAP[limitKey].startTime
+ *  QUICK_MAP[limitKey].endDate, QUICK_MAP[limitKey].endTime
+ *  Date(result.startTime).getTime()
+ *  Date(result.endTime).getTime()
+ *  kitTimestampResult
+ */
+export function getTimestampByLimitKey(
+    limitKey: kitDataLimit,
+    timeZone?: number
+): kitTimestampResult {
+    const result: kitTimestampResult = {
+        startTime: '0000-00-00T00:00:00.000',
+        endTime: '0000-00-00T00:00:00.000',
+        startTimeStamp: 0,
+        endTimeStamp: 0
+    }
+    const QUICK_MAP = getQuickMap();
+    if (!QUICK_MAP[limitKey]) {
+        return result;
+    }
+    if (timeZone === void 0) {
+        timeZone = getCurrentTimeZone();
+    }
+
+    const startDateTime = getKitTimeByTimeZone({
+        date: QUICK_MAP[limitKey].startDate,
+        time: QUICK_MAP[limitKey].startTime
+    }, timeZone);
+
+
+    const endDateTime = getKitTimeByTimeZone({
+        date: QUICK_MAP[limitKey].endDate,
+        time: QUICK_MAP[limitKey].endTime
+    }, timeZone);
+
+    result.startTime = getTimeString(startDateTime.date, startDateTime.time);
+    result.endTime = getTimeString(endDateTime.date, endDateTime.time);
+
+    // result.startTime = getTimeString(QUICK_MAP[limitKey].startDate, QUICK_MAP[limitKey].startTime);
+    // result.endTime = getTimeString(QUICK_MAP[limitKey].endDate, QUICK_MAP[limitKey].endTime);
+    result.startTimeStamp = new Date(result.startTime).getTime();
+    result.endTimeStamp = new Date(result.endTime).getTime();
+    return result;
+
+}
 
 /**
  * Shows the element by adding the "dt-show" class.
@@ -35,13 +167,13 @@ export function hideBox(element: Element) {
  * @returns A debounced version of the provided function.
  */
 // eslint-disable-next-line
-export function debounce(fn: Function) {
-    let timer: number;
+export function debounce(fn: Function, delay = 10) {
+    let timer: ReturnType<typeof setTimeout> | null = null;
     return function () {
-        clearTimeout(timer);
+        if (timer !== null) clearTimeout(timer);
         timer = setTimeout(() => {
             fn();
-        }, 10);
+        }, delay);
     }
 }
 
@@ -105,8 +237,8 @@ export function dataFactory(kitOption: kitOption): kitContent {
     let { maxTime, minTime, startTime, endTime } = kitOption;
     //TODO: 配置名字写反了 临时交换一下
     const temTime = maxTime;
-    maxTime = minTime || utils.getTimeStringByTimestamp(Date.now() - 1000 * 60 * 60 * 24 * 365 * 5);
-    minTime = temTime || utils.getTimeStringByTimestamp(Date.now() + 1000 * 60 * 60 * 24 * 365 * 20);
+    maxTime = minTime || getTimeStringByTimestamp(Date.now() - 1000 * 60 * 60 * 24 * 365 * 5);
+    minTime = temTime || getTimeStringByTimestamp(Date.now() + 1000 * 60 * 60 * 24 * 365 * 20);
     // startTime = startTime || '0000-00-00T00:00:00.000';
     // endTime = endTime || '0000-00-00T00:00:00.000';
 

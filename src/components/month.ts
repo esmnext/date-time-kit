@@ -1,10 +1,10 @@
-import { kitContent, status } from "../../type";
+import { kitContent, status } from "../types";
 import './month.scss';
 
 /**
  * Create a month select box
- * @param data - the data of date picker
- * @param status - the status of date picker, default is "start"
+ * @param data the data of date picker
+ * @param status the status of date picker, default is `start`
  * @returns the element of month select box
  */
 export function create(data: kitContent, status: status = "start") {
@@ -17,31 +17,31 @@ export function create(data: kitContent, status: status = "start") {
     // add event
     ele.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
-        
+
         // sub year
-        if ( target.classList.contains('dt-month-year-sub') ) {
+        if (target.classList.contains('dt-month-year-sub')) {
             const dateShow: keyof kitContent = status === 'start' ? 'startDateShow' : 'endDateShow';
             data[dateShow] = {
                 ...data[dateShow],
                 year: data[dateShow].year - 1,
-                
+
             }
             return;
         }
 
         // add year
-        if ( target.classList.contains('dt-month-year-add') ) {
+        if (target.classList.contains('dt-month-year-add')) {
             const dateShow: keyof kitContent = status === 'start' ? 'startDateShow' : 'endDateShow';
             data[dateShow] = {
                 ...data[dateShow],
                 year: data[dateShow].year + 1,
-                
+
             }
             return;
         }
-        
+
         // sub month
-        if ( target.classList.contains('dt-month-sub') ) {
+        if (target.classList.contains('dt-month-sub')) {
             const dateShow: keyof kitContent = status === 'start' ? 'startDateShow' : 'endDateShow';
             const newDate = new Date(data[dateShow].year, data[dateShow].month - 1, data[dateShow].date);
             newDate.setMonth(newDate.getMonth() - 1);
@@ -55,7 +55,7 @@ export function create(data: kitContent, status: status = "start") {
         }
 
         // add month
-        if ( target.classList.contains('dt-month-add') ) {
+        if (target.classList.contains('dt-month-add')) {
             const dateShow: keyof kitContent = status === 'start' ? 'startDateShow' : 'endDateShow';
             // const newDate = new Date(`${data[dateShow].year}-${data[dateShow].month}-${data[dateShow].date}`);
             const newDate = new Date(data[dateShow].year, data[dateShow].month - 1, data[dateShow].date);
@@ -69,12 +69,12 @@ export function create(data: kitContent, status: status = "start") {
         }
 
         // show month select box
-        if ( target.classList.contains('dt-month-text') || target.parentElement?.classList.contains('dt-month-text')) {
+        if (target.classList.contains('dt-month-text') || target.parentElement?.classList.contains('dt-month-text')) {
             ele.querySelector('.dt-month-select')!.innerHTML = renderSelectList(data, status);
-            
+
             ele.classList.add('dt-month-select-show');
             setTimeout(() => {
-                ele.querySelectorAll('.dt-month-item-active').forEach( (e) => {
+                ele.querySelectorAll('.dt-month-item-active').forEach((e) => {
                     // e.scrollIntoView({
                     //     block: 'start',
                     //     inline: 'center',
@@ -86,17 +86,17 @@ export function create(data: kitContent, status: status = "start") {
                     })
                 });
             }, 200);
-            return ;
+            return;
         }
 
         // hide month select box
-        if ( target.classList.contains('dt-month-mask') ) {
+        if (target.classList.contains('dt-month-mask')) {
             ele.classList.remove('dt-month-select-show');
-            return ;
+            return;
         }
 
-         // select year
-         if ( target.classList.contains('dt-year-item') ) {
+        // select year
+        if (target.classList.contains('dt-year-item')) {
             const dateShow: keyof kitContent = status === 'start' ? 'startDateShow' : 'endDateShow';
             data[dateShow] = {
                 ...data[dateShow],
@@ -114,18 +114,18 @@ export function create(data: kitContent, status: status = "start") {
                 top: target.offsetTop - 10,
                 behavior: 'smooth'
             })
-            return ;
+            return;
         }
 
         // select month
-        if ( target.classList.contains('dt-month-item') ) {
+        if (target.classList.contains('dt-month-item')) {
             const dateShow: keyof kitContent = status === 'start' ? 'startDateShow' : 'endDateShow';
-            
+
             data[dateShow] = {
                 ...data[dateShow],
                 month: parseInt(target.getAttribute('data-month') as string),
             }
-           
+
             target.parentElement!.querySelector('.dt-month-item-active')?.classList.remove('dt-month-item-active');
             target.classList.add('dt-month-item-active');
             // target.scrollIntoView({
@@ -138,24 +138,24 @@ export function create(data: kitContent, status: status = "start") {
                 top: target.offsetTop - 10,
                 behavior: 'smooth'
             })
-            return ;
+            return;
         }
-        
-       
+
+
     });
     return ele;
 }
 
 /**
  * Render the month select box
- * @param data - the data of date picker
- * @param status - the status of date picker, default is "start"
+ * @param data the data of date picker
+ * @param status the status of date picker
  * @returns the element of month select box
  */
 function render(data: kitContent, status: status) {
-   
+
     // let showDate: Date | null = null;
-    
+
     // if ( status === 'start' && data.startDateShow.year ) {
     //     // render start month
     //     showDate = new Date(`${data.startDateShow.year}-${data.startDateShow.month}-${data.startDateShow.date}`);
@@ -165,7 +165,7 @@ function render(data: kitContent, status: status) {
     //     // render current month
     //     showDate = new Date();
     // }
-    
+
     // if ( status === 'end' && data.endDateShow.year ) {
     //     // render end month
     //     showDate = new Date(`${data.endDateShow.year}-${data.endDateShow.month}-${data.endDateShow.date}`);
@@ -213,45 +213,45 @@ function render(data: kitContent, status: status) {
     `;
 }
 
-function renderSelectList(data: kitContent,  status: status) {
+function renderSelectList(data: kitContent, status: status) {
     const dataKey = status === 'start' ? 'startDateShow' : 'endDateShow';
     const year = data[dataKey].year;
     const month = data[dataKey].month;
-   
+
     // render month
     let monthHTML = '';
-    for ( let i = 1; i <= 12; i++ ) {
-        
+    for (let i = 1; i <= 12; i++) {
+
         const classList = ['dt-month-item'];
-        if ( i === month ) {
+        if (i === month) {
             classList.push('dt-month-item-active');
         }
-        
-        if ( status === 'start'  ) {
-            if ( year === data.maxDate.year && i > data.maxDate.month ) {
+
+        if (status === 'start') {
+            if (year === data.maxDate.year && i > data.maxDate.month) {
                 classList.push('dt-month-item-disabled');
             }
-            if ( year === data.minDate.year && i < data.minDate.month ) {
+            if (year === data.minDate.year && i < data.minDate.month) {
                 classList.push('dt-month-item-disabled');
             }
-            if ( year < data.minDate.year ) {
+            if (year < data.minDate.year) {
                 classList.push('dt-month-item-disabled');
             }
-            if ( year > data.maxDate.year ) {
+            if (year > data.maxDate.year) {
                 classList.push('dt-month-item-disabled');
             }
         }
-        if ( status === 'end'  ) {
-            if ( year === data.maxDate.year && i > data.maxDate.month ) {
+        if (status === 'end') {
+            if (year === data.maxDate.year && i > data.maxDate.month) {
                 classList.push('dt-month-item-disabled');
             }
-            if ( year === data.minDate.year && i < data.minDate.month ) {
+            if (year === data.minDate.year && i < data.minDate.month) {
                 classList.push('dt-month-item-disabled');
             }
-            if ( year < data.minDate.year ) {
+            if (year < data.minDate.year) {
                 classList.push('dt-month-item-disabled');
             }
-            if ( year > data.maxDate.year ) {
+            if (year > data.maxDate.year) {
                 classList.push('dt-month-item-disabled');
             }
         }
@@ -260,43 +260,43 @@ function renderSelectList(data: kitContent,  status: status) {
             <div class="${classList.join(' ')}" data-month="${i}">${i}</div>
         `;
 
-        
+
     }
 
     // render year
     let yearHTML = '';
-    for ( let i = data.maxDate.year; i >= data.minDate.year; i-- ) {
+    for (let i = data.maxDate.year; i >= data.minDate.year; i--) {
 
         const classList = ['dt-month-item'];
-        if ( i === year ) {
+        if (i === year) {
             classList.push('dt-month-item-active');
         }
-        
-        if ( status === 'start'  ) {
-            if ( year === data.maxDate.year && i > data.maxDate.month ) {
+
+        if (status === 'start') {
+            if (year === data.maxDate.year && i > data.maxDate.month) {
                 classList.push('dt-month-item-disabled');
             }
-            if ( year === data.minDate.year && i < data.minDate.month ) {
+            if (year === data.minDate.year && i < data.minDate.month) {
                 classList.push('dt-month-item-disabled');
             }
-            if ( year < data.minDate.year ) {
+            if (year < data.minDate.year) {
                 classList.push('dt-month-item-disabled');
             }
-            if ( year > data.maxDate.year ) {
+            if (year > data.maxDate.year) {
                 classList.push('dt-month-item-disabled');
             }
         }
-        if ( status === 'end'  ) {
-            if ( year === data.maxDate.year && i > data.maxDate.month ) {
+        if (status === 'end') {
+            if (year === data.maxDate.year && i > data.maxDate.month) {
                 classList.push('dt-month-item-disabled');
             }
-            if ( year === data.minDate.year && i < data.minDate.month ) {
+            if (year === data.minDate.year && i < data.minDate.month) {
                 classList.push('dt-month-item-disabled');
             }
-            if ( year < data.minDate.year ) {
+            if (year < data.minDate.year) {
                 classList.push('dt-month-item-disabled');
             }
-            if ( year > data.maxDate.year ) {
+            if (year > data.maxDate.year) {
                 classList.push('dt-month-item-disabled');
             }
         }
@@ -333,18 +333,18 @@ export function updateData(ele: HTMLElement, data: kitContent) {
         ...getBoxClass(data, status),
         ele.classList.contains('dt-month-select-show') ? 'dt-month-select-show' : ''
     ].join(' ');
-    
+
 }
 
 /**
  * Get the class name of the month box, given the kitContent data and status.
  * @param data The kitContent data to be rendered.
- * @param status The status of month box, 'start' or 'end'.
+ * @param status The status of month box.
  * @return The class name of the month box.
  */
 function getBoxClass(data: kitContent, status: status) {
     const classList = ['dt-month'];
-    if ( !data.period ) {
+    if (!data.period) {
         return classList;
     }
 
@@ -358,13 +358,13 @@ function getBoxClass(data: kitContent, status: status) {
     // const endDate = new Date(`${data.endDateShow.year}-${data.endDateShow.month}`);
     const endDate = new Date(data.endDateShow.year, data.endDateShow.month - 1);
     startDate.setMonth(startDate.getMonth() + 1);
-    if ( startDate.getTime() >= endDate.getTime() ) {
+    if (startDate.getTime() >= endDate.getTime()) {
         classList.push(classNameM);
     }
 
     startDate = new Date(`${data.startDateShow.year}-${data.startDateShow.month}`);
     startDate.setFullYear(startDate.getFullYear() + 1);
-    if ( startDate.getTime() >= endDate.getTime() ) {
+    if (startDate.getTime() >= endDate.getTime()) {
         classList.push(classNameY);
     }
 
