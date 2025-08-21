@@ -3,11 +3,11 @@
   "version": "1.1.4",
   "description": "A JavaScript library for handling date and time operations efficiently.",
   "type": "module",
-  "types": "./dist/export.d.ts",
+  "types": "./dist/types/export.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "types": "./dist/export.d.ts",
+      "types": "./dist/types/export.d.ts",
       "style": "./dist/index.css"
     },
     "./dist/index.css": "./dist/index.css"
