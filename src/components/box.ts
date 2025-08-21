@@ -14,10 +14,10 @@ import i18n from '@/i18n';
  * @returns {Promise<kitContent>} 
  */
 export async function create({ root }: kitOption, data: kitContent): Promise<kitResultPeriod | kitResultSingle> {
-    return new Promise(( resolve, reject ) => {
+    return new Promise((resolve, reject) => {
         const components: kitComponentOption[] = [];
 
-        if ( root.querySelector('.dt-box') ) {
+        if (root.querySelector('.dt-box')) {
             return reject("Date time picker has been created");
         }
         // debounce
@@ -29,29 +29,30 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
         })
         // watch data
         const dataProxy = new Proxy(data, {
-            set(target, key, value) {
+            set(target, _key, value) {
+                const key = _key as keyof kitContent;
                 // if data is the same, return
                 let flag = false;
-                if ( typeof target[key as keyof kitContent] === 'object' ) {
-                    for ( const item in target[key as keyof kitContent] as kitDate | kitTime ) {
-                        if ( target[key as keyof kitContent][item as keyof (kitDate | kitTime)] !== value[item] ) {
+                if (typeof target[key] === 'object') {
+                    for (const item in target[key] as kitDate | kitTime) {
+                        if (target[key][item as keyof (kitDate | kitTime)] !== value[item]) {
                             flag = true;
                             break;
                         }
                     }
                 } else {
-                    if ( target[key as keyof kitContent] !== value ) {
+                    if (target[key] !== value) {
                         flag = true;
                     }
                 }
-                
 
-                if ( !flag ) {
+                if (!flag) {
                     return true;
                 }
-                
-                target[key as keyof kitContent] = value;
-                
+
+                // eslint-disable-next-line
+                (target as any)[key] = value;
+
                 // send new data to components
                 updateDataDebounce();
                 return true;
@@ -61,7 +62,7 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
         /************************************************
          *  @description create components
          ************************************************/
-       
+
         const eleBox = document.createElement('div');
         eleBox.classList.add('dt-box');
         eleBox.innerHTML = render(data);
@@ -72,15 +73,15 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
         eleMask.classList.add('dt-mask');
         document.body.appendChild(eleMask);
         // compute position
-        if ( window.innerWidth > 768 ) {
+        if (window.innerWidth > 768) {
             const rect = root.getBoundingClientRect();
             eleBox.style.top = `${rect.height + 5}px`;
         }
         // update ui status
         updateData(eleBox, dataProxy);
-        
 
-        if ( data.period ) {
+
+        if (data.period) {
             // add quick select list
             const eleQuick = quick.create(dataProxy);
             eleBox.insertBefore(eleQuick, eleBox.querySelector('.dt-content'));
@@ -89,7 +90,7 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
                 component: quick
             });
         }
-        
+
 
         // add month select for start
         const eleMonthStart = month.create(dataProxy, 'start');
@@ -107,7 +108,7 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
             component: date
         });
 
-        if ( data.period ) {
+        if (data.period) {
             // add month select for end
             const eleMonthEnd = month.create(dataProxy, 'end');
             eleBox.querySelector('.dt-end')!.appendChild(eleMonthEnd);
@@ -124,7 +125,7 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
                 component: date
             });
         }
-        
+
 
         // add time for box
         const eleTime = time.create(dataProxy);
@@ -162,21 +163,21 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
             utils.hideBox(eleBox);
             utils.hideBox(eleMask);
 
-            const startDate = utils.getKitTimeyTimeZone({
+            const startDate = utils.getKitTimeByTimeZone({
                 date: dataProxy.startDate,
                 time: dataProxy.startTime
             }, dataProxy.timeZone);
-            const endDate = utils.getKitTimeyTimeZone({
+            const endDate = utils.getKitTimeByTimeZone({
                 date: dataProxy.endDate,
                 time: dataProxy.endTime
             }, dataProxy.timeZone);
 
-           
+
             const startTime: timeString = utils.getTimeString(startDate.date, startDate.time);
-            
+
             // const startTime = utils.getTimeString(startDate);
             // const endTime = utils.getTimeString(endDate);
-            if ( data.period ) {
+            if (data.period) {
                 const endTime: timeString = utils.getTimeString(endDate.date, endDate.time);
                 resolve({
                     startTime,
@@ -193,7 +194,7 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
                     timeZone: dataProxy.timeZone
                 });
             }
-            
+
         }
 
         /**
@@ -226,7 +227,7 @@ export async function create({ root }: kitOption, data: kitContent): Promise<kit
         eleMask.addEventListener('click', cancel);
         // show box 
         utils.showBox(eleBox);
-        
+
     });
 }
 
@@ -260,19 +261,19 @@ function render(data: kitContent): string {
 export function updateData(ele: HTMLElement, data: kitContent) {
     // ele.innerHTML = render(data);
     const doneButton = ele.querySelector('.dt-button-primary')!;
-    if ( !data.period ) {
-        if ( !data.startDate.date ) {
+    if (!data.period) {
+        if (!data.startDate.date) {
             doneButton.classList.add('dt-button-disabled');
             return;
         }
         doneButton.classList.remove('dt-button-disabled');
         return;
     }
-    if ( !data.endDate.year ) {
+    if (!data.endDate.year) {
         doneButton.classList.add('dt-button-disabled');
         return;
     }
-    if ( data.moveDate.year ) {
+    if (data.moveDate.year) {
         doneButton.classList.add('dt-button-disabled');
         return;
     }

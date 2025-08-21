@@ -1,29 +1,30 @@
 import * as utils from "../utils";
-import { kitContent, kitDataLimit,  kitDataLimitContent } from "../../type";
+import { kitContent, kitDataLimit, kitDataLimitContent } from "../../type";
 import './quick.scss';
 import i18n from "@/i18n";
 
 let QUICK_MAP = getQuickMap();
- 
+
 export function create(data: kitContent) {
     const ele = document.createElement('div');
     ele.classList.add('dt-quick');
-    if ( !data.enableZone ) {
+    if (!data.enableZone) {
         ele.classList.add('dt-quick-zone-disabled');
     }
 
     ele.innerHTML = render(data);
-    
+
     QUICK_MAP = getQuickMap();
     QUICK_MAP.all = getAllLimit(data);
-    
+
     ele.querySelector('.dt-quick-item-active')?.classList.remove('dt-quick-item-active');
     const limitKey = getLimitKey(data);
-    limitKey && ele.querySelector('.dt-quick-item[data-limit="' + limitKey + '"]')!.classList.add('dt-quick-item-active');
+    if (limitKey)
+        ele.querySelector('.dt-quick-item[data-limit="' + limitKey + '"]')!.classList.add('dt-quick-item-active');
     // add event
     ele.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
-        if ( target.classList.contains('dt-quick-item') ) {
+        if (target.classList.contains('dt-quick-item')) {
             target.parentElement?.querySelector('.dt-quick-item-active')?.classList.remove('dt-quick-item-active');
             target.classList.add('dt-quick-item-active');
 
@@ -32,28 +33,28 @@ export function create(data: kitContent) {
             return;
         }
 
-        if ( target.classList.contains('dt-time-zone') ||
+        if (target.classList.contains('dt-time-zone') ||
             target.classList.contains('dt-time-zone-text') ||
             target.classList.contains('dt-time-zone-icon')
         ) {
-            if ( ele.classList.contains('dt-quick-zone-disabled') ) {
+            if (ele.classList.contains('dt-quick-zone-disabled')) {
                 return;
             }
             ele.querySelector('.dt-time-zone')?.classList.add('dt-time-zone-select-show');
             return;
         }
 
-        if ( target.classList.contains('dt-time-zone-mask') ) {
+        if (target.classList.contains('dt-time-zone-mask')) {
             ele.querySelector('.dt-time-zone')?.classList.remove('dt-time-zone-select-show');
             return;
         }
 
-        let targetParent = target.parentElement;
+        const targetParent = target.parentElement;
         let zoneItem = target;
         if (targetParent?.classList.contains('dt-time-zone-item')) {
             zoneItem = targetParent;
         }
-        if ( zoneItem.classList.contains('dt-time-zone-item')) {
+        if (zoneItem.classList.contains('dt-time-zone-item')) {
             ele.querySelector('.dt-time-zone-select-active')?.classList.remove('dt-time-zone-select-active');
             zoneItem.classList.add('dt-time-zone-select-active');
             data.timeZone = Number(zoneItem.getAttribute('data-timezone'));
@@ -67,9 +68,9 @@ export function create(data: kitContent) {
 
 function setDate(limit: kitDataLimit, data: kitContent) {
 
-    if ( !QUICK_MAP[limit] ) {
+    if (!QUICK_MAP[limit]) {
         return;
-    } 
+    }
     data.startDate = QUICK_MAP[limit].startDate;
     data.startTime = QUICK_MAP[limit].startTime;
     data.endDate = QUICK_MAP[limit].endDate;
@@ -80,7 +81,7 @@ function setDate(limit: kitDataLimit, data: kitContent) {
     const endData = new Date(data.endDate.year, data.endDate.month - 1, data.endDate.date);
     // const startData = new Date(`${data.startDate.year}-${data.startDate.month}-${data.startDate.date}`);
     const startData = new Date(data.startDate.year, data.startDate.month - 1, data.startDate.date);
-    if ( endData.getFullYear() === startData.getFullYear() && endData.getMonth() == startData.getMonth() ) {
+    if (endData.getFullYear() === startData.getFullYear() && endData.getMonth() == startData.getMonth()) {
         endData.setMonth(endData.getMonth() + 1);
     }
     data.moveDate = {
@@ -97,19 +98,19 @@ function setDate(limit: kitDataLimit, data: kitContent) {
 }
 function render(data: kitContent) {
     let html = '';
-    
 
-    for ( const key in QUICK_MAP) {
+
+    for (const key in QUICK_MAP) {
         const limitKey = key as keyof typeof QUICK_MAP;
         const limitData = QUICK_MAP[limitKey];
         console.log(key, limitData, data.maxLength);
-        if ( data.maxLength && (!limitData || limitData.length >= data.maxLength) ) {
+        if (data.maxLength && (!limitData || limitData.length >= data.maxLength)) {
             continue;
         }
 
         html += `<div class="dt-quick-item" data-limit="${key}">${i18n[data.lang].quick[limitKey]}</div>`;
     }
-    if ( !html ) {
+    if (!html) {
         return '';
     }
     return `
@@ -126,8 +127,8 @@ function render(data: kitContent) {
 }
 
 
-function renderTimeZoneText( data: kitContent ) {
-    if ( data.timeZone >= 0 ) {
+function renderTimeZoneText(data: kitContent) {
+    if (data.timeZone >= 0) {
         return `
            ${i18n[data.lang].quick.timezone}: UTC+${data.timeZone}
         `;
@@ -142,7 +143,7 @@ function renderTimeZoneList(data: kitContent) {
     const currentZone = -new Date().getTimezoneOffset() / 60;
     let html = `<div class="dt-time-zone-select-title">${i18n[data.lang].quick.recommend}</div>`;
 
-    // render recomment
+    // render recommend
     if (currentZone >= 0) {
         html += `<div class="dt-time-zone-item${data.timeZone === currentZone ? ' dt-time-zone-select-active' : ''}"" data-timezone="${currentZone}">
             <span class="dt-time-zone-item-icon"></span><span>UTC+${currentZone}</span>
@@ -152,7 +153,7 @@ function renderTimeZoneList(data: kitContent) {
             <span class="dt-time-zone-item-icon"></span><span>UTC${currentZone}</span>
         </div>`;
     }
-    
+
     html += `<div class="dt-time-zone-item" data-timezone="2">
         <span class="dt-time-zone-item-icon"></span><span>UTC+2</span>
     </div>`;
@@ -161,10 +162,10 @@ function renderTimeZoneList(data: kitContent) {
     // render all time zone
     for (let i = 0; i <= 12; i++) {
 
-        if ( i === currentZone ) {
+        if (i === currentZone) {
             continue;
         }
-        if ( i === 2 ) {
+        if (i === 2) {
             continue;
         }
         html += `<div class="dt-time-zone-item${i === data.timeZone ? ' dt-time-zone-select-active' : ''}" data-timezone="${i}">
@@ -173,7 +174,7 @@ function renderTimeZoneList(data: kitContent) {
         </div>`;
     }
     for (let i = 12; i > 0; i--) {
-        if ( i === currentZone ) {
+        if (i === currentZone) {
             continue;
         }
         html += `<div class="dt-time-zone-item${i === data.timeZone ? ' dt-time-zone-select-active' : ''}" data-timezone="-${i}">
@@ -184,28 +185,29 @@ function renderTimeZoneList(data: kitContent) {
 }
 export function updateData(ele: HTMLElement, data: kitContent) {
     // ele.innerHTML = render(data);
-    if ( !data.period ) {
-        return ;
+    if (!data.period) {
+        return;
     }
     const textElement = ele.querySelector('.dt-time-zone-text');
-    
-    if (!textElement ) {
+
+    if (!textElement) {
         return;
     }
     textElement.innerHTML = renderTimeZoneText(data);
 
     ele.querySelector('.dt-quick-item-active')?.classList.remove('dt-quick-item-active');
     const limitKey = getLimitKey(data);
-    limitKey && ele.querySelector('.dt-quick-item[data-limit="' + limitKey + '"]')!.classList.add('dt-quick-item-active');
+    if (limitKey)
+        ele.querySelector('.dt-quick-item[data-limit="' + limitKey + '"]')!.classList.add('dt-quick-item-active');
 }
 
 export function getLimitKey(data: kitContent): kitDataLimit | null {
-    for ( const key in QUICK_MAP) {
-        if ( !QUICK_MAP[key as keyof typeof QUICK_MAP] ) {
+    for (const key in QUICK_MAP) {
+        if (!QUICK_MAP[key as keyof typeof QUICK_MAP]) {
             return null;
         }
-        
-        if ( 
+
+        if (
             QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.hour === data.endTime.hour &&
             QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.minute === data.endTime.minute &&
             QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.second === data.endTime.second &&
@@ -222,7 +224,7 @@ export function getLimitKey(data: kitContent): kitDataLimit | null {
 
             QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.year === data.endDate.year &&
             QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.month === data.endDate.month &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.date === data.endDate.date 
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.date === data.endDate.date
 
         ) {
             return key as kitDataLimit;
@@ -230,7 +232,7 @@ export function getLimitKey(data: kitContent): kitDataLimit | null {
     }
     return null;
 }
-export function getQuickMap(): { [key in kitDataLimit]: kitDataLimitContent | null} {
+export function getQuickMap(): { [key in kitDataLimit]: kitDataLimitContent | null } {
     return {
         all: null,
         today: getTodayLimit(),
@@ -265,7 +267,7 @@ function endTimeFactory() {
 }
 
 function limitFactory(startTime: Date, endTime: Date) {
-    const result =  {
+    const result = {
         startDate: {
             year: startTime.getFullYear(),
             month: startTime.getMonth() + 1,
@@ -278,11 +280,11 @@ function limitFactory(startTime: Date, endTime: Date) {
             date: endTime.getDate()
         },
         endTime: endTimeFactory(),
-        length:  0
+        length: 0
     }
 
-    result.length = new Date(utils.getTimeString(result.endDate, result.endTime)).getTime() - 
-    new Date(utils.getTimeString(result.startDate, result.startTime)).getTime();
+    result.length = new Date(utils.getTimeString(result.endDate, result.endTime)).getTime() -
+        new Date(utils.getTimeString(result.startDate, result.startTime)).getTime();
     return result;
 }
 
@@ -311,10 +313,10 @@ function getYesterdayLimit(): kitDataLimitContent {
 // week: 'This Week',
 function getWeekLimit() {
     const current = new Date();
-    const startTime = new Date(current.getFullYear(), current.getMonth(), current.getDate() - current.getDay() + 1 );
+    const startTime = new Date(current.getFullYear(), current.getMonth(), current.getDate() - current.getDay() + 1);
     const endTime = new Date(current.getFullYear(), current.getMonth(), current.getDate() - current.getDay() + 7);
     return limitFactory(startTime, endTime);
-    
+
 }
 // lastWeek: 'Last Week',
 function getLastWeekLimit() {
@@ -346,7 +348,7 @@ function getLast30DaysLimit() {
 }
 // last180Days: 'Last 180 Days',
 function getLast180DaysLimit() {
-    const current = new Date(); 
+    const current = new Date();
     const startTime = new Date(current.getFullYear(), current.getMonth(), current.getDate() - 179);
     const endTime = new Date(current.getFullYear(), current.getMonth(), current.getDate());
     return limitFactory(startTime, endTime);

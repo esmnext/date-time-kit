@@ -1,23 +1,16 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>test</title>
-    <style>
-
-    .select {
-        position: relative;
-    }
-
-    </style>
 </head>
+
 <body>
-   <div style="background-color: purple;height: 200px;"></div>
-   <button id="select" class="select">选择日期</button>
+    <button id="select" class="select">选择日期</button>
     <button id="select-def" class="select">默认选中</button>
     <div id="root"></div>
-    <div style="background-color: purple;height: 5020px;"></div>
     <script type="module">
         // import dataTimeKit from './index.ts';
         const dataTimeKit = await import('./index.js');
@@ -82,4 +75,5 @@
         // });
     </script>
 </body>
+
 </html>

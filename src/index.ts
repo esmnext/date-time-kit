@@ -11,13 +11,13 @@ import { Granularity } from "./enum";
  * open
  *
  * @description open the kit and return the data
- * @param kitOpiton {kitOption} - options for the kit
+ * @param kitOption {kitOption} - options for the kit
  * @returns {Promise<kitContent>} - the data of the kit
  */
-export async function open(kitOpiton: kitOption): Promise<kitResultPeriod | kitResultSingle> {
-    const element = kitOpiton.root;
-    const data = dataFactory(kitOpiton);
-    
+export async function open(kitOption: kitOption): Promise<kitResultPeriod | kitResultSingle> {
+    const element = kitOption.root;
+    const data = dataFactory(kitOption);
+
     return box.create({
         root: element
     }, data);
@@ -26,7 +26,7 @@ export async function open(kitOpiton: kitOption): Promise<kitResultPeriod | kitR
 
 export function getLimitKeyByTimestamp(startTimestamp: timeString, endTimestamp: timeString, timeZone: number | undefined): kitDataLimit | null {
     const currentTimeZone = utils.getCurrentTimeZone();
-    if ( timeZone === undefined ) {
+    if (timeZone === undefined) {
         timeZone = currentTimeZone;
     }
 
@@ -56,12 +56,12 @@ export function getLimitKeyByTimestamp(startTimestamp: timeString, endTimestamp:
         date: endTimeDate.getDate()
     }
     const QUICK_MAP = quick.getQuickMap();
-    for ( const key in QUICK_MAP) {
-        if ( !QUICK_MAP[key as keyof typeof QUICK_MAP] ) {
+    for (const key in QUICK_MAP) {
+        if (!QUICK_MAP[key as keyof typeof QUICK_MAP]) {
             continue;
         }
-        
-        if ( 
+
+        if (
             QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.hour === endTime.hour &&
             QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.minute === endTime.minute &&
             QUICK_MAP[key as keyof typeof QUICK_MAP]?.endTime.second === endTime.second &&
@@ -78,7 +78,7 @@ export function getLimitKeyByTimestamp(startTimestamp: timeString, endTimestamp:
 
             QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.year === endDate.year &&
             QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.month === endDate.month &&
-            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.date === endDate.date 
+            QUICK_MAP[key as keyof typeof QUICK_MAP]?.endDate.date === endDate.date
 
         ) {
             return key as kitDataLimit;
@@ -87,21 +87,21 @@ export function getLimitKeyByTimestamp(startTimestamp: timeString, endTimestamp:
     return null;
 }
 
-    /**
-     * 
-     * @param {kitDataLimit} limitKey 
-     * @returns {kitTimestampResult}
-     * 
-     * @description 
-     *  limitKey
-     *  QUICK_MAP
-     *  QUICK_MAP[limitKey]
-     *  QUICK_MAP[limitKey].startDate, QUICK_MAP[limitKey].startTime
-     *  QUICK_MAP[limitKey].endDate, QUICK_MAP[limitKey].endTime
-     *  Date(result.startTime).getTime()
-     *  Date(result.endTime).getTime()
-     *  kitTimestampResult
-     */
+/**
+ * 
+ * @param {kitDataLimit} limitKey 
+ * @returns {kitTimestampResult}
+ * 
+ * @description 
+ *  limitKey
+ *  QUICK_MAP
+ *  QUICK_MAP[limitKey]
+ *  QUICK_MAP[limitKey].startDate, QUICK_MAP[limitKey].startTime
+ *  QUICK_MAP[limitKey].endDate, QUICK_MAP[limitKey].endTime
+ *  Date(result.startTime).getTime()
+ *  Date(result.endTime).getTime()
+ *  kitTimestampResult
+ */
 export function getTimestampByLimitKey(limitKey: kitDataLimit, timeZone: number | undefined): kitTimestampResult {
     const result: kitTimestampResult = {
         startTime: '0000-00-00T00:00:00.000',
@@ -109,21 +109,21 @@ export function getTimestampByLimitKey(limitKey: kitDataLimit, timeZone: number 
         startTimeStamp: 0,
         endTimeStamp: 0
     }
-    const QUICK_MAP  = quick.getQuickMap();
-    if ( !QUICK_MAP[limitKey] ) {
+    const QUICK_MAP = quick.getQuickMap();
+    if (!QUICK_MAP[limitKey]) {
         return result;
     }
-    if ( timeZone === undefined ) {
+    if (timeZone === undefined) {
         timeZone = utils.getCurrentTimeZone();
     }
 
-    const startDateTime = utils.getKitTimeyTimeZone({
+    const startDateTime = utils.getKitTimeByTimeZone({
         date: QUICK_MAP[limitKey].startDate,
         time: QUICK_MAP[limitKey].startTime
     }, timeZone);
 
 
-    const endDateTime = utils.getKitTimeyTimeZone({
+    const endDateTime = utils.getKitTimeByTimeZone({
         date: QUICK_MAP[limitKey].endDate,
         time: QUICK_MAP[limitKey].endTime
     }, timeZone);
@@ -136,7 +136,7 @@ export function getTimestampByLimitKey(limitKey: kitDataLimit, timeZone: number 
     result.startTimeStamp = new Date(result.startTime).getTime();
     result.endTimeStamp = new Date(result.endTime).getTime();
     return result;
-    
+
 }
 
 export default {

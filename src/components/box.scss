@@ -7,7 +7,7 @@
     background-color: var(--color-bg);
     color: var(--color-text-primary);
     box-shadow: var(--shadow);
-    font-family: var(--font-fimily);
+    font-family: var(--font-family);
     border-radius: var(--radius);
     overflow: hidden;
     visibility: hidden;
@@ -53,7 +53,7 @@
     cursor: pointer;
     color: var(--color-text-primary);
     background-color: var(--color-surface);
-    font-family: var(--font-fimily);
+    font-family: var(--font-family);
     font-size: var(--font-size);
     transition: all 0.2s ease-in-out;
     min-width: 60px;

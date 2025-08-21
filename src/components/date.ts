@@ -1,13 +1,13 @@
-import { kitContent, kitDate, status } from "../../type";
+import { kitContent, status } from "../../type";
 import './date.scss';
 import i18n from "@/i18n";
 import * as utils from '../utils';
-    /**
-     * create a date box
-     * @param data - the data of date box
-     * @param status - the status of date box, default is "start"
-     * @returns the element of date box
-     */
+/**
+ * create a date box
+ * @param data - the data of date box
+ * @param status - the status of date box, default is "start"
+ * @returns the element of date box
+ */
 export function create(data: kitContent, status: status = "start") {
 
     const ele = document.createElement('div');
@@ -21,11 +21,11 @@ export function create(data: kitContent, status: status = "start") {
         const target = e.target as HTMLElement;
         // click item
         const element = target.closest('.dt-data-item');
-        if ( element ) {
+        if (element) {
 
             // disabled
-            if ( element.classList.contains('dt-data-item-disabled') ||
-                 element.classList.contains('dt-data-item-dis-sel') ) {
+            if (element.classList.contains('dt-data-item-disabled') ||
+                element.classList.contains('dt-data-item-dis-sel')) {
                 return;
             }
 
@@ -36,24 +36,24 @@ export function create(data: kitContent, status: status = "start") {
                 date: itemDate.getDate()
             };
 
-            if ( !data.period ) {
+            if (!data.period) {
                 data.startDate = date;
-                return ;
+                return;
             }
             // time period logic
             // end select
-            if ( data.startDate.year && !data.endDate.year ) {
+            if (data.startDate.year && !data.endDate.year) {
                 // if start date is bigger than end date, then swap them
-                if(new Date(data.startDate.year, data.startDate.month - 1, data.startDate.date).getTime() > itemDate.getTime()) {
-                        data.endDate = data.startDate;
-                        data.startDate = date;
-                        return ;
+                if (new Date(data.startDate.year, data.startDate.month - 1, data.startDate.date).getTime() > itemDate.getTime()) {
+                    data.endDate = data.startDate;
+                    data.startDate = date;
+                    return;
                 }
                 return data.endDate = date;
             }
             // clean move data
-            if ( data.moveDate.year) {
-                data.moveDate = {year: 0, month: 0, date: 0};
+            if (data.moveDate.year) {
+                data.moveDate = { year: 0, month: 0, date: 0 };
                 return;
             }
 
@@ -62,28 +62,28 @@ export function create(data: kitContent, status: status = "start") {
             data.startDate = date;
             data.endDate = date;
             // data.endDate = {year: 0, month: 0, date: 0};
-            
+
             return;
-            
+
         }
 
     });
     ele.addEventListener('mousemove', (e) => {
-        if( !data.period ) {
+        if (!data.period) {
             return;
         }
 
         const target = e.target as HTMLElement;
         const element = target.closest('.dt-data-item');
-        if ( element ) {
-            if ( element.classList.contains('dt-data-item-disabled') ) {
+        if (element) {
+            if (element.classList.contains('dt-data-item-disabled')) {
                 return;
             }
             const moveDate = data.moveDate;
-            if ( !moveDate.year ) {
+            if (!moveDate.year) {
                 return;
             }
-            
+
             const itemDate = new Date(target.getAttribute('data-date') as string);
             const date = {
                 year: itemDate.getFullYear(),
@@ -92,17 +92,17 @@ export function create(data: kitContent, status: status = "start") {
             };
 
 
-            if(new Date(moveDate.year, moveDate.month - 1, moveDate.date).getTime() > itemDate.getTime()) {
-                    data.endDate = moveDate;
-                    data.startDate = date;
-                    return ;
+            if (new Date(moveDate.year, moveDate.month - 1, moveDate.date).getTime() > itemDate.getTime()) {
+                data.endDate = moveDate;
+                data.startDate = date;
+                return;
             }
             data.startDate = moveDate;
             data.endDate = date;
 
 
             return;
-            
+
         }
     });
     return ele;
@@ -110,17 +110,17 @@ export function create(data: kitContent, status: status = "start") {
 
 function render(data: kitContent, status: status) {
     let renderDate: Date | null = null;
-    if ( status === 'start' && !data.startDateShow.year ) {
+    if (status === 'start' && !data.startDateShow.year) {
         renderDate = new Date();
     }
 
-    if ( status === 'start' && data.startDateShow.year ) {
+    if (status === 'start' && data.startDateShow.year) {
         renderDate = new Date(data.startDateShow.year, data.startDateShow.month - 1, data.startDateShow.date);
     }
-   
-    if ( status === 'end' && !data.endDateShow.year ) {
+
+    if (status === 'end' && !data.endDateShow.year) {
         // const current = new Date();
-        if ( !data.startDateShow.year  ) {
+        if (!data.startDateShow.year) {
             renderDate = new Date();
             renderDate.setMonth(renderDate.getMonth() + 1);
         }
@@ -131,12 +131,12 @@ function render(data: kitContent, status: status) {
         }
     }
 
-    if ( status === 'end' && data.endDateShow.year ) {
+    if (status === 'end' && data.endDateShow.year) {
         renderDate = new Date(data.endDateShow.year, data.endDateShow.month - 1, data.endDateShow.date);
     }
 
     let dataHTML = '';
-    if ( !renderDate ) {
+    if (!renderDate) {
         renderDate = new Date();
     }
     dataHTML = renderDayByMonth(data, renderDate);
@@ -164,12 +164,12 @@ function renderDayByMonth(data: kitContent, date: Date = new Date()) {
     const weeklyPrev = new Date(date.getFullYear(), month - 1, 1).getDay(); // previous month first day
 
     // current time
-    const currnet = new Date();
-    const currentString =  utils.getDateTimeStr(currnet.getFullYear(), currnet.getMonth() + 1, currnet.getDate());
+    const current = new Date();
+    const currentString = utils.getDateTimeStr(current.getFullYear(), current.getMonth() + 1, current.getDate());
 
     let dataHTML = ``;
     // previous month
-    for (let i = daysPrev - weeklyPrev; i < daysPrev; i++) {            
+    for (let i = daysPrev - weeklyPrev; i < daysPrev; i++) {
         dataHTML += `
             <div class="dt-data-item dt-data-item-disabled">
                 <div class="dt-data-rect dt-data-item-disabled">
@@ -179,10 +179,10 @@ function renderDayByMonth(data: kitContent, date: Date = new Date()) {
         `;
     }
 
-   
+
     // const startDate = `${data.startDate.year}-${data.startDate.month}-${data.startDate.date}`;
     // const endDate = `${data.endDate.year}-${data.endDate.month}-${data.endDate.date}`;
-    const timeTem = {hour: 0,minute: 0,second: 0,millisecond: 0}
+    const timeTem = { hour: 0, minute: 0, second: 0, millisecond: 0 }
     const startDate = utils.getTimeString(data.startDate, timeTem);
     const endDate = utils.getTimeString(data.endDate, timeTem);
 
@@ -199,36 +199,36 @@ function renderDayByMonth(data: kitContent, date: Date = new Date()) {
         }, timeTem);
         const renderDateObj = new Date(renderDate);
 
-        if ( currentString === renderDate ) {
-            
+        if (currentString === renderDate) {
+
             classList.push('dt-data-item-current');
         }
-        
-        if ( data.period && data.startDate.year && data.endDate.year ) {
-            if ( new Date(startDate) < renderDateObj && new Date(endDate) > renderDateObj ) {
+
+        if (data.period && data.startDate.year && data.endDate.year) {
+            if (new Date(startDate) < renderDateObj && new Date(endDate) > renderDateObj) {
                 classList.push('dt-data-item-sel');
             }
 
-            if ( startDate === renderDate ) {
+            if (startDate === renderDate) {
                 classList.push('dt-data-item-start');
             }
 
-            if ( endDate === renderDate ) {
+            if (endDate === renderDate) {
                 classList.push('dt-data-item-end');
             }
-        } 
-        if ( startDate === renderDate ) {
+        }
+        if (startDate === renderDate) {
             classList.push('dt-data-item-active');
         }
 
-        if ( minDateObj.getTime() > renderDateObj.getTime() ||
-             maxDateObj.getTime() < renderDateObj.getTime() 
+        if (minDateObj.getTime() > renderDateObj.getTime() ||
+            maxDateObj.getTime() < renderDateObj.getTime()
         ) {
             classList.push('dt-data-item-disabled');
         }
-        
-        if ( data.period && data.startDate.year  && data.moveDate.year) {
-            const dayLength =  1000 * 60 * 60 * 24;
+
+        if (data.period && data.startDate.year && data.moveDate.year) {
+            const dayLength = 1000 * 60 * 60 * 24;
             const maxLength = data.maxLength < dayLength ? dayLength : data.maxLength;
             // subtract 1 day because the selected day is also counted
             const minLength = data.minLength < dayLength ? dayLength : data.minLength;
@@ -237,30 +237,30 @@ function renderDayByMonth(data: kitContent, date: Date = new Date()) {
             const startTimeStamp = new Date(utils.getTimeString(data.startDate, data.startTime));
             const endTimeStamp = new Date(utils.getTimeString(data.endDate, data.endTime));
             // if length is 0 not limit
-            if ( data.maxLength && startTimeStamp.getTime() + maxLength < renderDateObj.getTime() ) {
-                
+            if (data.maxLength && startTimeStamp.getTime() + maxLength < renderDateObj.getTime()) {
+
                 classList.push('dt-data-item-disabled');
             }
-            if ( data.maxLength && endTimeStamp.getTime() - maxLength > renderDateObj.getTime() ) {
-                
+            if (data.maxLength && endTimeStamp.getTime() - maxLength > renderDateObj.getTime()) {
+
                 classList.push('dt-data-item-disabled');
             }
-            if ( data.minLength && 
+            if (data.minLength &&
                 startTimeStamp.getTime() + minLength > renderDateObj.getTime() &&
                 endTimeStamp.getTime() - minLength < renderDateObj.getTime()
             ) {
-                if ( startDate !== renderDate  ) {
+                if (startDate !== renderDate) {
                     classList.push('dt-data-item-disabled');
-                    
-                } 
-                if ( startDate === renderDate &&  data.minLength > dayLength ) {
+
+                }
+                if (startDate === renderDate && data.minLength > dayLength) {
                     classList.push('dt-data-item-dis-sel');
                 }
-                
+
             }
         }
-        
-        
+
+
         dataHTML += `
             <div class="${classList.join(' ')}" data-date="${renderDate}">
                 <div class="dt-data-rect"  data-date="${renderDate}">
