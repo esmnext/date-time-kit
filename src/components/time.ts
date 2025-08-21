@@ -247,26 +247,24 @@ export function updateData(ele: HTMLElement, data: kitContent) {
 
     for ( let i = 0, j = 59; i < 60; i++, j-- ) {
         const ele3 = hourEndEle[i];
-        if ( ele3 ) {
-            if( j < disabledItem.hour) {
-                ele3.classList.add('dt-time-select-item-disabled');
-            } else {
-                ele3.classList.remove('dt-time-select-item-disabled');
-            }
+        if( j < disabledItem.hour) {
+            ele3 && ele3.classList.add('dt-time-select-item-disabled');
+        } else {
+            ele3 && ele3.classList.remove('dt-time-select-item-disabled');
         }
         const ele0 = minuteEndEle[i];
-        if ( j < disabledItem.minute ) {
-            ele0.classList.add('dt-time-select-item-disabled');
+        if (ele0 && j < disabledItem.minute ) {
+            ele0 && ele0.classList.add('dt-time-select-item-disabled');
         } else {
-            ele0.classList.remove('dt-time-select-item-disabled');
+            ele0 && ele0.classList.remove('dt-time-select-item-disabled');
         }
 
         const ele2 = secondEndEle[i];
         if ( j < disabledItem.second ) {
             
-            ele2.classList.add('dt-time-select-item-disabled');
+            ele2 && ele2.classList.add('dt-time-select-item-disabled');
         } else {
-            ele2.classList.remove('dt-time-select-item-disabled');
+            ele2 && ele2.classList.remove('dt-time-select-item-disabled');
         }
     }
     ele.querySelector('.dt-time-string')!.innerHTML = renderTimeString(data);

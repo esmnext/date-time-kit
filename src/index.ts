@@ -1,7 +1,7 @@
 
 import * as box from './components/box';
 import './index.scss';
-import { kitDataLimit, kitDate, kitOption, kitResult, kitTime, kitTimestampResult, timeString } from '../type';
+import { kitDataLimit, kitDate, kitOption, kitResultPeriod, kitResultSingle, kitTime, kitTimestampResult, timeString } from '../type';
 import { dataFactory } from './utils';
 import * as quick from './components/quick';
 import * as utils from "./utils";
@@ -24,7 +24,7 @@ export async function open(kitOpiton: kitOption): Promise<kitResultPeriod | kitR
 }
 
 
-export function getLimitKeyByTimetamp(startTimestamp: timeString, endTimestamp: timeString, timeZone: number | undefined): kitDataLimit | null {
+export function getLimitKeyByTimestamp(startTimestamp: timeString, endTimestamp: timeString, timeZone: number | undefined): kitDataLimit | null {
     const currentTimeZone = utils.getCurrentTimeZone();
     if ( timeZone === undefined ) {
         timeZone = currentTimeZone;
@@ -141,7 +141,7 @@ export function getTimestampByLimitKey(limitKey: kitDataLimit, timeZone: number 
 
 export default {
     open,
-    getLimitKeyByTimetamp,
+    getLimitKeyByTimestamp,
     getTimestampByLimitKey,
     ...utils,
     i18n: i18n,

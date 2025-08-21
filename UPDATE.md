@@ -55,12 +55,12 @@
 - 修改 type 类型
 - 修复 结束时间毫秒变更时 修改到了开始时间
 - 修改 getTimestampByLimitKey 方法新增时区 参数
-- 修改 getLimitKeyByTimetamp 方法新增 时区 参数
+- 修改 getLimitKeyByTimestamp 方法新增 时区 参数
 - 新增 时区的支持
 
 
 ## v1.0.3-alpha.1 2025-03-11
-- 新增 导出 export declare function getLimitKeyByTimetamp(startTimestamp: timeString, endTimestamp: timeString): kitDataLimit | null;
+- 新增 导出 export declare function getLimitKeyByTimestamp(startTimestamp: timeString, endTimestamp: timeString): kitDataLimit | null;
 - 新增 导出 export declare function getTimestampByLimitKey(limit: kitDataLimit): { startTime: timeString, endTime: timeString };
 - 新增 default 导出
 - 新增 open 方法 ts定义

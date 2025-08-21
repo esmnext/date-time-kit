@@ -5,6 +5,7 @@ export default {
     box: {
       confirm: 'Done',
       cancel: 'Cancel',
+      select: 'Select',
     },
     quick: {
       all: 'All',
@@ -43,6 +44,7 @@ export default {
     box: {
       confirm: '完成',
       cancel: '取消',
+      select: 'Select',
     },
     quick: {
       all: '全部',
@@ -81,6 +83,7 @@ export default {
     box: {
       confirm: '完成',
       cancel: '取消',
+      select: 'Select',
     },
     quick: {
       all: '全部',
@@ -153,6 +156,7 @@ export default {
     box: {
       confirm: 'Selesai',
       cancel: 'Batal',
+      select: 'Select',
     },
   },
   viVN: {
@@ -192,6 +196,7 @@ export default {
     box: {
       confirm: 'Hoàn tất',
       cancel: 'Hủy',
+      select: 'Select',
     },
   },
   thTH: {
@@ -231,6 +236,7 @@ export default {
     box: {
       confirm: 'เสร็จสิ้น',
       cancel: 'ยกเลิก',
+      select: 'Select',
     },
   },
   msMY: {
@@ -271,6 +277,7 @@ export default {
     box: {
       confirm: 'Selesai',
       cancel: 'Batal',
+      select: 'Select',
     },
   },
   koKR: {
@@ -309,12 +316,14 @@ export default {
     box: {
       confirm: '완료',
       cancel: '취소',
+      select: 'Select',
     },
   },
   arAE: {
     "box": {
       "confirm": "تم",
-      "cancel": "إلغاء"
+      "cancel": "إلغاء",
+      select: 'Select',
     },
     "quick": {
       "all": "الكل",

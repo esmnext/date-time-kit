@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" >
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +23,7 @@
         const dataTimeKit = await import('./index.js');
 
         const rand = dataTimeKit.getTimestampByLimitKey('week', 2); 
-        const keyName = dataTimeKit.getLimitKeyByTimetamp(rand.startTime, rand.endTime, 2); 
+        const keyName = dataTimeKit.getLimitKeyByTimestamp(rand.startTime, rand.endTime, 2); 
         console.log(rand, keyName);
 
         // console.log(dataTimeKit.default.getTimeStringByTimeZone(rand.startTime, 2, 7));
@@ -50,11 +50,11 @@
             "granularity":  dataTimeKit.Granularity.second,
             // "startTime": rand.startTime,
             // "endTime": rand.endTime,
-            "period": true,
+            "period": false,
             // "maxLength": 60 * 60 * 1000,
             // "minLength":  60 * 60 * 1000,
             "timeZone": 2,
-            "lang": 'arAE'
+            // "lang": 'arAE'
         });
 
         console.log('start', dataTimeKit.default.getTimeStringByTimeZone(result.time, 8, 2));

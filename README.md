@@ -89,7 +89,7 @@ const result = awiat dataTimeKit.open({
 });
 console.log(result);
 ```
-### `getLimitKeyByTimetamp(startTimestamp: timeString, endTimestamp: timeString, timeZone: number | undefined): kitDataLimit | null`
+### `getLimitKeyByTimestamp(startTimestamp: timeString, endTimestamp: timeString, timeZone: number | undefined): kitDataLimit | null`
 通过时间段获取返回快速选择的时间
 - startTimestamp: '2025-06-14T05:59:59.999'
 - endTimestamp: '2025-06-13T06:00:00.000'
