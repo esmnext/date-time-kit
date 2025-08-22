@@ -53,11 +53,27 @@ document.querySelector('#select-def')?.addEventListener('click', async (e) => {
     e.stopPropagation();
     const data = await dataTimeKit.open({
         root: e.target,
-        maxTime: '1990-01-01T00:00:00.000',
-        minTime: '2050-01-02T00:00:00.000',
+        maxTime: '2050-01-02T00:00:00.000',
+        minTime: '1990-01-01T00:00:00.000',
         startTime: '1990-01-01T00:00:00.000',
         endTime: '2050-01-01T00:10:10.022',
-        lang: 'zh-CN'
+        lang: 'zh-CN',
+        period: true,
+    });
+    console.log(data);
+});
+
+document.querySelector('#img')?.addEventListener('click', async (e) => {
+    if (!(e.target instanceof HTMLElement)) return;
+    e.stopPropagation();
+    const data = await dataTimeKit.open({
+        root: e.target,
+        maxTime: '2050-01-02T00:00:00.000',
+        minTime: '1990-01-01T00:00:00.000',
+        startTime: '1990-01-01T00:00:00.000',
+        endTime: '2050-01-01T00:10:10.022',
+        lang: 'zh-CN',
+        period: true,
     });
     console.log(data);
 });

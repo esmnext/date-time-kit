@@ -127,16 +127,16 @@ function renderDayByMonth(data: kitContent, date: Date) {
     }
 
     const timeTem = utils.initKitTime();
-    const startDate = utils.kitDate2timeString(data.startDate, timeTem);
-    const endDate = utils.kitDate2timeString(data.endDate, timeTem);
+    const startDate = utils.kitDateAndTime2timeStr(data.startDate, timeTem);
+    const endDate = utils.kitDateAndTime2timeStr(data.endDate, timeTem);
 
-    const minDateObj = new Date(utils.kitDate2timeString(data.minDate, timeTem));
-    const maxDateObj = new Date(utils.kitDate2timeString(data.maxDate, timeTem));
+    const minDateObj = new Date(utils.kitDateAndTime2timeStr(data.minDate, timeTem));
+    const maxDateObj = new Date(utils.kitDateAndTime2timeStr(data.maxDate, timeTem));
 
     for (let i = 1; i <= days; i++) {
         const classList = ['dt-data-item'];
         // const renderDate = `${date.getFullYear()}-${month}-${i}`;
-        const renderDate = utils.kitDate2timeString({
+        const renderDate = utils.kitDateAndTime2timeStr({
             year: date.getFullYear(),
             month: month,
             date: i
@@ -178,8 +178,8 @@ function renderDayByMonth(data: kitContent, date: Date) {
             const minLength = data.minLength < dayLength ? dayLength : data.minLength;
             // minLength -= dayLength;
 
-            const startTimeStamp = new Date(utils.kitDate2timeString(data.startDate, data.startTime));
-            const endTimeStamp = new Date(utils.kitDate2timeString(data.endDate, data.endTime));
+            const startTimeStamp = new Date(utils.kitDateAndTime2timeStr(data.startDate, data.startTime));
+            const endTimeStamp = new Date(utils.kitDateAndTime2timeStr(data.endDate, data.endTime));
             // if length is 0 not limit
             if (data.maxLength && startTimeStamp.getTime() + maxLength < renderDateObj.getTime()) {
 

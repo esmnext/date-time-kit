@@ -21,7 +21,12 @@ export interface kitOption {
     // default limit
     maxTime?: timeString; // period 为true 生效
     minTime?: timeString; // period 为true 生效
-    // default lang
+    /**
+     * Language using in component. Default use browser language
+     * if language not support, use 'en-US' instead
+     * 
+     * @default navigator.language || `en-US`
+     */
     lang?: Lang;
     // default time zone
     timeZone?: number;
@@ -89,8 +94,15 @@ export interface kitComponent {
 }
 
 export type status = 'start' | 'end';
-export type timeString = `${number}-${number}-${number}T${number}:${number}:${number}.${number}`;
-
+export type YyyyMm = `${number}-${number}`;
+export type YyyyMmDd = `${YyyyMm}-${number}`;
+export type HhMmSs = `${number}:${number}:${number}`;
+export type HhMmSsMs = `${HhMmSs}.${number}`;
+export type UtcOffset =
+    | 'Z'
+    | `+${number}:${number}`
+    | `-${number}:${number}`;
+export type timeString = `${YyyyMmDd}T${HhMmSsMs}${UtcOffset | ''}`;
 
 export interface kitResult {
     timeZone: number;

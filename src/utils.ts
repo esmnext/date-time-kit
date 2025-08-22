@@ -1,11 +1,15 @@
 import {
     Granularity,
+    HhMmSs,
+    HhMmSsMs,
     kitContent,
     kitDate,
     kitDateTime,
     kitOption,
     kitTime,
     timeString,
+    YyyyMm,
+    YyyyMmDd,
 } from "./types";
 import i18n, { Lang } from "./i18n";
 
@@ -92,6 +96,17 @@ export const initKitTime = (date?: Date): kitTime => !date
         millisecond: date.getMilliseconds()
     };
 
+export const initKitDateTime = (date?: Date): kitDateTime => ({
+    date: initKitDate(date),
+    time: initKitTime(date)
+});
+
+export const kitDataTime2Date = (datetime: kitDateTime) =>
+    new Date(
+        datetime.date.year, datetime.date.month - 1, datetime.date.date,
+        datetime.time.hour, datetime.time.minute, datetime.time.second, datetime.time.millisecond
+    );
+
 /**
  * Format a date as a string in the format "YYYY-MM-DD".
  * If the date parameter is undefined, only the year and month are returned (YYYY-MM).
@@ -104,11 +119,14 @@ export const getDateTimeStr = <
     T extends number | undefined = undefined
 >(year: number, month: number, date?: T) =>
     `${year.toString().padStart(4, '0')}-${month.toString().padStart(2, '0')}${date === void 0 ? '' : `-${date.toString().padStart(2, '0')}`
-    }` as undefined extends T ? `${number}-${number}` : `${number}-${number}-${number}`;
+    }` as undefined extends T ? YyyyMm : YyyyMmDd;
+
+export const kitDate2dateStr = (date: kitDate): YyyyMmDd =>
+    getDateTimeStr(date.year, date.month, date.date);
 
 export const getTimeStringInSeconds = (hour: number, minute: number, second: number) =>
     `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')
-    }` as `${number}:${number}:${number}`;
+    }` as HhMmSs;
 /**
  * Formats the given time parameters into a string with the format "HH:MM:SS:MMM".
  * Each component (hour, minute, second, millisecond) is padded with leading zeros
@@ -121,9 +139,15 @@ export const getTimeStringInSeconds = (hour: number, minute: number, second: num
  * @returns A string representing the formatted time.
  */
 export const getTimeStr = (hour: number, minute: number, second: number, millisecond: number) =>
-    `${getTimeStringInSeconds(hour, minute, second)}.${millisecond.toString().padStart(3, '0')}` as `${number}:${number}:${number}.${number}`;
+    `${getTimeStringInSeconds(hour, minute, second)}.${millisecond.toString().padStart(3, '0')}` as HhMmSsMs;
 
-export const kitDate2timeString = (date: kitDate, time: kitTime): timeString =>
+export const kitTime2timeStr = <T extends true | undefined = undefined>(time: kitTime, withoutMs?: T) => (
+    withoutMs
+        ? getTimeStringInSeconds(time.hour, time.minute, time.second)
+        : getTimeStr(time.hour, time.minute, time.second, time.millisecond)
+) as undefined extends T ? HhMmSsMs : HhMmSs;
+
+export const kitDateAndTime2timeStr = (date: kitDate, time: kitTime): timeString =>
     `${getDateTimeStr(date.year, date.month, date.date)}T${getTimeStr(time.hour, time.minute, time.second, time.millisecond)}`;
 
 export function getTimeStringByTimestamp(timestamp: number): timeString {
@@ -230,13 +254,9 @@ export function getKitTimeByTimeZone(
     datetime: kitDateTime,
     timeZone = getCurrentTimeZone()
 ): kitDateTime {
-    let result = new Date(datetime.date.year, datetime.date.month - 1, datetime.date.date,
-        datetime.time.hour, datetime.time.minute, datetime.time.second, datetime.time.millisecond);
+    let result = kitDataTime2Date(datetime);
     result = getDateByTimeZone(result, timeZone);
-    return {
-        date: initKitDate(result),
-        time: initKitTime(result),
-    };
+    return initKitDateTime(result);
 }
 
 export function getTimeStringByTimeZone(
@@ -244,7 +264,6 @@ export function getTimeStringByTimeZone(
     targetTimeZone = getCurrentTimeZone(),
     currentTimeZone = getCurrentTimeZone()
 ): timeString {
-    let result = new Date(datetime);
-    result = getDateByTimeZone(result, targetTimeZone, currentTimeZone);
-    return kitDate2timeString(initKitDate(result), initKitTime(result));
+    const result = getDateByTimeZone(new Date(datetime), targetTimeZone, currentTimeZone);
+    return kitDateAndTime2timeStr(initKitDate(result), initKitTime(result));
 }

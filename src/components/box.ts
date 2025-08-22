@@ -2,11 +2,9 @@ import './box.scss';
 import {
     kitComponentOption,
     kitContent,
-    kitDate,
     kitOption,
     kitResultPeriod,
-    kitResultSingle,
-    kitTime
+    kitResultSingle
 } from '../types';
 import * as quick from './quick';
 import * as month from './month';
@@ -15,46 +13,69 @@ import * as time from './time';
 import * as utils from '../utils';
 import i18n from '../i18n';
 
+/**
+ * Renders the HTML structure for the datetime picker component.
+ * 
+ * @returns The HTML markup for the datetime picker, including
+ * the date selection boxes for start and end dates, a time selection box,
+ * and footer buttons for 'Cancel' and 'Done' actions.
+ */
+const render = (data: kitContent) => `
+<div class="dt-content"
+  ><div class="dt-date-box"
+    ><div class="dt-start dt-data-body"></div${data.period ? `
+    ><div class="dt-end dt-data-body"></div` : ''}
+  ></div
+  ><div class="dt-time-box"></div
+  ><div class="dt-footer"
+    ><button class="dt-button dt-button-cancel">${i18n[data.lang].box.cancel}</button
+    ><button class="dt-button dt-button-primary">${i18n[data.lang].box.confirm}</button
+  ></div
+></div>`;
+
+const updateDoneBtn = (ele: HTMLElement, data: kitContent) => {
+    const doneBtn = ele.querySelector('.dt-button-primary');
+    doneBtn?.classList.toggle('dt-button-disabled',
+        !data.period ? !data.startDate.year : (
+            !data.endDate.year || !!data.moveDate.year
+        )
+    );
+};
+
 /** create date time picker */
 export const create = ({ root }: kitOption, data: kitContent) =>
     new Promise<kitResultPeriod | kitResultSingle>((resolve, reject) => {
         const components: kitComponentOption[] = [];
 
-        if (root.querySelector('.dt-box')) {
+        if (root.querySelector('.dt-box'))
             return reject("Date time picker has been created");
-        }
-        // debounce
+
         const updateDataDebounce = utils.debounce(() => {
-            updateData(eleBox, dataProxy);
+            updateDoneBtn(eleBox, dataProxy);
             components.forEach(item => {
                 item.component.updateData(item.ele, dataProxy);
-            })
-        })
+            });
+        });
+
         // watch data
         const dataProxy = new Proxy(data, {
             set(target, _key, value) {
                 const key = _key as keyof kitContent;
                 // if data is the same, return
-                let flag = false;
                 if (typeof target[key] === 'object') {
-                    for (const item in target[key] as kitDate | kitTime) {
-                        if (target[key][item as keyof (kitDate | kitTime)] !== value[item]) {
-                            flag = true;
-                            break;
-                        }
-                    }
+                    if (typeof value !== 'object') return false;
+                    const dateOrTime = target[key];
+                    const isSame = Object.keys(dateOrTime).every((k) =>
+                        dateOrTime[k as keyof typeof dateOrTime] === value[k]
+                    );
+                    if (isSame) return true;
                 } else {
-                    if (target[key] !== value) {
-                        flag = true;
-                    }
+                    if (key in target && typeof target[key] !== typeof value)
+                        return false;
+                    if (target[key] === value) return true;
                 }
 
-                if (!flag) {
-                    return true;
-                }
-
-                // eslint-disable-next-line
-                (target as any)[key] = value;
+                Reflect.set(target, key, value);
 
                 // send new data to components
                 updateDataDebounce();
@@ -81,8 +102,7 @@ export const create = ({ root }: kitOption, data: kitContent) =>
             eleBox.style.top = `${rect.height + 5}px`;
         }
         // update ui status
-        updateData(eleBox, dataProxy);
-
+        updateDoneBtn(eleBox, dataProxy);
 
         if (data.period) {
             // add quick select list
@@ -97,7 +117,7 @@ export const create = ({ root }: kitOption, data: kitContent) =>
 
         // add month select for start
         const eleMonthStart = month.create(dataProxy, 'start');
-        eleBox.querySelector('.dt-start')!.appendChild(eleMonthStart);
+        eleBox.querySelector('.dt-start')?.appendChild(eleMonthStart);
         components.push({
             ele: eleMonthStart,
             component: month
@@ -105,7 +125,7 @@ export const create = ({ root }: kitOption, data: kitContent) =>
 
         // add date select for start
         const eleDateStart = date.create(dataProxy, 'start');
-        eleBox.querySelector('.dt-start')!.appendChild(eleDateStart);
+        eleBox.querySelector('.dt-start')?.appendChild(eleDateStart);
         components.push({
             ele: eleDateStart,
             component: date
@@ -114,7 +134,7 @@ export const create = ({ root }: kitOption, data: kitContent) =>
         if (data.period) {
             // add month select for end
             const eleMonthEnd = month.create(dataProxy, 'end');
-            eleBox.querySelector('.dt-end')!.appendChild(eleMonthEnd);
+            eleBox.querySelector('.dt-end')?.appendChild(eleMonthEnd);
             components.push({
                 ele: eleMonthEnd,
                 component: month
@@ -122,7 +142,7 @@ export const create = ({ root }: kitOption, data: kitContent) =>
 
             // add date select for end
             const eleDateEnd = date.create(dataProxy, 'end');
-            eleBox.querySelector('.dt-end')!.appendChild(eleDateEnd);
+            eleBox.querySelector('.dt-end')?.appendChild(eleDateEnd);
             components.push({
                 ele: eleDateEnd,
                 component: date
@@ -132,7 +152,7 @@ export const create = ({ root }: kitOption, data: kitContent) =>
 
         // add time for box
         const eleTime = time.create(dataProxy);
-        eleBox.querySelector('.dt-time-box')!.appendChild(eleTime);
+        eleBox.querySelector('.dt-time-box')?.appendChild(eleTime);
         components.push({
             ele: eleTime,
             component: time
@@ -140,16 +160,15 @@ export const create = ({ root }: kitOption, data: kitContent) =>
 
         //********************************
         // event
-        //*********************************/
+        //********************************
+
         // add event for box
         function removeEventListener() {
-            // document.removeEventListener('click', cancel);
             eleMask.removeEventListener('click', cancel);
             eleBox.removeEventListener('click', eventLoop);
         }
-        /**
-         * Hide the box and cancel the promise when user click outside of box.
-         */
+
+        /** Hide the box and cancel the promise when user click outside of box. */
         function cancel() {
             removeEventListener();
             utils.hideBox(eleBox);
@@ -157,10 +176,7 @@ export const create = ({ root }: kitOption, data: kitContent) =>
             reject("cancel");
         }
 
-
-        /**
-         * Resolve the promise and hide the box when user click confirm button.
-         */
+        /** Resolve the promise and hide the box when user click confirm button. */
         function done() {
             removeEventListener();
             utils.hideBox(eleBox);
@@ -176,10 +192,10 @@ export const create = ({ root }: kitOption, data: kitContent) =>
             }, dataProxy.timeZone);
 
 
-            const startTime = utils.kitDate2timeString(startDate.date, startDate.time);
+            const startTime = utils.kitDateAndTime2timeStr(startDate.date, startDate.time);
 
             if (data.period) {
-                const endTime = utils.kitDate2timeString(endDate.date, endDate.time);
+                const endTime = utils.kitDateAndTime2timeStr(endDate.date, endDate.time);
                 resolve({
                     startTime,
                     endTime,
@@ -195,7 +211,6 @@ export const create = ({ root }: kitOption, data: kitContent) =>
                     timeZone: dataProxy.timeZone
                 });
             }
-
         }
 
         /**
@@ -209,7 +224,9 @@ export const create = ({ root }: kitOption, data: kitContent) =>
          */
         function eventLoop(e: MouseEvent) {
             e.stopPropagation();
-            const target = e.target as HTMLElement;
+            const target = e.target;
+            if (!(target instanceof HTMLElement)) return;
+
             if (target.classList.contains('dt-button-cancel')) {
                 cancel();
             }
@@ -221,55 +238,10 @@ export const create = ({ root }: kitOption, data: kitContent) =>
                 done();
             }
         }
+
         // add event
         eleBox.addEventListener('click', eventLoop);
-        // document.addEventListener('click', cancel);
         eleMask.addEventListener('click', cancel);
-        // show box 
+        // show box
         utils.showBox(eleBox);
     });
-
-
-
-/**
- * Renders the HTML structure for the datetime picker component.
- * 
- * @returns The HTML markup for the datetime picker, including
- * the date selection boxes for start and end dates, a time selection box,
- * and footer buttons for 'Cancel' and 'Done' actions.
- */
-const render = (data: kitContent) => `
-<div class="dt-content"
-  ><div class="dt-date-box"
-    ><div class="dt-start dt-data-body"></div${data.period ? `
-    ><div class="dt-end dt-data-body"></div` : ''}
-  ></div
-  ><div class="dt-time-box"></div
-  ><div class="dt-footer"
-    ><button class="dt-button dt-button-cancel">${i18n[data.lang].box.cancel}</button
-    ><button class="dt-button dt-button-primary">${i18n[data.lang].box.confirm}</button
-  ></div
-></div>`;
-
-
-export function updateData(ele: HTMLElement, data: kitContent) {
-    const doneButton = ele.querySelector('.dt-button-primary')!;
-    if (!data.period) {
-        if (!data.startDate.date) {
-            doneButton.classList.add('dt-button-disabled');
-            return;
-        }
-        doneButton.classList.remove('dt-button-disabled');
-        return;
-    }
-    if (!data.endDate.year) {
-        doneButton.classList.add('dt-button-disabled');
-        return;
-    }
-    if (data.moveDate.year) {
-        doneButton.classList.add('dt-button-disabled');
-        return;
-    }
-
-    doneButton.classList.remove('dt-button-disabled');
-}

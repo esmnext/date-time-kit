@@ -23,7 +23,9 @@ export function create(data: kitContent) {
         ele.querySelector('.dt-quick-item[data-limit="' + limitKey + '"]')?.classList.add('dt-quick-item-active');
     // add event
     ele.addEventListener('click', (e) => {
-        const target = e.target as HTMLElement;
+        const target = e.target;
+        if (!(target instanceof HTMLElement)) return;
+
         if (target.classList.contains('dt-quick-item')) {
             target.parentElement?.querySelector('.dt-quick-item-active')?.classList.remove('dt-quick-item-active');
             target.classList.add('dt-quick-item-active');
@@ -33,13 +35,9 @@ export function create(data: kitContent) {
             return;
         }
 
-        if (target.classList.contains('dt-time-zone') ||
-            target.classList.contains('dt-time-zone-text') ||
-            target.classList.contains('dt-time-zone-icon')
-        ) {
-            if (ele.classList.contains('dt-quick-zone-disabled')) {
+        if (target.matches('.dt-time-zone, .dt-time-zone-text, .dt-time-zone-icon')) {
+            if (ele.classList.contains('dt-quick-zone-disabled'))
                 return;
-            }
             ele.querySelector('.dt-time-zone')?.classList.add('dt-time-zone-select-show');
             return;
         }
@@ -74,10 +72,8 @@ function setDate(limit: kitDataLimit, data: kitContent) {
     data.endTime = QUICK_MAP[limit].endTime;
     data.startDateShow = data.startDate;
     // if end time month equal start time month to show month
-    // const endData = new Date(`${data.endDate.year}-${data.endDate.month}-${data.endDate.date}`);
-    const endData = new Date(data.endDate.year, data.endDate.month - 1, data.endDate.date);
-    // const startData = new Date(`${data.startDate.year}-${data.startDate.month}-${data.startDate.date}`);
-    const startData = new Date(data.startDate.year, data.startDate.month - 1, data.startDate.date);
+    const endData = utils.kitDate2Date(data.endDate);
+    const startData = utils.kitDate2Date(data.startDate);
     if (endData.getFullYear() === startData.getFullYear() && endData.getMonth() == startData.getMonth()) {
         endData.setMonth(endData.getMonth() + 1);
     }
@@ -161,15 +157,9 @@ function renderTimeZoneList(data: kitContent) {
     return html;
 }
 export function updateData(ele: HTMLElement, data: kitContent) {
-    // ele.innerHTML = render(data);
-    if (!data.period) {
-        return;
-    }
+    if (!data.period) return;
     const textElement = ele.querySelector('.dt-time-zone-text');
-
-    if (!textElement) {
-        return;
-    }
+    if (!textElement) return;
     textElement.innerHTML = renderTimeZoneText(data);
 
     ele.querySelector('.dt-quick-item-active')?.classList.remove('dt-quick-item-active');
@@ -244,8 +234,8 @@ function limitFactory(startTime = new Date(), endTime = startTime) {
         },
         length: 0
     };
-    result.length = new Date(utils.kitDate2timeString(result.endDate, result.endTime)).getTime() -
-        new Date(utils.kitDate2timeString(result.startDate, result.startTime)).getTime();
+    result.length = new Date(utils.kitDateAndTime2timeStr(result.endDate, result.endTime)).getTime() -
+        new Date(utils.kitDateAndTime2timeStr(result.startDate, result.startTime)).getTime();
     return result;
 }
 
@@ -379,8 +369,8 @@ export function getTimestampByLimitKey(
         time: QUICK_MAP[limitKey].endTime
     }, timeZone);
 
-    result.startTime = utils.kitDate2timeString(startDateTime.date, startDateTime.time);
-    result.endTime = utils.kitDate2timeString(endDateTime.date, endDateTime.time);
+    result.startTime = utils.kitDateAndTime2timeStr(startDateTime.date, startDateTime.time);
+    result.endTime = utils.kitDateAndTime2timeStr(endDateTime.date, endDateTime.time);
     result.startTimeStamp = new Date(result.startTime).getTime();
     result.endTimeStamp = new Date(result.endTime).getTime();
     return result;
