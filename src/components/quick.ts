@@ -104,10 +104,9 @@ function render(data: kitContent) {
 }
 
 const utcText = (timeZone: number) => {
-    return timeZone === 0
-        ? 'UTC' as const : timeZone > 0
-            ? `UTC+${timeZone}` as const
-            : `UTC-${timeZone}` as const;
+    return timeZone >= 0
+            ? `UTC+${('' + ~~timeZone).padStart(2, '0')}:${(timeZone * 60 % 60 + '').padStart(2, '0')}` as const
+            : `UTC-${('' + ~~-timeZone).padStart(2, '0')}:${(-timeZone * 60 % 60 + '').padStart(2, '0')}` as const;
 };
 
 function renderTimeZoneText(data: kitContent) {
@@ -118,41 +117,27 @@ function renderTimeZoneList(data: kitContent) {
     const currentZone = utils.getCurrentTimeZone();
     let html = `<div class="dt-time-zone-select-title">${i18n[data.lang].quick.recommend}</div>`;
 
+    const renderItem = (zone: number, active: boolean) => {
+        return `<div class="dt-time-zone-item${active ? ' dt-time-zone-select-active' : ''}" data-timezone="${zone}">
+            <span class="dt-time-zone-item-icon"></span>
+            <span>${utcText(zone)}</span>
+        </div>`;
+    };
+
+    const recommendZones = new Set([currentZone, 2]);
+
     // render recommend
-    if (currentZone >= 0) {
-        html += `<div class="dt-time-zone-item${data.timeZone === currentZone
-            ? ' dt-time-zone-select-active'
-            : ''
-            }" data-timezone="${currentZone}">
-            <span class="dt-time-zone-item-icon"></span>
-            <span>${utcText(currentZone)}</span>
-        </div>`;
-    } else {
-        html += `<div class="dt-time-zone-item${data.timeZone === 2
-            ? ' dt-time-zone-select-active'
-            : ''
-            }" data-timezone="${currentZone}">
-            <span class="dt-time-zone-item-icon"></span>
-            <span>${utcText(currentZone)}</span>
-        </div>`;
+    for (const zone of recommendZones) {
+        html += renderItem(zone, data.timeZone === zone);
     }
 
-    html += `<div class="dt-time-zone-item" data-timezone="2">
-        <span class="dt-time-zone-item-icon"></span>
-        <span>${utcText(2)}</span>
-    </div>`;
     html += `<div class="dt-time-zone-select-title">${i18n[data.lang].quick.timezoneList}</div>`;
 
     // render all time zone
-    for (let i = -12; i <= 12; ++i) {
-        if (i === currentZone || i === 2) continue;
-        html += `<div class="dt-time-zone-item${i === data.timeZone
-            ? ' dt-time-zone-select-active'
-            : ''
-            }" data-timezone="${i}">
-            <span class="dt-time-zone-item-icon"></span>
-            <span>${utcText(i)}</span>
-        </div>`;
+    const allZones = [-12, -11, -10, -9.5, -9, -8, -7, -6, -5, -4, -3, -3.5, -2, -1, 0, 1, 2, 3, 3.5, 4, 4.5, 5, 5.5, 5.75, 6, 6.5, 7, 8, 8.75, 9, 9.5, 10, 10.5, 11, 12, 12.45, 13, 14];
+    for (const zone of allZones) {
+        if (recommendZones.has(zone)) continue;
+        html += renderItem(zone, data.timeZone === zone);
     }
     return html;
 }
