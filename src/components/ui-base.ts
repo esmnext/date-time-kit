@@ -42,6 +42,22 @@ export class UiBase extends HTMLElement {
             }
         });
     }
+
+    dispatchEvent<T>(type: string | Event, {
+        global = false,
+        data = {} as T
+    } = {}) {
+        return type instanceof Event
+            ? super.dispatchEvent(type)
+            : super.dispatchEvent(new CustomEvent(type, {
+                ...(global? {
+                    bubbles: true,
+                    cancelable: true,
+                    composed: true,
+                }: {}),
+                detail: data,
+            }));
+    }
 }
 
 /**

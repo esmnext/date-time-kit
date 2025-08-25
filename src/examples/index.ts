@@ -1,7 +1,7 @@
 
 import '@/components/calendar';
 
-window.onclick = () => {
+window.onload = () => {
     const ele = document.querySelector('dt-calendar-base');
     if (!ele) return;
     // ele.setAttribute('lang', langs[langs.length * Math.random() | 0]);
@@ -10,6 +10,9 @@ window.onclick = () => {
     // ele.setAttribute('week-start-at', weeks[
     //     (weeks.indexOf(ele.getAttribute('week-start-at') || 'sun') + 1) % weeks.length
     // ]);
+    ele.addEventListener('select-time', (event) => {
+        console.trace('Selected time: ' + (event as CustomEvent<{ time: Date }>).detail.time);
+    });
 };
 
 import dataTimeKit from '@/export';

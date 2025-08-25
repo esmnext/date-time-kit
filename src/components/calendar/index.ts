@@ -19,37 +19,35 @@ export interface Attrs {
      * @type {`string | number`} A value that can be passed to the Date constructor.
      * @default Date.now()
      */
-    'showing-time': string | number;
+    'showing-time'?: string | number;
     /**
      * The start time of the calendar display range.
      * @type {`string | number`} A value that can be passed to the Date constructor.
      * @default 'current-time'
      */
-    'time-start': string | number;
+    'time-start'?: string | number;
     /**
      * The end time of the calendar display range.
      * @type {`string | number`} A value that can be passed to the Date constructor.
      * @default 'time-start'
      */
-    'time-end': string | number;
+    'time-end'?: string | number;
     /**
      * The minimum time of the calendar display range.
      * @type {`string | number`} A value that can be passed to the Date constructor.
-     * @default '' (Not effective)
      */
-    'min-time': string | number;
+    'min-time'?: string | number;
     /**
      * The maximum time of the calendar display range.
      * @type {`string | number`} A value that can be passed to the Date constructor.
-     * @default '' (Not effective)
      */
-    'max-time': string | number;
+    'max-time'?: string | number;
     /**
      * Set which day of the week is the first day.
      * @type `'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'`
      * @default 'sun'
      */
-    'week-start-at': Weeks;
+    'week-start-at'?: Weeks;
 }
 
 /**
@@ -86,6 +84,10 @@ export class Calendar extends UiBase {
     public connectedCallback() {
         this.onWeekStartAtChange();
         this.onTimeChange();
+        this.addEventListener('click', this.onClick);
+    }
+    public disconnectedCallback() {
+        this.removeEventListener('click', this.onClick);
     }
 
     public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -158,31 +160,46 @@ export class Calendar extends UiBase {
         const adjustedFirstWeek = (firstWeekOfCurMonth - weekStartOffset + 7) % 7;
 
         let itemIdx = 0;
-        const items = this.shadowRoot.querySelectorAll('.item');
+        const items = this.shadowRoot.querySelectorAll<HTMLElement>('.item');
+        items.forEach(ele => {
+            ele.className = 'item disabled';
+            ele.removeAttribute('data-time');
+        });
 
         // set previous month days
-        for (let i = daysPrev - adjustedFirstWeek; i < daysPrev; ++i) {
+        for (let i = daysPrev - adjustedFirstWeek + 1; i <= daysPrev; ++i) {
             const ele = items[itemIdx++];
-            ele.className = 'item disabled';
-            ele.textContent = i + 1 + '';
+            ele.textContent = i + '';
         }
 
         // set current month days
         for (let i = 1; i <= days; ++i) {
             const ele = items[itemIdx++];
             const time = new Date(year, month, i);
-            ele.className = 'item';
             ele.classList.toggle('disabled', time < minTime || time > maxTime);
             ele.classList.toggle('start', +time === +timeStart);
             ele.classList.toggle('end', +time === +timeEnd);
+            ele.dataset.time = time.toISOString();
             ele.textContent = i + '';
         }
 
         // set next month days
         for (let i = 1; itemIdx < items.length; ++i) {
             const ele = items[itemIdx++];
-            ele.className = 'item disabled';
             ele.textContent = i + '';
         }
     }
+
+    private onClick = (e: MouseEvent) => {
+        if (!this.shadowRoot) return;
+        let item: HTMLElement | null = null;
+        for (const target of e.composedPath()) {
+            if (target === this.shadowRoot) break;
+            if (!(target instanceof HTMLElement)) continue;
+            item = target;
+        }
+        if (!item || item.matches('.disabled, :not([data-time])')) return;
+        const time = new Date(item.dataset.time!);
+        super.dispatchEvent('select-time', { global: true, data: { time } });
+    };
 }
