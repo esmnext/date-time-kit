@@ -17,10 +17,6 @@ export interface kitOption {
     root: HTMLElement;
     // default select
     startTime?: timeString;
-    endTime?: timeString; // period 为true 生效
-    // default limit
-    maxTime?: timeString; // period 为true 生效
-    minTime?: timeString; // period 为true 生效
     /**
      * Language using in component. Default use browser language
      * if language not support, use 'en-US' instead
@@ -29,12 +25,24 @@ export interface kitOption {
      */
     lang?: Lang;
     // default time zone
+    /**
+     * Time zone in hour. For example: UTC+05:45 => `5.75`, UTC-02:00 => `-2`.
+     *
+     * Default for locale time zone. */
     timeZone?: number;
     granularity?: Granularity;
-    enableZone?: boolean | undefined;
+    enableZone?: boolean;
+
     // time period
     period?: boolean;
 
+    // 下面的都是 period 为 true 生效
+
+    endTime?: timeString;
+    /** 最大选择时间，默认最近20年 */
+    maxTime?: timeString;
+    /** 最小选择时间，默认最近5年 */
+    minTime?: timeString;
     maxLength?: number; // 选择的最大时长 单位ms period 为true 生效
     minLength?: number; // 选择的最小时长 单位ms period 为true 生效
 }

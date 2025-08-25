@@ -158,23 +158,23 @@ export function getTimeStringByTimestamp(timestamp: number): timeString {
 
 /**
  * init data for the kit according to kitOption
- * @param kitOption {kitOption} - options for the kit
+ * @param opts {kitOption} - options for the kit
  * @returns {kitContent} - data for the kit
  */
-export function dataFactory(kitOption: kitOption): kitContent {
-    let { maxTime, minTime, startTime, endTime } = kitOption;
+export function dataFactory(opts: kitOption): kitContent {
+    let { maxTime, minTime, startTime, endTime } = opts;
     const now = Date.now();
-    //TODO: 配置名字写反了 临时交换一下
+    // TODO: 配置名字写反了 临时交换一下（不单单是这个函数，全局都写反了）
     const temTime = maxTime;
     maxTime = minTime || getTimeStringByTimestamp(now - 1000 * 60 * 60 * 24 * 365 * 5);
     minTime = temTime || getTimeStringByTimestamp(now + 1000 * 60 * 60 * 24 * 365 * 20);
 
-    if (kitOption.timeZone !== void 0) {
+    if (opts.timeZone !== void 0) {
         const currentTimeZone = getCurrentTimeZone();
-        maxTime = maxTime || getTimeStringByTimeZone(maxTime, currentTimeZone, kitOption.timeZone);
-        minTime = minTime || getTimeStringByTimeZone(minTime, currentTimeZone, kitOption.timeZone);
-        startTime = startTime && getTimeStringByTimeZone(startTime, currentTimeZone, kitOption.timeZone);
-        endTime = endTime && getTimeStringByTimeZone(endTime, currentTimeZone, kitOption.timeZone);
+        maxTime = maxTime || getTimeStringByTimeZone(maxTime, currentTimeZone, opts.timeZone);
+        minTime = minTime || getTimeStringByTimeZone(minTime, currentTimeZone, opts.timeZone);
+        startTime = startTime && getTimeStringByTimeZone(startTime, currentTimeZone, opts.timeZone);
+        endTime = endTime && getTimeStringByTimeZone(endTime, currentTimeZone, opts.timeZone);
     }
 
     const maxDate = new Date(maxTime || now);
@@ -195,19 +195,19 @@ export function dataFactory(kitOption: kitOption): kitContent {
     }
 
     // init time zone
-    const timeZone = kitOption.timeZone !== void 0
-        ? kitOption.timeZone
+    const timeZone = opts.timeZone !== void 0
+        ? opts.timeZone
         : getCurrentTimeZone();
 
     // default enable zone
-    if (kitOption.enableZone === void 0) {
-        kitOption.enableZone = true;
+    if (opts.enableZone === void 0) {
+        opts.enableZone = true;
     }
 
     // init language
-    kitOption.lang ||= navigator.language as Lang;
-    if (!i18n[kitOption.lang]) {
-        kitOption.lang = 'en-US';
+    opts.lang ||= navigator.language as Lang;
+    if (!i18n[opts.lang]) {
+        opts.lang = 'en-US';
     }
 
     return {
@@ -222,13 +222,13 @@ export function dataFactory(kitOption: kitOption): kitContent {
         maxTime: initKitTime(minDate),
         minDate: initKitDate(maxDate),
         minTime: initKitTime(maxDate),
-        lang: kitOption.lang || 'en-US',
+        lang: opts.lang || 'en-US',
         timeZone,
-        granularity: kitOption.granularity || Granularity.day,
-        enableZone: kitOption.enableZone,
-        period: !!kitOption.period,
-        maxLength: kitOption.maxLength || 0,
-        minLength: kitOption.minLength || 0,
+        granularity: opts.granularity || Granularity.day,
+        enableZone: opts.enableZone,
+        period: !!opts.period,
+        maxLength: opts.maxLength || 0,
+        minLength: opts.minLength || 0,
     };
 }
 
