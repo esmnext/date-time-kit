@@ -1,5 +1,6 @@
 import { defineConfig } from '@rsbuild/core';
 import { pluginDts } from 'rsbuild-plugin-dts';
+import { pluginSass } from '@rsbuild/plugin-sass';
 
 export default defineConfig({
     source: {
@@ -17,7 +18,10 @@ export default defineConfig({
         template: './src/examples/index.html',
         scriptLoading: 'module'
     },
-    plugins: [pluginDts()],
+    output: {
+        injectStyles: true,
+    },
+    plugins: [pluginDts(), pluginSass()],
     tools: {
         rspack: {
             output: {
@@ -35,23 +39,6 @@ export default defineConfig({
             experiments: {
                 css: true,
                 outputModule: true
-            },
-            module: {
-                // suppress sass scss
-                rules: [
-                    {
-                        test: /\.s[ac]ss$/i,
-                        use: [{
-                            loader: 'sass-loader',
-                            options: {
-                                api: 'modern-compiler',
-                                implementation: require.resolve('sass-embedded'),
-                            }
-                        }],
-                        // set to 'css/auto' if you want to support '*.module.(scss|sass)' as CSS Modules, otherwise set type to 'css'
-                        type: 'css/auto',
-                    }
-                ]
             }
         }
     }

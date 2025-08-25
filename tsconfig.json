@@ -25,5 +25,5 @@
     }
   },
   "exclude": ["node_modules", "dist"],
-  "include": ["src", "src/**/*.d.ts", "src/**/*.ts", "type.d.ts" ]
+  "include": ["src", "src/**/*.d.ts", "src/**/*.ts", "src/types/*.d.ts"]
 }
