@@ -250,7 +250,6 @@ function getWeekLimit() {
     const startTime = new Date(current.getFullYear(), current.getMonth(), current.getDate() - current.getDay() + 1);
     const endTime = new Date(current.getFullYear(), current.getMonth(), current.getDate() - current.getDay() + 7);
     return limitFactory(startTime, endTime);
-
 }
 // lastWeek: 'Last Week',
 function getLastWeekLimit() {

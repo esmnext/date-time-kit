@@ -89,7 +89,6 @@ function render(data: kitContent) {
             <div class="dt-time-body-content">
                 <span class="dt-time-string">${renderTimeString(data)}</span>
                 <span class="dt-time-icon"></span>
-                
             </div>
             <div class="dt-time-select-box">
                 ${renderSelectList(data, 'start')}
@@ -223,9 +222,9 @@ export function updateData(ele: HTMLElement, data: kitContent) {
     const secondEndEle = ele.querySelectorAll('.dt-time-select-item[data-second][data-status="end"]');
 
     for (let i = 0, j = 59; i < 60; ++i, --j) {
-        hourEndEle[i].classList.toggle('dt-time-select-item-disabled', j < disabledItem.hour);
-        minuteEndEle[i].classList.toggle('dt-time-select-item-disabled', j < disabledItem.minute);
-        secondEndEle[i].classList.toggle('dt-time-select-item-disabled', j < disabledItem.second);
+        hourEndEle[i]?.classList.toggle('dt-time-select-item-disabled', j < disabledItem.hour);
+        minuteEndEle[i]?.classList.toggle('dt-time-select-item-disabled', j < disabledItem.minute);
+        secondEndEle[i]?.classList.toggle('dt-time-select-item-disabled', j < disabledItem.second);
     }
 
     const echoEle = ele.querySelector('.dt-time-string')

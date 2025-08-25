@@ -20,3 +20,8 @@ export default {
     getTimeStringByTimestamp: utils.getTimeStringByTimestamp,
     getTimeStringByTimeZone: utils.getTimeStringByTimeZone,
 };
+
+export {
+    getLimitKeyByTimestamp,
+    getTimestampByLimitKey,
+};

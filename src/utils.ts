@@ -13,6 +13,9 @@ import {
 } from "./types";
 import i18n, { Lang } from "./i18n";
 
+export const html = (strings: TemplateStringsArray, ...values: unknown[]) =>
+    String.raw(strings, ...values);
+
 /**
  * Shows the element by adding the "dt-show" class.
  * @param element - Element to be shown.
@@ -42,12 +45,23 @@ export const hideBox = (element: Element, removeDelay = 350) => {
 // eslint-disable-next-line
 export function debounce(fn: Function, delay = 10) {
     let timer: ReturnType<typeof setTimeout> | null = null;
-    return function () {
+    return function <U>(this: U, ...args: any[]) {
         if (timer !== null) clearTimeout(timer);
         timer = setTimeout(() => {
-            fn();
+            fn.apply(this, args);
         }, delay);
     }
+}
+export function Debounce<
+    This, Args extends any[], Return,
+    Fn extends (this: This, ...args: Args) => Return
+>(delay: number = 0) {
+    return function (
+        target: Fn,
+        _ctx: ClassMethodDecoratorContext<This, Fn>
+    ) {
+        return debounce(target, delay) as Fn;
+    };
 }
 
 export const getCurrentTimeZone = () => -new Date().getTimezoneOffset() / 60;

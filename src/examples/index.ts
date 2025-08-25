@@ -1,4 +1,17 @@
 
+import '@/components/calendar';
+
+window.onclick = () => {
+    const ele = document.querySelector('dt-calendar-base');
+    if (!ele) return;
+    // ele.setAttribute('lang', langs[langs.length * Math.random() | 0]);
+    // console.log('set lang', ele.getAttribute('lang'));
+    // const weeks = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+    // ele.setAttribute('week-start-at', weeks[
+    //     (weeks.indexOf(ele.getAttribute('week-start-at') || 'sun') + 1) % weeks.length
+    // ]);
+};
+
 import dataTimeKit from '@/export';
 
 // const rand = dataTimeKit.getTimestampByLimitKey('week', 2); 

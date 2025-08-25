@@ -1,6 +1,17 @@
 import type { kitDataLimit } from "./types";
 
-export type Lang = 'en-US' | 'zh-CN' | 'zh-TW' | 'id-ID' | 'vi-VN' | 'th-TH' | 'ms-MY' | 'ko-KR' | 'ar-AE';
+export const langs = [
+    'en-US',
+    'zh-CN',
+    'zh-TW',
+    'id-ID',
+    'vi-VN',
+    'th-TH',
+    'ms-MY',
+    'ko-KR',
+    'ar-AE'
+] as const;
+export type Lang = typeof langs[number];
 
 export type kitI18nCfg = {
     box: {
