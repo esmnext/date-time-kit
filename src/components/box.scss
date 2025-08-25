@@ -16,12 +16,48 @@
     display: flex;
     z-index: var(--z-base);
     font-size: var(--font-size);
-    ::-webkit-scrollbar {
-        display: none;
-    }
+
     -webkit-tap-highlight-color: transparent;
     user-select: none;
-  
+
+    // firefox only:
+    @-moz-document url-prefix() {
+        &, * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--scrollbar-thumb-color, #4444) transparent;
+            &:hover {
+                scrollbar-color: var(--scrollbar-thumb-color-hover, var(--scrollbar-thumb-color, #8888)) transparent;
+            }
+        }
+    }
+
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    ::-webkit-scrollbar-button {
+        display: none;
+    }
+    ::-webkit-scrollbar-corner {
+        display: none;
+    }
+    ::-webkit-scrollbar-thumb {
+        background-color: var(--scrollbar-thumb-color, #4444);
+        border-radius: 4px;
+        cursor: grab;
+
+        &:hover {
+            background-color: var(--scrollbar-thumb-color-hover, var(--scrollbar-thumb-color, #8888));
+        }
+
+        &:active {
+            background-color: var(--scrollbar-thumb-color-active, var(--scrollbar-thumb-color, #2222));
+            cursor: grabbing;
+        }
+    }
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
 }
 .dt-date-box {
     display: flex;
