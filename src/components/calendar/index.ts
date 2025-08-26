@@ -48,6 +48,12 @@ export interface CalendarAttrs extends BaseAttrs {
      * @default 'sun'
      */
     'week-start-at'?: Weeks;
+    /**
+     * Whether to show the days of the previous and next months in the current month's calendar.
+     * @type {boolean}
+     * @default false
+     */
+    'show-other-month'?: boolean;
 }
 
 export type CalendarEmit = (eventName: 'select-time', detail: Date) => void;
@@ -167,11 +173,13 @@ export class Calendar extends UiBase<CalendarEmit> {
             ele.className = 'item disabled';
             ele.removeAttribute('data-time');
             ele.setAttribute('part', 'item disabled');
+            ele.innerHTML = '';
         });
 
         // set previous month days
         for (let i = daysPrev - adjustedFirstWeek + 1; i <= daysPrev; ++i) {
             const ele = items[itemIdx++];
+            if (!this.hasAttribute('show-other-month')) continue;
             ele.textContent = i + '';
         }
 
@@ -190,6 +198,7 @@ export class Calendar extends UiBase<CalendarEmit> {
         // set next month days
         for (let i = 1; itemIdx < items.length; ++i) {
             const ele = items[itemIdx++];
+            if (!this.hasAttribute('show-other-month')) continue;
             ele.textContent = i + '';
         }
     }
