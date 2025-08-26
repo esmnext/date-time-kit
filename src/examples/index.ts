@@ -11,7 +11,7 @@ window.onload = () => {
     //     (weeks.indexOf(ele.getAttribute('week-start-at') || 'sun') + 1) % weeks.length
     // ]);
     ele.addEventListener('select-time', (event) => {
-        console.trace('Selected time: ' + (event as CustomEvent<{ time: Date }>).detail.time);
+        console.trace('Selected time: ' + (event as CustomEvent<Date>).detail);
     });
 };
 

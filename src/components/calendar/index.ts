@@ -74,7 +74,7 @@ export class Calendar extends UiBase<CalendarEmit> {
         ).join('')
     }${
         [...Array(7 * 6)].map(
-            (_, i) => html`<div class="item">${i % 31 + 1}</div>`
+            (_, i) => html`<div class="item" part="item">${i % 31 + 1}</div>`
         ).join('')
     }`;
 
@@ -166,6 +166,7 @@ export class Calendar extends UiBase<CalendarEmit> {
         items.forEach(ele => {
             ele.className = 'item disabled';
             ele.removeAttribute('data-time');
+            ele.setAttribute('part', 'item disabled');
         });
 
         // set previous month days
@@ -181,6 +182,7 @@ export class Calendar extends UiBase<CalendarEmit> {
             ele.classList.toggle('disabled', time < minTime || time > maxTime);
             ele.classList.toggle('start', +time === +timeStart);
             ele.classList.toggle('end', +time === +timeEnd);
+            ele.setAttribute('part', ele.className);
             ele.dataset.time = time.toISOString();
             ele.textContent = i + '';
         }

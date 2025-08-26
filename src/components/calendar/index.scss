@@ -1,20 +1,23 @@
 
 :host {
+    --gap: var(--calendar-item-gap, 10px 0);
+    --item-size: var(--calendar-item-size, 30px);
+
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: var(--spacing-size-small, 12px) 0;
+    gap: var(--gap);
     width: 100%;
     justify-content: space-between;
     text-align: center;
 }
 
 .week {
-    min-width: var(--item-size, 30px);
+    min-width: var(--item-size);
 }
 
 .item {
-    min-width: var(--item-size, 30px);
-    line-height: var(--item-size, 30px);
+    min-width: var(--item-size);
+    line-height: var(--item-size);
     cursor: pointer;
     position: relative;
 
@@ -31,8 +34,8 @@
         position: absolute;
         top: 50%;
         left: 50%;
-        width: var(--item-size, 30px);
-        height: var(--item-size, 30px);
+        width: var(--item-size);
+        height: var(--item-size);
         transform: translate(-50%, -50%);
         z-index: -1;
     }
@@ -46,7 +49,7 @@
     }
 
     // for period background
-    --half-period-bg-w: calc(50% + var(--item-size, 30px) / 2);
+    --half-period-bg-w: calc(50% + var(--item-size) / 2);
     &:not(.disabled)::before {
         content: '';
         display: block;
@@ -60,22 +63,22 @@
     }
     // left column period background
     &:nth-child(7n + 2)::before {
-        border-radius: var(--item-size, 30px) 0 0 var(--item-size, 30px);
+        border-radius: var(--item-size) 0 0 var(--item-size);
         width: var(--half-period-bg-w);
-        left: calc(50% - var(--item-size, 30px) / 2);
+        left: calc(50% - var(--item-size) / 2);
     }
     // right column period background
     &:nth-child(7n + 1)::before {
-        border-radius: 0 var(--item-size, 30px) var(--item-size, 30px) 0;
+        border-radius: 0 var(--item-size) var(--item-size) 0;
         width: var(--half-period-bg-w);
     }
     // start point
     &.start::before {
         --period-bg: var(--color-primary-light);
         width: var(--half-period-bg-w);
-        left: calc(50% - var(--item-size, 30px) / 2);
-        border-top-left-radius: var(--item-size, 30px);
-        border-bottom-left-radius: var(--item-size, 30px);
+        left: calc(50% - var(--item-size) / 2);
+        border-top-left-radius: var(--item-size);
+        border-bottom-left-radius: var(--item-size);
     }
     // between start and end (not including start and end)
     &.start ~ &:not(.end, .end ~ &) {
@@ -85,12 +88,12 @@
     &.end::before {
         --period-bg: var(--color-primary-light);
         width: var(--half-period-bg-w);
-        border-top-right-radius: var(--item-size, 30px);
-        border-bottom-right-radius: var(--item-size, 30px);
+        border-top-right-radius: var(--item-size);
+        border-bottom-right-radius: var(--item-size);
     }
     // start point at right column, or end point at left column
     &:nth-child(7n + 1).start::before,
     &:nth-child(7n + 2).end::before {
-        width: var(--item-size, 30px);
+        width: var(--item-size);
     }
 }
