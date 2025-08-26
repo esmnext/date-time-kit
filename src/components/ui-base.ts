@@ -1,10 +1,22 @@
+import { Lang } from "@/i18n";
 
 // tagName to template element cache
 const templateCache = new Map<string, HTMLTemplateElement>();
 
-export class UiBase extends HTMLElement {
-    static get observedAttributes() {
-        return ['lang'];
+export interface BaseAttrs {
+    /**
+     * The language of the component.
+     * @type `Lang`
+     */
+    'lang'?: Lang;
+}
+
+export class UiBase<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Emit extends (eventName: string | any, detailData: any) => any = () => void
+> extends HTMLElement {
+    static get observedAttributes(): string[] {
+        return ['lang'] satisfies (keyof BaseAttrs)[];
     }
 
     protected _template: string = '';
@@ -43,10 +55,11 @@ export class UiBase extends HTMLElement {
         });
     }
 
-    dispatchEvent<T>(type: string | Event, {
-        global = false,
-        data = {} as T
-    } = {}) {
+    dispatchEvent(
+        type: Parameters<Emit>[0] | Event,
+        data?: Parameters<Emit>[1],
+        global = false
+    ) {
         return type instanceof Event
             ? super.dispatchEvent(type)
             : super.dispatchEvent(new CustomEvent(type, {

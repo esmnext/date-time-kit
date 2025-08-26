@@ -1,5 +1,5 @@
 import { Debounce, html } from "@/utils";
-import { DefEle, UiBase } from "../ui-base";
+import { BaseAttrs, DefEle, UiBase } from "../ui-base";
 import '@/components/i18n';
 import styleStr from './index.scss?inline';
 
@@ -13,7 +13,7 @@ const getWeekInOrder = (startAt?: Weeks) => {
     return [...weekKey.slice(index), ...weekKey.slice(0, index)];
 };
 
-export interface Attrs {
+export interface CalendarAttrs extends BaseAttrs {
     /**
      * The showing time, used to determine the month to show on calendar.
      * @type {`string | number`} A value that can be passed to the Date constructor.
@@ -50,19 +50,21 @@ export interface Attrs {
     'week-start-at'?: Weeks;
 }
 
+export type CalendarEmit = (eventName: 'select-time', detail: Date) => void;
+
 /**
  * 基础的日历显示组件。仅显示星期和数字。
  */
 @DefEle('calendar-base')
-export class Calendar extends UiBase {
-    static get observedAttributes() {
+export class Calendar extends UiBase<CalendarEmit> {
+    static get observedAttributes(): string[] {
         return [
-            ...UiBase.observedAttributes,
+            ...(super.observedAttributes as (keyof BaseAttrs)[]),
             'showing-time',
             'time-start', 'time-end',
             'min-time', 'max-time',
             'week-start-at',
-        ];
+        ] satisfies (keyof CalendarAttrs)[];
     }
 
     protected _style = styleStr;
@@ -200,6 +202,6 @@ export class Calendar extends UiBase {
         }
         if (!item || item.matches('.disabled, :not([data-time])')) return;
         const time = new Date(item.dataset.time!);
-        super.dispatchEvent('select-time', { global: true, data: { time } });
+        super.dispatchEvent('select-time', time, true);
     };
 }
