@@ -1,5 +1,5 @@
-import { Debounce, html } from "@/utils";
-import { BaseAttrs, DefEle, UiBase } from "../ui-base";
+import { closestByEvent, Debounce, html } from "@/utils";
+import { BaseAttrs, DefEle, UiBase } from "../web-componet-base";
 import '@/components/i18n';
 import styleStr from './index.scss?inline';
 
@@ -205,13 +205,8 @@ export class Calendar extends UiBase<CalendarEmit> {
 
     private onClick = (e: MouseEvent) => {
         if (!this.shadowRoot) return;
-        let item: HTMLElement | null = null;
-        for (const target of e.composedPath()) {
-            if (target === this.shadowRoot) break;
-            if (!(target instanceof HTMLElement)) continue;
-            item = target;
-        }
-        if (!item || item.matches('.disabled, :not([data-time])')) return;
+        const item = closestByEvent(e, '.item[data-time]:not(.disabled)', this);
+        if (!item) return;
         const time = new Date(item.dataset.time!);
         super.dispatchEvent('select-time', time, true);
     };

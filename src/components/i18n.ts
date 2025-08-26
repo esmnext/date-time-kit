@@ -1,5 +1,6 @@
 import i18n, { Lang, langs } from "@/i18n";
-import { DefEle, UiBase } from "./ui-base";
+import { DefEle, UiBase } from "./web-componet-base";
+import { html } from "@/utils";
 
 @DefEle('i18n')
 export class I18n extends UiBase {
@@ -7,7 +8,7 @@ export class I18n extends UiBase {
         return [...UiBase.observedAttributes, 'i18n-key'];
     }
 
-    protected _template = `<slot></slot>`;
+    protected _template = html`<slot></slot>`;
 
     constructor() {
         super();

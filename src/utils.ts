@@ -34,6 +34,17 @@ export const hideBox = (element: Element, removeDelay = 350) => {
     }, removeDelay);
 };
 
+export const closestByEvent = (e: Event, selector: string, root?: HTMLElement | ShadowRoot) => {
+    for (const target of e.composedPath()) {
+        if (target === root) return null;
+        if (!(target instanceof HTMLElement)) continue;
+        if (target.matches(selector)) {
+            return target;
+        }
+    }
+    return null;
+};
+
 /**
  * Returns a debounced version of the provided function, ensuring that the 
  * function is only invoked after a specified delay in milliseconds has elapsed 
@@ -45,6 +56,7 @@ export const hideBox = (element: Element, removeDelay = 350) => {
 // eslint-disable-next-line
 export function debounce(fn: Function, delay = 10) {
     let timer: ReturnType<typeof setTimeout> | null = null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return function <U>(this: U, ...args: any[]) {
         if (timer !== null) clearTimeout(timer);
         timer = setTimeout(() => {
@@ -53,6 +65,7 @@ export function debounce(fn: Function, delay = 10) {
     }
 }
 export function Debounce<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     This, Args extends any[], Return,
     Fn extends (this: This, ...args: Args) => Return
 >(delay: number = 0) {

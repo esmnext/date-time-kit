@@ -1,0 +1,32 @@
+
+:host {
+    display: block;
+    overflow: hidden auto;
+    position: relative !important;
+    overflow-anchor: none;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.item {
+    cursor: pointer;
+    user-select: none;
+    width: 100%;
+    text-align: center;
+    border-radius: 2px;
+    padding: 5px 2px;
+    box-sizing: border-box;
+
+    &.item-current {
+        background-color: var(--color-primary-light);
+    }
+
+    &:hover {
+        background-color: var(--color-hover);
+    }
+}

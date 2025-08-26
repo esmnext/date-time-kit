@@ -1,5 +1,6 @@
 
 import '@/components/calendar';
+import '@/components/num-list';
 
 window.onload = () => {
     const ele = document.querySelector('dt-calendar-base');

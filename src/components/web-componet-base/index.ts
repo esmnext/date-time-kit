@@ -26,8 +26,8 @@ export class UiBase<
         if (templateCache.has(tagName))
             return templateCache.get(tagName)!;
         const templateEle = document.createElement('template');
-        templateEle.innerHTML =
-            (this._style && `<style>${this._style}</style>`)
+        templateEle.innerHTML = ''
+            + (this._style && `<style>${this._style}</style>`)
             + this._template;
         templateCache.set(tagName, templateEle);
         return templateEle;
