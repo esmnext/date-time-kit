@@ -1,4 +1,4 @@
-import { closestByEvent, debounce, Debounce, html } from "@/utils";
+import { closestByEvent, debounce, html } from "@/utils";
 import { BaseAttrs, DefEle, UiBase } from "../web-component-base";
 import styleStr from './index.scss?inline';
 
@@ -34,7 +34,7 @@ export type ListsEmit = (eventName: 'select', detail: number) => void;
  * 基础的数字列表组件。允许无限滚动。点击后可以滚动定位到当前数字。
  */
 @DefEle('num-list')
-export class List extends UiBase<ListsAttrs, ListsEmit> {
+export class NumListEle extends UiBase<ListsAttrs, ListsEmit> {
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
@@ -140,7 +140,7 @@ export class List extends UiBase<ListsAttrs, ListsEmit> {
     }
 
     public connectedCallback() {
-        this.render();
+        this._render();
         this.addEventListener('click', this._onClick);
         this.addEventListener('resize', this._onResize);
     }
@@ -153,7 +153,7 @@ export class List extends UiBase<ListsAttrs, ListsEmit> {
     public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
         super.attributeChangedCallback(name, oldValue, newValue);
         if (oldValue === newValue) return;
-        this.render();
+        this._render();
     }
 
     private _pageSize = 0;
@@ -186,8 +186,7 @@ export class List extends UiBase<ListsAttrs, ListsEmit> {
         });
     }
 
-    @Debounce()
-    private render() {
+    private _render = debounce(() => {
         if (!this.shadowRoot) return;
         this._destroyOb();
         const container = this.shadowRoot.querySelector('.container')!;
@@ -209,7 +208,7 @@ export class List extends UiBase<ListsAttrs, ListsEmit> {
             container.appendChild(this._createItem(i, currentNum));
         }
         setTimeout(this._scrollToCurrent, 0);
-    }
+    }, 0);
 
     private _onClick = (e: MouseEvent) => {
         if (!this.shadowRoot) return;
@@ -225,5 +224,5 @@ export class List extends UiBase<ListsAttrs, ListsEmit> {
         super.dispatchEvent('select', +item.innerHTML, true);
     };
 
-    private _onResize = debounce(() => void this._getPageSize(true));
+    private _onResize = debounce(() => void this._getPageSize(true), 0);
 }

@@ -1,4 +1,4 @@
-import { closestByEvent, Debounce, html } from "@/utils";
+import { closestByEvent, debounce, html } from "@/utils";
 import { BaseAttrs, DefEle, UiBase } from "../web-component-base";
 import '@/components/i18n';
 import styleStr from './index.scss?inline';
@@ -90,8 +90,8 @@ export class Calendar extends UiBase<CalendarAttrs, CalendarEmit> {
     }
 
     public connectedCallback() {
-        this.onWeekStartAtChange();
-        this.onTimeChange();
+        this._onWeekStartAtChange();
+        this._onTimeChange();
         this.addEventListener('click', this.onClick);
     }
     public disconnectedCallback() {
@@ -102,29 +102,27 @@ export class Calendar extends UiBase<CalendarAttrs, CalendarEmit> {
         super.attributeChangedCallback(name, oldValue, newValue);
         if (oldValue === newValue) return;
         if (name === 'week-start-at') {
-            this.onWeekStartAtChange();
+            this._onWeekStartAtChange();
         }
         if ([
             "showing-time",
             "time-start", "time-end",
             "min-time", "max-time",
         ].includes(name)) {
-            this.onTimeChange();
+            this._onTimeChange();
         }
     }
 
-    @Debounce()
-    private onWeekStartAtChange() {
+    private _onWeekStartAtChange = debounce(() => {
         if (!this.shadowRoot) return;
         const weekOrder = getWeekInOrder(this._getAttr('week-start-at'));
         this.shadowRoot.querySelectorAll('.week').forEach((ele, i) => {
             ele.setAttribute('i18n-key', `date.${weekOrder[i]}`!);
         });
-        this.onTimeChange();
-    }
+        this._onTimeChange();
+    }, 0);
 
-    @Debounce()
-    private onTimeChange() {
+    private _onTimeChange = debounce(() => {
         if (!this.shadowRoot) return;
         const showingTime = this._getAttr('showing-time');
 
@@ -201,7 +199,7 @@ export class Calendar extends UiBase<CalendarAttrs, CalendarEmit> {
             if (!this.hasAttribute('show-other-month')) continue;
             ele.textContent = i + '';
         }
-    }
+    }, 0);
 
     private onClick = (e: MouseEvent) => {
         if (!this.shadowRoot) return;
