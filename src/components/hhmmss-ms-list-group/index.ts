@@ -43,9 +43,18 @@ export class HhMmSsMsListGroup extends UiBase<TimePickerAttrs, TimePickerEmit> {
     protected _style = styleStr;
     protected _template = html`
         <div class="cols" part="cols">
-            <dt-num-list part="list hour" class="hour" min-num="0" max-num="23"></dt-num-list>
-            <dt-num-list part="list minute" class="minute" min-num="0" max-num="59"></dt-num-list>
-            <dt-num-list part="list second" class="second" min-num="0" max-num="59"></dt-num-list>
+            <div class="col" part="col hour">
+                <span>Hour</span>
+                <dt-num-list part="list hour" class="hour" min-num="0" max-num="23"></dt-num-list>
+            </div>
+            <div class="col" part="col minute">
+                <span>Minute</span>
+                <dt-num-list part="list minute" class="minute" min-num="0" max-num="59"></dt-num-list>
+            </div>
+            <div class="col" part="col second">
+                <span>Second</span>
+                <dt-num-list part="list second" class="second" min-num="0" max-num="59"></dt-num-list>
+            </div>
         </div>
         <label class="ms-input" part="ms-wrapper">
             <span part="ms-label">Millisecond</span>
