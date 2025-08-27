@@ -11,7 +11,11 @@ export interface BaseAttrs {
     'lang'?: Lang;
 }
 
+type getAttrType<Attr, K extends keyof Attr> =
+    Extract<Attr[K], string> extends never ? string : Extract<Attr[K], string>;
+
 export class UiBase<
+    Attr extends BaseAttrs = BaseAttrs,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Emit extends (eventName: string | any, detailData: any) => any = () => void
 > extends HTMLElement {
@@ -44,6 +48,15 @@ export class UiBase<
         this.attachShadow({ mode: 'open' });
     }
 
+    protected _getAttr<K extends keyof Attr, D extends undefined | getAttrType<Attr, K> = undefined>(
+        qualifiedName: K, defaultValue?: D
+    ): undefined extends D ? (getAttrType<Attr, K> | null) : getAttrType<Attr, K> {
+        const attr = this.getAttribute(qualifiedName as string);
+        return (
+            attr === null && defaultValue !== void 0 ? defaultValue : attr
+        ) as getAttrType<Attr, K>;
+    }
+
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
         if (oldValue === newValue || name !== 'lang') return;
         this.shadowRoot?.querySelectorAll('[dt]').forEach((ele) => {
@@ -63,11 +76,11 @@ export class UiBase<
         return type instanceof Event
             ? super.dispatchEvent(type)
             : super.dispatchEvent(new CustomEvent(type, {
-                ...(global? {
+                ...(global ? {
                     bubbles: true,
                     cancelable: true,
                     composed: true,
-                }: {}),
+                } : {}),
                 detail: data,
             }));
     }

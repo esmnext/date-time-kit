@@ -1,5 +1,5 @@
 import { closestByEvent, debounce, Debounce, html } from "@/utils";
-import { BaseAttrs, DefEle, UiBase } from "../web-componet-base";
+import { BaseAttrs, DefEle, UiBase } from "../web-component-base";
 import styleStr from './index.scss?inline';
 
 export interface ListsAttrs extends BaseAttrs {
@@ -28,13 +28,13 @@ export interface ListsAttrs extends BaseAttrs {
     'position'?: ScrollLogicalPosition;
 }
 
-export type CalendarEmit = (eventName: 'select', detail: number) => void;
+export type ListsEmit = (eventName: 'select', detail: number) => void;
 
 /**
  * 基础的数字列表组件。允许无限滚动。点击后可以滚动定位到当前数字。
  */
 @DefEle('num-list')
-export class List extends UiBase<CalendarEmit> {
+export class List extends UiBase<ListsAttrs, ListsEmit> {
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
@@ -59,7 +59,7 @@ export class List extends UiBase<CalendarEmit> {
         return this._containerEle.querySelector<HTMLElement>('.item-current');
     }
     private get currentNum() {
-        return Number(this.getAttribute('current-num'));
+        return Number(this._getAttr('current-num'));
     }
 
     private _createItem = (num: number, currentNum = this.currentNum) => {
@@ -182,7 +182,7 @@ export class List extends UiBase<CalendarEmit> {
         if (!ele) return;
         this._intersectionOb?.observe(ele);
         ele.scrollIntoView({
-            block: this.getAttribute('position') as ScrollLogicalPosition || 'start'
+            block: this._getAttr('position', 'start')
         });
     }
 
@@ -195,8 +195,8 @@ export class List extends UiBase<CalendarEmit> {
         if (!this.hasAttribute('current-num')) return;
 
         const currentNum = this.currentNum;
-        const minNum = this.hasAttribute('min-num') ? Number(this.getAttribute('min-num')) : -Infinity;
-        const maxNum = this.hasAttribute('max-num') ? Number(this.getAttribute('max-num')) : Infinity;
+        const minNum = Number(this._getAttr('min-num', '-Infinity'));
+        const maxNum = Number(this._getAttr('max-num', 'Infinity'));
 
         if (minNum === -Infinity && maxNum === Infinity) {
             this._initOb();

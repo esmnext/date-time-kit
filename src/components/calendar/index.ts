@@ -1,12 +1,12 @@
 import { closestByEvent, Debounce, html } from "@/utils";
-import { BaseAttrs, DefEle, UiBase } from "../web-componet-base";
+import { BaseAttrs, DefEle, UiBase } from "../web-component-base";
 import '@/components/i18n';
 import styleStr from './index.scss?inline';
 
 type Weeks = 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
 
 const weekKey: Weeks[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-const getWeekInOrder = (startAt?: Weeks) => {
+const getWeekInOrder = (startAt?: Weeks | null) => {
     if (!startAt) startAt = 'sun';
     const index = weekKey.indexOf(startAt);
     if (index === -1) return weekKey;
@@ -62,7 +62,7 @@ export type CalendarEmit = (eventName: 'select-time', detail: Date) => void;
  * 基础的日历显示组件。仅显示星期和数字。
  */
 @DefEle('calendar-base')
-export class Calendar extends UiBase<CalendarEmit> {
+export class Calendar extends UiBase<CalendarAttrs, CalendarEmit> {
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
@@ -116,7 +116,7 @@ export class Calendar extends UiBase<CalendarEmit> {
     @Debounce()
     private onWeekStartAtChange() {
         if (!this.shadowRoot) return;
-        const weekOrder = getWeekInOrder(this.getAttribute('week-start-at') as Weeks);
+        const weekOrder = getWeekInOrder(this._getAttr('week-start-at'));
         this.shadowRoot.querySelectorAll('.week').forEach((ele, i) => {
             ele.setAttribute('i18n-key', `date.${weekOrder[i]}`!);
         });
@@ -126,12 +126,12 @@ export class Calendar extends UiBase<CalendarEmit> {
     @Debounce()
     private onTimeChange() {
         if (!this.shadowRoot) return;
-        const showingTime = this.getAttribute('showing-time');
+        const showingTime = this._getAttr('showing-time');
 
         const currentTime = showingTime ? new Date(showingTime) : new Date();
         currentTime.setHours(0, 0, 0, 0);
-        let timeStart = new Date(this.getAttribute('time-start') || currentTime);
-        let timeEnd = new Date(this.getAttribute('time-end') || timeStart);
+        let timeStart = new Date(this._getAttr('time-start') || currentTime);
+        let timeEnd = new Date(this._getAttr('time-end') || timeStart);
         timeStart.setHours(0, 0, 0, 0);
         timeEnd.setHours(0, 0, 0, 0);
 
@@ -143,14 +143,14 @@ export class Calendar extends UiBase<CalendarEmit> {
             [timeStart, timeEnd] = [timeEnd, timeStart];
         }
 
-        const minTime = new Date(this.getAttribute('min-time') || '');
-        const maxTime = new Date(this.getAttribute('max-time') || '');
+        const minTime = new Date(this._getAttr('min-time') || '');
+        const maxTime = new Date(this._getAttr('max-time') || '');
         minTime.setHours(0, 0, 0, 0);
         maxTime.setHours(0, 0, 0, 0);
         if (maxTime < timeEnd) timeEnd = maxTime;
         if (timeStart < minTime) timeStart = minTime;
 
-        const weekStartAt = (this.getAttribute('week-start-at') || 'sun') as Weeks;
+        const weekStartAt: Weeks = this._getAttr('week-start-at') || 'sun';
 
         const year = currentTime.getFullYear();
         const month = currentTime.getMonth();
