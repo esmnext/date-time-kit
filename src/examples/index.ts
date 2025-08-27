@@ -4,6 +4,7 @@ import '@/components/num-list';
 import '@/components/popover';
 import '@/components/hhmmss-ms-list-group';
 import '@/components/yyyymmdd-list-group';
+import '@/components/quick-selector';
 
 window.onload = () => {
     const ele = document.querySelector('dt-calendar-base');
