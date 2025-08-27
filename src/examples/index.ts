@@ -2,6 +2,7 @@
 import '@/components/calendar';
 import '@/components/num-list';
 import '@/components/popover';
+import '@/components/hhmmss-ms-picker';
 
 window.onload = () => {
     const ele = document.querySelector('dt-calendar-base');
@@ -16,6 +17,11 @@ window.onload = () => {
         console.trace('Selected time: ' + (event as CustomEvent<Date>).detail);
     });
 };
+
+const timePickerEle = document.querySelector('dt-hhmmss-ms-picker');
+timePickerEle?.addEventListener('change', (e) => {
+    console.log('time-picker change', timePickerEle, (e as CustomEvent<number>).detail);
+});
 
 import dataTimeKit from '@/export';
 

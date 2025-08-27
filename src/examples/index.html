@@ -37,6 +37,15 @@
             background: #eee;
             border: 1px solid #ccc;
         }
+
+        dt-hhmmss-ms-picker {
+            height: 200px;
+            width: 300px;
+        }
+        dt-hhmmss-ms-picker::part(list) {
+            scroll-behavior: smooth;
+        }
+
     </style>
 </head>
 
@@ -59,6 +68,12 @@
             asdf
         </div>
     </dt-popover>
+
+    <!-- 2:38:12.089 ((((2*60)+38)*60+12)*1000)+89 -->
+    <dt-hhmmss-ms-picker
+        millisecond="9492089"
+        col-order="hms"
+    ></dt-hhmmss-ms-picker>
 
     <script type="module" src="./index.ts"></script>
 </body>
