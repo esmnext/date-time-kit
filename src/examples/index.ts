@@ -2,7 +2,8 @@
 import '@/components/calendar';
 import '@/components/num-list';
 import '@/components/popover';
-import '@/components/hhmmss-ms-picker';
+import '@/components/hhmmss-ms-list-group';
+import '@/components/yyyymmdd-list-group';
 
 window.onload = () => {
     const ele = document.querySelector('dt-calendar-base');
@@ -14,13 +15,18 @@ window.onload = () => {
     //     (weeks.indexOf(ele.getAttribute('week-start-at') || 'sun') + 1) % weeks.length
     // ]);
     ele.addEventListener('select-time', (event) => {
-        console.trace('Selected time: ' + (event as CustomEvent<Date>).detail);
+        console.trace('Selected time: ' + (event as CustomEvent).detail);
     });
 };
 
-const timePickerEle = document.querySelector('dt-hhmmss-ms-picker');
-timePickerEle?.addEventListener('change', (e) => {
-    console.log('time-picker change', timePickerEle, (e as CustomEvent<number>).detail);
+const hhmmssMsListGrp = document.querySelector('dt-hhmmss-ms-list-group');
+hhmmssMsListGrp?.addEventListener('change', (e) => {
+    console.log('time-picker change', hhmmssMsListGrp, (e as CustomEvent).detail);
+});
+
+const yyyymmddListGrp = document.querySelector('dt-yyyymmdd-list-group');
+yyyymmddListGrp?.addEventListener('change', (e) => {
+    console.log('date-picker change', yyyymmddListGrp, (e as CustomEvent).detail);
 });
 
 import dataTimeKit from '@/export';

@@ -28,8 +28,8 @@ export type TimePickerEmit = (eventName: 'change', detail: {
 /**
  * 时分秒毫秒选择器
  */
-@DefEle('hhmmss-ms-picker')
-export class TimePicker extends UiBase<TimePickerAttrs, TimePickerEmit> {
+@DefEle('hhmmss-ms-list-group')
+export class HhMmSsMsListGroup extends UiBase<TimePickerAttrs, TimePickerEmit> {
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),

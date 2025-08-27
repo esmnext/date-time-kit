@@ -38,11 +38,13 @@
             border: 1px solid #ccc;
         }
 
-        dt-hhmmss-ms-picker {
+        dt-hhmmss-ms-list-group, dt-yyyymmdd-list-group {
             height: 200px;
             width: 300px;
+            margin-bottom: 10px;
+            box-shadow: 0 0 5px #ccc;
         }
-        dt-hhmmss-ms-picker::part(list) {
+        dt-hhmmss-ms-list-group::part(list), dt-yyyymmdd-list-group::part(list) {
             scroll-behavior: smooth;
         }
 
@@ -52,7 +54,7 @@
 <body>
     <button id="select" class="select">选择日期</button>
     <button id="select-def" class="select">默认选中</button>
-    <img id="img" src="http://dummyimage.com/200x24/4A7BF7&text=ImgBtn" alt="">
+    <!-- <img id="img" src="http://dummyimage.com/200x24/4A7BF7&text=ImgBtn" alt=""> -->
     <div id="root"></div>
     <dt-calendar-base
         lang="zh-CN"
@@ -70,10 +72,15 @@
     </dt-popover>
 
     <!-- 2:38:12.089 ((((2*60)+38)*60+12)*1000)+89 -->
-    <dt-hhmmss-ms-picker
+    <dt-hhmmss-ms-list-group
         millisecond="9492089"
         col-order="hms"
-    ></dt-hhmmss-ms-picker>
+    ></dt-hhmmss-ms-list-group>
+
+    <dt-yyyymmdd-list-group
+        millisecond="1756304532472"
+        col-order="yms"
+    ></dt-yyyymmdd-list-group>
 
     <script type="module" src="./index.ts"></script>
 </body>
