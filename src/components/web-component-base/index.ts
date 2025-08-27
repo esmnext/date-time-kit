@@ -2,6 +2,33 @@ import { Lang } from "@/i18n";
 import styleStr from './index.scss?inline';
 import scrollbarStyleStr from './scrollbar.scss?inline';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type EmitType = (eventName: string | any, detailData: any) => any;
+
+type ListenerFn<Emit extends EmitType, K extends keyof HTMLElementEventMap | Parameters<Emit>[0]> =
+    (this: HTMLElement, ev: K extends Parameters<Emit>[0]
+        ? CustomEvent<Parameters<Emit>[1]>
+        : HTMLElementEventMap[K & keyof HTMLElementEventMap]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ) => any;
+
+type EventListener<Emit extends EmitType, K extends keyof HTMLElementEventMap | Parameters<Emit>[0]> =
+    | ListenerFn<Emit, K>
+    | { handleEvent: ListenerFn<Emit, K>; };
+
+type getAttrType<Attr, K extends keyof Attr> =
+    Extract<Attr[K], string> extends never ? string : Extract<Attr[K], string>;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type CustomEleEventListener<Ele extends UiBase<any, any>, K extends string> =
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Ele extends UiBase<any, infer Emit>
+        ? K extends keyof HTMLElementEventMap | Parameters<Emit>[0]
+            ? EventListener<Emit, K>
+            : never
+        : never;
+
+
 // tagName to template element cache
 const templateCache = new Map<string, HTMLTemplateElement>();
 
@@ -12,9 +39,6 @@ export interface BaseAttrs {
      */
     'lang'?: Lang;
 }
-
-type getAttrType<Attr, K extends keyof Attr> =
-    Extract<Attr[K], string> extends never ? string : Extract<Attr[K], string>;
 
 if (typeof document === 'object') {
     // const styleEle = document.createElement('style');
@@ -27,9 +51,9 @@ if (typeof document === 'object') {
 
 export class UiBase<
     Attr extends BaseAttrs = BaseAttrs,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Emit extends (eventName: string | any, detailData: any) => any = () => void
+    Emit extends EmitType = () => void
 > extends HTMLElement {
+    // TODO: use override keyword in subclasses
     static get observedAttributes(): string[] {
         return ['lang'] satisfies (keyof BaseAttrs)[];
     }
@@ -41,7 +65,7 @@ export class UiBase<
         if (templateCache.has(tagName))
             return templateCache.get(tagName)!;
         const templateEle = document.createElement('template');
-        templateEle.innerHTML = `<style>${styleStr}${this._style}</style>${this._template}`;
+        templateEle.innerHTML = `<style>${scrollbarStyleStr}${styleStr}${this._style}</style>${this._template}`;
         templateCache.set(tagName, templateEle);
         return templateEle;
     };
@@ -92,6 +116,17 @@ export class UiBase<
                 } : {}),
                 detail: data,
             }));
+    }
+
+    public addEventListener<K extends keyof HTMLElementEventMap | Parameters<Emit>[0]>(
+        type: K | string, listener: EventListener<Emit, K>, options?: boolean | EventListenerOptions
+    ): void {
+        super.addEventListener(type as string, listener as EventListenerOrEventListenerObject, options);
+    }
+    public removeEventListener<K extends keyof HTMLElementEventMap | Parameters<Emit>[0]>(
+        type: K | string, listener: EventListener<Emit, K>, options?: boolean | EventListenerOptions
+    ): void {
+        super.removeEventListener(type as string, listener as EventListenerOrEventListenerObject, options);
     }
 }
 
