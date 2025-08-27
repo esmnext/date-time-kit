@@ -1,4 +1,6 @@
 import { Lang } from "@/i18n";
+import styleStr from './index.scss?inline';
+import scrollbarStyleStr from './scrollbar.scss?inline';
 
 // tagName to template element cache
 const templateCache = new Map<string, HTMLTemplateElement>();
@@ -13,6 +15,15 @@ export interface BaseAttrs {
 
 type getAttrType<Attr, K extends keyof Attr> =
     Extract<Attr[K], string> extends never ? string : Extract<Attr[K], string>;
+
+if (typeof document === 'object') {
+    // const styleEle = document.createElement('style');
+    // styleEle.innerHTML = scrollbarStyleStr;
+    // document.head.prepend(styleEle);
+    const styleSheet = new CSSStyleSheet();
+    styleSheet.replaceSync(scrollbarStyleStr);
+    document.adoptedStyleSheets.unshift(styleSheet);
+}
 
 export class UiBase<
     Attr extends BaseAttrs = BaseAttrs,
@@ -30,9 +41,7 @@ export class UiBase<
         if (templateCache.has(tagName))
             return templateCache.get(tagName)!;
         const templateEle = document.createElement('template');
-        templateEle.innerHTML = ''
-            + (this._style && `<style>${this._style}</style>`)
-            + this._template;
+        templateEle.innerHTML = `<style>${styleStr}${this._style}</style>${this._template}`;
         templateCache.set(tagName, templateEle);
         return templateEle;
     };
