@@ -28,10 +28,14 @@ export interface ListsAttrs extends BaseAttrs {
     'position'?: ScrollLogicalPosition;
 }
 
-export type ListsEmit = (eventName: 'select', detail: number) => void;
+export type ListsEmit = (eventName: 'select-num', detail: {
+    oldNum: number, newNum: number
+}) => void;
 
 /**
  * 基础的数字列表组件。允许无限滚动。点击后可以滚动定位到当前数字。
+ * 
+ * 存在一个 formatter 方法，可以重写该方法以自定义数字的显示格式。
  */
 @DefEle('num-list')
 export class NumListEle extends UiBase<ListsAttrs, ListsEmit> {
@@ -58,8 +62,30 @@ export class NumListEle extends UiBase<ListsAttrs, ListsEmit> {
     private get _currentItemEle() {
         return this._containerEle.querySelector<HTMLElement>('.item-current');
     }
-    private get currentNum() {
+
+    public get currentNum() {
         return Number(this._getAttr('current-num'));
+    }
+    public set currentNum(val: number) {
+        this.setAttribute('current-num', String(val));
+    }
+    public get minNum() {
+        return Number(this._getAttr('min-num', '-Infinity'));
+    }
+    public set minNum(val: number) {
+        let min = +val;
+        if (Number.isNaN(min)) min = -Infinity;
+        if (min > this.maxNum) [this.maxNum, min] = [min, this.maxNum];
+        this.setAttribute('min-num', String(val));
+    }
+    public get maxNum() {
+        return Number(this._getAttr('max-num', 'Infinity'));
+    }
+    public set maxNum(val: number) {
+        let max = +val;
+        if (Number.isNaN(max)) max = Infinity;
+        if (max < this.minNum) [this.minNum, max] = [max, this.minNum];
+        this.setAttribute('max-num', String(val));
     }
 
     private _createItem = (num: number, currentNum = this.currentNum) => {
@@ -67,7 +93,8 @@ export class NumListEle extends UiBase<ListsAttrs, ListsEmit> {
         ele.setAttribute('part', ele.className = 'item');
         ele.classList.toggle('item-current', num === currentNum);
         ele.part.toggle('item-current', num === currentNum);
-        ele.textContent = num + '';
+        ele.dataset.number = num + '';
+        ele.textContent = this.formatter(num);
         return ele;
     };
 
@@ -93,7 +120,7 @@ export class NumListEle extends UiBase<ListsAttrs, ListsEmit> {
                     }
                     const curNum = this.currentNum, pageSize = this._getPageSize();
                     if (target === firstItem) {
-                        const firstNum = Number(firstItem.innerHTML);
+                        const firstNum = Number(firstItem.dataset.number);
                         const items = [...Array(pageSize * 2)].map(
                             (_, i) => this._createItem(firstNum - pageSize * 2 + i, curNum)
                         );
@@ -194,8 +221,8 @@ export class NumListEle extends UiBase<ListsAttrs, ListsEmit> {
         if (!this.hasAttribute('current-num')) return;
 
         const currentNum = this.currentNum;
-        const minNum = Number(this._getAttr('min-num', '-Infinity'));
-        const maxNum = Number(this._getAttr('max-num', 'Infinity'));
+        const minNum = this.minNum;
+        const maxNum = this.maxNum;
 
         if (minNum === -Infinity && maxNum === Infinity) {
             this._initOb();
@@ -213,16 +240,21 @@ export class NumListEle extends UiBase<ListsAttrs, ListsEmit> {
     private _onClick = (e: MouseEvent) => {
         if (!this.shadowRoot) return;
         const container = this._containerEle;
-        const oldCurrent = container.querySelector('.item-current');
+        const oldCurrent = container.querySelector<HTMLElement>('.item-current');
+        const item = closestByEvent(e, '.item', this);
+        if (!item || item === oldCurrent) return;
         oldCurrent?.classList.remove('item-current');
         oldCurrent?.part.remove('item-current');
-        const item = closestByEvent(e, '.item', this);
-        if (!item) return;
         item.classList.add('item-current');
         item.part.add('item-current');
         this._scrollToCurrent();
-        super.dispatchEvent('select', +item.innerHTML, true);
+        super.dispatchEvent('select-num', {
+            oldNum: +(oldCurrent?.dataset.number ?? this.currentNum),
+            newNum: +item.dataset.number!,
+        }, true);
     };
 
     private _onResize = debounce(() => void this._getPageSize(true), 0);
+
+    public formatter = (num: number) => '' + num;
 }
