@@ -1,6 +1,7 @@
 
 import '@/components/calendar';
 import '@/components/num-list';
+import '@/components/popover';
 
 window.onload = () => {
     const ele = document.querySelector('dt-calendar-base');

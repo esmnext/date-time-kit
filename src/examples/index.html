@@ -21,6 +21,22 @@
             float: right;
             scroll-behavior: smooth;
         }
+
+        dt-popover {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+        }
+        dt-popover [slot="pop"] {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%);
+            color: red;
+            width: 100px;
+            height: 50px;
+            background: #eee;
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 
@@ -36,6 +52,14 @@
         min-time="2023-03-02T00:00:00.000Z"   max-time="2023-03-19T00:00:00.000Z"
     ></dt-calendar-base>
     <dt-num-list current-num="20"></dt-num-list>
+
+    <dt-popover open>
+        <button slot="trigger" id="btn" class="select">popover</button>
+        <div slot="pop">
+            asdf
+        </div>
+    </dt-popover>
+
     <script type="module" src="./index.ts"></script>
 </body>
 
