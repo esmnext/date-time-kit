@@ -56,6 +56,13 @@
     <button id="select-def" class="select">默认选中</button>
     <!-- <img id="img" src="http://dummyimage.com/200x24/4A7BF7&text=ImgBtn" alt=""> -->
     <div id="root"></div>
+
+
+    <dt-date-nav
+        millisecond="1756304532472"
+        show-ctrl-btn-year
+        show-ctrl-btn-month
+    ></dt-date-nav>
     <dt-calendar-base
         lang="zh-CN"
         showing-time="2023-03-25T00:00:00.000Z"
@@ -79,7 +86,8 @@
 
     <dt-yyyymmdd-list-group
         millisecond="1756304532472"
-        col-order="yms"
+        col-order="myd"
+        min-granularity="month"
     ></dt-yyyymmdd-list-group>
 
     <dt-quick-selector></dt-quick-selector>

@@ -113,52 +113,15 @@ export class NumListEle extends UiBase<ListsAttrs, ListsEmit> {
                 const lastItem = container.lastElementChild as HTMLElement;
                 for (const { target, isIntersecting } of entries) {
                     if (!isIntersecting) continue;
+                    observer.unobserve(target);
                     if (target === this._currentItemEle) {
-                        observer.unobserve(target);
                         observer.observe(firstItem!);
                         observer.observe(lastItem!);
                     }
-                    const curNum = this.currentNum, pageSize = this._getPageSize();
                     if (target === firstItem) {
-                        const firstNum = Number(firstItem.dataset.number);
-                        const items = [...Array(pageSize * 2)].map(
-                            (_, i) => this._createItem(firstNum - pageSize * 2 + i, curNum)
-                        );
-                        observer.unobserve(target);
-                        observer.unobserve(lastItem!);
-                        const scrollTop = this.scrollTop;
-                        container.prepend(...items);
-                        for (let i = 0; i < items.length; ++i) {
-                            container.removeChild(container.lastElementChild!);
-                        }
-                        const addedHeight = items.length * (firstItem.offsetHeight + this._itemGap);
-                        this.scrollTo({
-                            top: scrollTop + addedHeight,
-                            behavior: 'instant'
-                        });
-                        observer.observe(items[0]);
-                        observer.observe(container.lastElementChild!);
+                        this._loadBefore();
                     } else if (target === lastItem) {
-                        const lastNum = Number(lastItem.textContent);
-                        const items = [...Array(pageSize * 2)].map(
-                            (_, i) => this._createItem(lastNum + i + 1, curNum)
-                        );
-                        observer.unobserve(firstItem!);
-                        observer.unobserve(target);
-                        const scrollTop = this.scrollTop;
-                        container.append(...items);
-                        for (let i = 0; i < items.length; ++i) {
-                            container.removeChild(container.firstElementChild!);
-                        }
-                        const addedHeight = items.length * (lastItem.offsetHeight + this._itemGap);
-                        this.scrollTo({
-                            top: scrollTop - addedHeight,
-                            behavior: 'instant'
-                        });
-                        observer.observe(container.firstElementChild!);
-                        observer.observe(items[items.length - 1]);
-                    } else {
-                        observer.unobserve(target);
+                        this._loadAfter();
                     }
                 }
             },
@@ -166,16 +129,64 @@ export class NumListEle extends UiBase<ListsAttrs, ListsEmit> {
         );
     }
 
+    private _loadBefore = debounce(() => {
+        const container = this._containerEle;
+        const firstItem = container.firstElementChild as HTMLElement;
+        const lastItem = container.lastElementChild as HTMLElement;
+        const firstNum = Number(firstItem.dataset.number);
+        const curNum = this.currentNum, pageSize = this._pageSize, itemHeight = this._itemHeight;
+        console.log(pageSize, this.clientHeight, this._itemHeight);
+        const items = [...Array(pageSize * 2)].map(
+            (_, i) => this._createItem(firstNum - pageSize * 2 + i, curNum)
+        );
+        this._intersectionOb?.unobserve(firstItem);
+        this._intersectionOb?.unobserve(lastItem);
+        const scrollTop = this.scrollTop;
+        container.prepend(...items);
+        for (let i = 0; i < items.length; ++i) {
+            container.removeChild(container.lastElementChild!);
+        }
+        const addedHeight = items.length * itemHeight;
+        this.scrollTo({
+            top: scrollTop + addedHeight,
+            behavior: 'instant'
+        });
+        this._intersectionOb?.observe(items[0]);
+        this._intersectionOb?.observe(container.lastElementChild!);
+    }, 0);
+    private _loadAfter = debounce(() => {
+        const container = this._containerEle;
+        const firstItem = container.firstElementChild as HTMLElement;
+        const lastItem = container.lastElementChild as HTMLElement;
+        const curNum = this.currentNum, pageSize = this._pageSize, itemHeight = this._itemHeight;
+        const lastNum = Number(lastItem.textContent);
+        const items = [...Array(pageSize * 2)].map(
+            (_, i) => this._createItem(lastNum + i + 1, curNum)
+        );
+        this._intersectionOb?.unobserve(firstItem);
+        this._intersectionOb?.unobserve(lastItem);
+        const scrollTop = this.scrollTop;
+        container.append(...items);
+        for (let i = 0; i < items.length; ++i) {
+            container.removeChild(container.firstElementChild!);
+        }
+        const addedHeight = items.length * itemHeight;
+        this.scrollTo({
+            top: scrollTop - addedHeight,
+            behavior: 'instant'
+        });
+        this._intersectionOb?.observe(container.firstElementChild!);
+        this._intersectionOb?.observe(items[items.length - 1]);
+    }, 0);
+
     public connectedCallback() {
         if (!super.connectedCallback()) return;
         this._render();
         this.addEventListener('click', this._onClick);
-        this.addEventListener('resize', this._onResize);
     }
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
         this.removeEventListener('click', this._onClick);
-        this.removeEventListener('resize', this._onResize);
         this._destroyOb();
     }
 
@@ -184,24 +195,30 @@ export class NumListEle extends UiBase<ListsAttrs, ListsEmit> {
         this._render();
     }
 
-    private _pageSize = 0;
-    private _itemGap = 0;
-    private _getPageSize(force = false) {
-        if (!this.shadowRoot) return this._pageSize;
-        if (this._pageSize && !force) return this._pageSize;
+    private get _itemHeight() {
         const container = this._containerEle;
-        const items = Array.from(container.querySelectorAll('.item'));
-        container.innerHTML = '';
-        const tempItem = this._createItem(0, 0);
-        container.append(this._createItem(0, 0), tempItem);
-        const thisHeight = this.clientHeight;
-        let itemHeight = tempItem.offsetHeight;
-        const itemGap = this._itemGap = this._containerEle.clientHeight - itemHeight * 2;
-        itemHeight = itemHeight + itemGap;
-        const pageSize = Math.ceil(thisHeight / itemHeight);
-        container.innerHTML = '';
-        container.append(...items);
-        return this._pageSize = Math.min(10, pageSize);
+        const items = Array.from(container.querySelectorAll<HTMLElement>('.item'));
+        const len = items.length;
+        if (len === 1) {
+            container.append(this._createItem(0, 1));
+        } else if (len === 0) {
+            container.append(this._createItem(0, 1), this._createItem(0, 1));
+        }
+        const h = (container.firstElementChild as HTMLElement).offsetHeight;
+        const itemNum = Math.max(2, len);
+        const gap = Math.max(0,
+            (container.clientHeight - h * itemNum) / (itemNum - 1)
+        );
+        if (len === 0) {
+            container.removeChild(container.lastElementChild!);
+            container.removeChild(container.lastElementChild!);
+        } else if (len === 1) {
+            container.removeChild(container.lastElementChild!);
+        }
+        return h + gap;
+    }
+    private get _pageSize() {
+        return Math.max(10, Math.ceil(this.clientHeight / this._itemHeight));
     }
 
     private _scrollToCurrent = () => {
@@ -226,7 +243,7 @@ export class NumListEle extends UiBase<ListsAttrs, ListsEmit> {
 
         if (minNum === -Infinity && maxNum === Infinity) {
             this._initOb();
-            const pageSize = this._getPageSize();
+            const pageSize = this._pageSize;
             for (let i = -pageSize * 2; i <= pageSize * 2; ++i) {
                 container.appendChild(this._createItem(currentNum + i, currentNum));
             }
@@ -253,8 +270,6 @@ export class NumListEle extends UiBase<ListsAttrs, ListsEmit> {
             newNum: +item.dataset.number!,
         }, true);
     };
-
-    private _onResize = debounce(() => void this._getPageSize(true), 0);
 
     public formatter = (num: number) => '' + num;
 }
