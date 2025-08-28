@@ -73,8 +73,8 @@ export class Popover extends UiBase<PopoverAttrs, PopoverEmit> {
         this._popEle.style.display = !isOpen ? 'none' : '';
         if (typeof document !== 'undefined') {
             setTimeout(() => {
-                if (isOpen) document.addEventListener('click', this._onDocClick);
-                else document.removeEventListener('click', this._onDocClick);
+                if (isOpen) document.addEventListener('click', this._onDocClick, true);
+                else document.removeEventListener('click', this._onDocClick, true);
             });
         }
         this.dispatchEvent('open-change', this.open, true);
@@ -85,7 +85,9 @@ export class Popover extends UiBase<PopoverAttrs, PopoverEmit> {
     };
     private _onDocClick = (e: Event) => {
         if (e.composedPath().includes(this)) return;
+        e.stopImmediatePropagation();
+        e.preventDefault();
         this.open = false;
-        document.removeEventListener('click', this._onDocClick);
+        document.removeEventListener('click', this._onDocClick, true);
     };
 }
