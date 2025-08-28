@@ -90,11 +90,13 @@ export class Calendar extends UiBase<CalendarAttrs, CalendarEmit> {
     }
 
     public connectedCallback() {
+        if (!super.connectedCallback()) return;
         this._onWeekStartAtChange();
         this._onTimeChange();
         this.addEventListener('click', this.onClick);
     }
     public disconnectedCallback() {
+        if (!super.disconnectedCallback()) return;
         this.removeEventListener('click', this.onClick);
     }
 
@@ -114,16 +116,16 @@ export class Calendar extends UiBase<CalendarAttrs, CalendarEmit> {
     }
 
     private _onWeekStartAtChange = debounce(() => {
-        if (!this.shadowRoot) return;
+        if (!this.isConnected) return;
         const weekOrder = getWeekInOrder(this._getAttr('week-start-at'));
-        this.shadowRoot.querySelectorAll('.week').forEach((ele, i) => {
+        this.shadowRoot!.querySelectorAll('.week').forEach((ele, i) => {
             ele.setAttribute('i18n-key', `date.${weekOrder[i]}`!);
         });
         this._onTimeChange();
     }, 0);
 
     private _onTimeChange = debounce(() => {
-        if (!this.shadowRoot) return;
+        if (!this.isConnected) return;
         const showingTime = this._getAttr('showing-time');
 
         const currentTime = showingTime ? new Date(showingTime) : new Date();
@@ -166,7 +168,7 @@ export class Calendar extends UiBase<CalendarAttrs, CalendarEmit> {
         const adjustedFirstWeek = (firstWeekOfCurMonth - weekStartOffset + 7) % 7;
 
         let itemIdx = 0;
-        const items = this.shadowRoot.querySelectorAll<HTMLElement>('.item');
+        const items = this.shadowRoot!.querySelectorAll<HTMLElement>('.item');
         items.forEach(ele => {
             ele.className = 'item disabled';
             ele.removeAttribute('data-time');
@@ -202,7 +204,6 @@ export class Calendar extends UiBase<CalendarAttrs, CalendarEmit> {
     }, 0);
 
     private onClick = (e: MouseEvent) => {
-        if (!this.shadowRoot) return;
         const item = closestByEvent(e, '.item[data-time]:not(.disabled)', this);
         if (!item) return;
         const time = new Date(item.dataset.time!);

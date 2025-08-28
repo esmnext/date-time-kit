@@ -111,7 +111,7 @@ export class HhMmSsMsListGroup extends UiBase<TimePickerAttrs, TimePickerEmit> {
     }
 
     public connectedCallback() {
-        if (!this.shadowRoot) return;
+        if (!super.connectedCallback()) return;
         this._colsHourEle.formatter =
             this._colsMinuteEle.formatter =
             this._colsSecondEle.formatter = (num) => ('0' + num).slice(-2);
@@ -126,7 +126,7 @@ export class HhMmSsMsListGroup extends UiBase<TimePickerAttrs, TimePickerEmit> {
         this._msInputEle.addEventListener('input', this._onMsInput);
     }
     public disconnectedCallback() {
-        if (!this.shadowRoot) return;
+        if (!super.disconnectedCallback()) return;
         this._colsHourEle.removeEventListener('select-num', this._onColsSelect);
         this._colsMinuteEle.removeEventListener('select-num', this._onColsSelect);
         this._colsSecondEle.removeEventListener('select-num', this._onColsSelect);
@@ -142,7 +142,7 @@ export class HhMmSsMsListGroup extends UiBase<TimePickerAttrs, TimePickerEmit> {
     }
 
     private _renderCols = debounce(() => {
-        if (!this.shadowRoot) return;
+        if (!this.isConnected) return;
         const {
             colOrder,
             _colsHourEle: hEle, _colsMinuteEle: mEle, _colsSecondEle: sEle
@@ -154,7 +154,7 @@ export class HhMmSsMsListGroup extends UiBase<TimePickerAttrs, TimePickerEmit> {
             else if (c === 'm') orderedCols.push(mEle);
             else if (c === 's') orderedCols.push(sEle);
         }
-        const colsContainer = this.shadowRoot.querySelector<HTMLElement>('.cols')!;
+        const colsContainer = this.shadowRoot!.querySelector<HTMLElement>('.cols')!;
         // return if order not changed
         if (!orderedCols.every((el, i) => el === colsContainer.children[i])) return;
         colsContainer.innerHTML = '';
@@ -162,12 +162,12 @@ export class HhMmSsMsListGroup extends UiBase<TimePickerAttrs, TimePickerEmit> {
     }, 0);
 
     private _updateGranularity = debounce(() => {
-        if (!this.shadowRoot) return;
+        if (!this.isConnected) return;
         const {
             _colsHourEle: hEle, _colsMinuteEle: mEle, _colsSecondEle: sEle,
             maxGranularity, minGranularity
         } = this;
-        const colsContainer = this.shadowRoot.querySelector<HTMLElement>('.cols')!;
+        const colsContainer = this.shadowRoot!.querySelector<HTMLElement>('.cols')!;
 
         // granularity
         const granularityMap = { hour: 3, minute: 2, second: 1, millisecond: 0 };
@@ -184,7 +184,7 @@ export class HhMmSsMsListGroup extends UiBase<TimePickerAttrs, TimePickerEmit> {
     }, 0);
 
     private _updateColsValue = debounce(() => {
-        if (!this.shadowRoot) return;
+        if (!this.isConnected) return;
         const {
             _colsHourEle: hEle, _colsMinuteEle: mEle, _colsSecondEle: sEle,
             millisecond

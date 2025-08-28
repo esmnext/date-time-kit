@@ -58,10 +58,11 @@ export class Popover extends UiBase<PopoverAttrs, PopoverEmit> {
     };
 
     public connectedCallback() {
-        if (!this.shadowRoot) return;
+        if (!super.connectedCallback()) return;
         this._triggerEle.addEventListener('click', this._onToggleClick);
     }
     public disconnectedCallback() {
+        if (!super.disconnectedCallback()) return;
         this._triggerEle.removeEventListener('click', this._onToggleClick);
     }
 

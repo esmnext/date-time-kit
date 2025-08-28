@@ -100,6 +100,16 @@ export class UiBase<
             }
         });
     }
+    /** return false | void means not continue */
+    connectedCallback(): boolean | void {
+        return !!this.shadowRoot;
+    }
+    /** return false | void means not continue */
+    disconnectedCallback(): boolean | void {
+        return !!this.shadowRoot;
+    }
+    connectedMoveCallback() {}
+    adoptedCallback() {}
 
     dispatchEvent(
         type: Parameters<Emit>[0] | Event,

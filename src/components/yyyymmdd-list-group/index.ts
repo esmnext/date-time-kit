@@ -43,15 +43,15 @@ export class DateListGroup extends UiBase<DateListGroupAttrs, DateListGroupEmit>
     protected _style = styleStr;
     protected _template = html`
         <div class="cols" part="cols">
-            <div class="col" part="col year">
+            <div class="col year" part="col year">
                 <span>Year</span>
                 <dt-num-list part="list year" class="year"></dt-num-list>
             </div>
-            <div class="col" part="col month">
+            <div class="col month" part="col month">
                 <span>Month</span>
                 <dt-num-list part="list month" class="month" min-num="1" max-num="12"></dt-num-list>
             </div>
-            <div class="col" part="col day">
+            <div class="col day" part="col day">
                 <span>Day</span>
                 <dt-num-list part="list day" class="day" min-num="1" max-num="31"></dt-num-list>
             </div>
@@ -103,7 +103,7 @@ export class DateListGroup extends UiBase<DateListGroupAttrs, DateListGroupEmit>
     }
 
     public connectedCallback() {
-        if (!this.shadowRoot) return;
+        if (!super.connectedCallback()) return;
         this._listEleYear.formatter = (num) => '' + num;
         this._listEleMonth.formatter =
         this._listEleDay.formatter = (num) => ('0' + num).slice(-2);
@@ -117,7 +117,7 @@ export class DateListGroup extends UiBase<DateListGroupAttrs, DateListGroupEmit>
         this._listEleDay.addEventListener('select-num', this._onColsSelect);
     }
     public disconnectedCallback() {
-        if (!this.shadowRoot) return;
+        if (!super.disconnectedCallback()) return;
         this._listEleYear.removeEventListener('select-num', this._onColsSelect);
         this._listEleMonth.removeEventListener('select-num', this._onColsSelect);
         this._listEleDay.removeEventListener('select-num', this._onColsSelect);
@@ -132,7 +132,7 @@ export class DateListGroup extends UiBase<DateListGroupAttrs, DateListGroupEmit>
     }
 
     private _renderCols = debounce(() => {
-        if (!this.shadowRoot) return;
+        if (!this.isConnected) return;
         const { colOrder } = this;
         // columns order
         const orderedCols = [];
@@ -141,7 +141,7 @@ export class DateListGroup extends UiBase<DateListGroupAttrs, DateListGroupEmit>
             else if (c === 'm') orderedCols.push(this._listEleMonth);
             else if (c === 'd') orderedCols.push(this._listEleDay);
         }
-        const colsContainer = this.shadowRoot.querySelector<HTMLElement>('.cols')!;
+        const colsContainer = this.shadowRoot!.querySelector<HTMLElement>('.cols')!;
         // return if order not changed
         if (!orderedCols.every((el, i) => el === colsContainer.children[i])) return;
         colsContainer.innerHTML = '';
@@ -149,12 +149,12 @@ export class DateListGroup extends UiBase<DateListGroupAttrs, DateListGroupEmit>
     }, 0);
 
     private _updateGranularity = debounce(() => {
-        if (!this.shadowRoot) return;
+        if (!this.isConnected) return;
         const { maxGranularity, minGranularity } = this;
-        const colsContainer = this.shadowRoot.querySelector<HTMLElement>('.cols')!;
-        const yEle = this.shadowRoot.querySelector<HTMLElement>('.col .year')!;
-        const mEle = this.shadowRoot.querySelector<HTMLElement>('.col .month')!;
-        const dEle = this.shadowRoot.querySelector<HTMLElement>('.col .day')!
+        const colsContainer = this.shadowRoot!.querySelector<HTMLElement>('.cols')!;
+        const yEle = this.shadowRoot!.querySelector<HTMLElement>('.col.year')!;
+        const mEle = this.shadowRoot!.querySelector<HTMLElement>('.col.month')!;
+        const dEle = this.shadowRoot!.querySelector<HTMLElement>('.col.day')!
         const granularityMap = { year: 3, month: 2, day: 1 };
         let maxG = granularityMap[maxGranularity] ?? 1;
         let minG = granularityMap[minGranularity] ?? 3;
@@ -167,7 +167,7 @@ export class DateListGroup extends UiBase<DateListGroupAttrs, DateListGroupEmit>
     }, 0);
 
     private _updateColsValue = debounce(() => {
-        if (!this.shadowRoot) return;
+        if (!this.isConnected) return;
         const { millisecond } = this;
         const date = new Date(millisecond);
         if (isNaN(date.getTime())) return;

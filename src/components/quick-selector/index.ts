@@ -83,14 +83,14 @@ export class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelectorEmit>
     }
 
     public connectedCallback() {
-        if (!this.shadowRoot) return;
-        this.shadowRoot.querySelector('.tz-trigger')?.addEventListener('click', this._onTzTriggerClick);
-        this.shadowRoot.querySelector('.menu-tz .title svg')?.addEventListener('click', this._onTzBackBtnClick);
+        if (!super.connectedCallback()) return;
+        this.shadowRoot!.querySelector('.tz-trigger')?.addEventListener('click', this._onTzTriggerClick);
+        this.shadowRoot!.querySelector('.menu-tz .title svg')?.addEventListener('click', this._onTzBackBtnClick);
     }
     public disconnectedCallback() {
-        if (!this.shadowRoot) return;
-        this.shadowRoot.querySelector('.tz-trigger')?.removeEventListener('click', this._onTzTriggerClick);
-        this.shadowRoot.querySelector('.menu-tz .title svg')?.removeEventListener('click', this._onTzBackBtnClick);
+        if (!super.disconnectedCallback()) return;
+        this.shadowRoot!.querySelector('.tz-trigger')?.removeEventListener('click', this._onTzTriggerClick);
+        this.shadowRoot!.querySelector('.menu-tz .title svg')?.removeEventListener('click', this._onTzBackBtnClick);
     }
 
     public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -99,17 +99,17 @@ export class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelectorEmit>
     }
 
     private _onTzTriggerClick = () => {
-        if (!this.shadowRoot) return;
-        const menuTop = this.shadowRoot.querySelector<HTMLElement>('.menu-top');
+        if (!this.isConnected) return;
+        const menuTop = this.shadowRoot!.querySelector<HTMLElement>('.menu-top');
         if (menuTop) menuTop.style.display = 'none';
-        const menuTz = this.shadowRoot.querySelector<HTMLElement>('.menu-tz');
+        const menuTz = this.shadowRoot!.querySelector<HTMLElement>('.menu-tz');
         if (menuTz) menuTz.style.display = '';
     };
     private _onTzBackBtnClick = () => {
-        if (!this.shadowRoot) return;
-        const menuTop = this.shadowRoot.querySelector<HTMLElement>('.menu-top');
+        if (!this.isConnected) return;
+        const menuTop = this.shadowRoot!.querySelector<HTMLElement>('.menu-top');
         if (menuTop) menuTop.style.display = '';
-        const menuTz = this.shadowRoot.querySelector<HTMLElement>('.menu-tz');
+        const menuTz = this.shadowRoot!.querySelector<HTMLElement>('.menu-tz');
         if (menuTz) menuTz.style.display = 'none';
     };
 }

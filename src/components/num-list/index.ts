@@ -167,11 +167,13 @@ export class NumListEle extends UiBase<ListsAttrs, ListsEmit> {
     }
 
     public connectedCallback() {
+        if (!super.connectedCallback()) return;
         this._render();
         this.addEventListener('click', this._onClick);
         this.addEventListener('resize', this._onResize);
     }
     public disconnectedCallback() {
+        if (!super.disconnectedCallback()) return;
         this.removeEventListener('click', this._onClick);
         this.removeEventListener('resize', this._onResize);
         this._destroyOb();
@@ -204,7 +206,6 @@ export class NumListEle extends UiBase<ListsAttrs, ListsEmit> {
     }
 
     private _scrollToCurrent = () => {
-        if (!this.shadowRoot) return;
         const ele = this._currentItemEle;
         if (!ele) return;
         this._intersectionOb?.observe(ele);
@@ -214,9 +215,9 @@ export class NumListEle extends UiBase<ListsAttrs, ListsEmit> {
     }
 
     private _render = debounce(() => {
-        if (!this.shadowRoot) return;
+        if (!this.isConnected) return;
         this._destroyOb();
-        const container = this.shadowRoot.querySelector('.container')!;
+        const container = this.shadowRoot!.querySelector('.container')!;
         container.innerHTML = '';
         if (!this.hasAttribute('current-num')) return;
 
@@ -238,7 +239,7 @@ export class NumListEle extends UiBase<ListsAttrs, ListsEmit> {
     }, 0);
 
     private _onClick = (e: MouseEvent) => {
-        if (!this.shadowRoot) return;
+        if (!this.isConnected) return;
         const container = this._containerEle;
         const oldCurrent = container.querySelector<HTMLElement>('.item-current');
         const item = closestByEvent(e, '.item', this);
