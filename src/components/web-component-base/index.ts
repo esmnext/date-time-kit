@@ -90,8 +90,12 @@ export class UiBase<
         ) as getAttrType<Attr, K>;
     }
 
+    protected _onAttrChanged(_name: string, _oldVal: string, _newVal: string) {}
+
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-        if (oldValue === newValue || name !== 'lang') return;
+        if (oldValue === newValue) return;
+        if (name !== 'lang')
+            return this._onAttrChanged(name, oldValue, newValue);
         this.shadowRoot?.querySelectorAll('[dt]').forEach((ele) => {
             if (newValue) {
                 ele.setAttribute('lang', newValue);

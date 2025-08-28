@@ -66,9 +66,8 @@ export class Popover extends UiBase<PopoverAttrs, PopoverEmit> {
         this._triggerEle.removeEventListener('click', this._onToggleClick);
     }
 
-    public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-        super.attributeChangedCallback(name, oldValue, newValue);
-        if (oldValue === newValue) return;
+    protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
+        super._onAttrChanged(name, oldValue, newValue);
         if (name !== 'open') return;
         const isOpen = newValue !== null;
         this._popEle.style.display = !isOpen ? 'none' : '';

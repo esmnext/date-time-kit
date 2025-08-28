@@ -133,9 +133,8 @@ export class HhMmSsMsListGroup extends UiBase<TimePickerAttrs, TimePickerEmit> {
         this._msInputEle.removeEventListener('input', this._onMsInput);
     }
 
-    public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-        super.attributeChangedCallback(name, oldValue, newValue);
-        if (oldValue === newValue) return;
+    protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
+        super._onAttrChanged(name, oldValue, newValue);
         if (name === 'col-order') this._renderCols();
         else if (name === 'max-granularity' || name === 'min-granularity') this._updateGranularity();
         else if (name === 'millisecond') this._updateColsValue();

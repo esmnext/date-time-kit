@@ -100,9 +100,8 @@ export class Calendar extends UiBase<CalendarAttrs, CalendarEmit> {
         this.removeEventListener('click', this.onClick);
     }
 
-    public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-        super.attributeChangedCallback(name, oldValue, newValue);
-        if (oldValue === newValue) return;
+    protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
+        super._onAttrChanged(name, oldValue, newValue);
         if (name === 'week-start-at') {
             this._onWeekStartAtChange();
         }

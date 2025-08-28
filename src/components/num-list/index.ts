@@ -179,9 +179,8 @@ export class NumListEle extends UiBase<ListsAttrs, ListsEmit> {
         this._destroyOb();
     }
 
-    public attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-        super.attributeChangedCallback(name, oldValue, newValue);
-        if (oldValue === newValue) return;
+    protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
+        super._onAttrChanged(name, oldValue, newValue);
         this._render();
     }
 

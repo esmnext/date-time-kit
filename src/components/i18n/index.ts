@@ -22,9 +22,8 @@ export class I18n extends UiBase<I18nAttrs> {
         this._applyTemplate();
     }
 
-    attributeChangedCallback(_: string, oldValue: string, newValue: string) {
-        super.attributeChangedCallback(_, oldValue, newValue);
-        if (oldValue === newValue) return;
+    protected _onAttrChanged(_: string, oldValue: string, newValue: string) {
+        super._onAttrChanged(_, oldValue, newValue);
         this.updateText();
     }
 
