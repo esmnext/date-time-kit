@@ -64,13 +64,13 @@ export class DateListGroup extends UiBase<DateListGroupAttrs, DateListGroupEmit>
     }
 
     private get _listEleYear() {
-        return this.shadowRoot?.querySelector('.cols .year') as NumListEle;
+        return this.shadowRoot?.querySelector('dt-num-list.year') as NumListEle;
     }
     private get _listEleMonth() {
-        return this.shadowRoot?.querySelector('.cols .month') as NumListEle;
+        return this.shadowRoot?.querySelector('dt-num-list.month') as NumListEle;
     }
     private get _listEleDay() {
-        return this.shadowRoot?.querySelector('.cols .day') as NumListEle;
+        return this.shadowRoot?.querySelector('dt-num-list.day') as NumListEle;
     }
 
     public get millisecond() {
@@ -134,16 +134,14 @@ export class DateListGroup extends UiBase<DateListGroupAttrs, DateListGroupEmit>
         if (!this.isConnected) return;
         const { colOrder } = this;
         // columns order
-        const orderedCols = [];
-        for (const c of colOrder) {
-            if (c === 'y') orderedCols.push(this._listEleYear);
-            else if (c === 'm') orderedCols.push(this._listEleMonth);
-            else if (c === 'd') orderedCols.push(this._listEleDay);
-        }
+        const orderedCols = ['year', 'month', 'day'].sort(
+            (a, b) => colOrder.indexOf(a[0]) - colOrder.indexOf(b[0])
+        ).map(
+            s => this.shadowRoot!.querySelector<HTMLElement>(`.col.${s}`)!
+        );
         const colsContainer = this.shadowRoot!.querySelector<HTMLElement>('.cols')!;
         // return if order not changed
-        if (!orderedCols.every((el, i) => el === colsContainer.children[i])) return;
-        colsContainer.innerHTML = '';
+        if (orderedCols.every((el, i) => el === colsContainer.children[i])) return;
         colsContainer.append(...orderedCols);
     }, 0);
 
