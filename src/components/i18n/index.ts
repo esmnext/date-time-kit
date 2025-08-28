@@ -7,7 +7,7 @@ export interface I18nAttrs extends BaseAttrs {
 }
 
 @DefEle('i18n')
-export class I18n extends UiBase<I18nAttrs> {
+export default class I18n extends UiBase<I18nAttrs> {
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),

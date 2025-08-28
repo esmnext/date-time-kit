@@ -38,13 +38,13 @@
             border: 1px solid #ccc;
         }
 
-        dt-hhmmss-ms-list-group, dt-yyyymmdd-list-group {
+        dt-hhmmss-ms-list-grp, dt-yyyymmdd-list-grp {
             height: 200px;
             width: 300px;
             margin-bottom: 10px;
             box-shadow: 0 0 5px #ccc;
         }
-        dt-hhmmss-ms-list-group::part(list), dt-yyyymmdd-list-group::part(list) {
+        dt-hhmmss-ms-list-grp::part(list), dt-yyyymmdd-list-grp::part(list) {
             scroll-behavior: smooth;
         }
 
@@ -79,16 +79,16 @@
     </dt-popover>
 
     <!-- 2:38:12.089 ((((2*60)+38)*60+12)*1000)+89 -->
-    <dt-hhmmss-ms-list-group
+    <dt-hhmmss-ms-list-grp
         millisecond="9492089"
         col-order="hms"
-    ></dt-hhmmss-ms-list-group>
+    ></dt-hhmmss-ms-list-grp>
 
-    <dt-yyyymmdd-list-group
+    <dt-yyyymmdd-list-grp
         millisecond="1756304532472"
         col-order="myd"
         min-granularity="month"
-    ></dt-yyyymmdd-list-group>
+    ></dt-yyyymmdd-list-grp>
 
     <dt-quick-selector></dt-quick-selector>
 

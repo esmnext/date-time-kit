@@ -1,9 +1,9 @@
 import { debounce, html } from "@/utils";
 import { BaseAttrs, CustomEleEventListener, DefEle, UiBase } from "@/components/web-component-base";
-import { NumListEle } from "../num-list";
+import NumListEle, { NumListEventListener } from "../num-list";
 import styleStr from './index.scss?inline';
 
-export interface DateListGroupAttrs extends BaseAttrs {
+export interface YyyyMmDdListGrpAttrs extends BaseAttrs {
     'millisecond': number;
     // 'max-millisecond'?: number;
     // 'min-millisecond'?: number;
@@ -20,16 +20,18 @@ export interface DateListGroupAttrs extends BaseAttrs {
     'col-order'?: 'ymd' | 'ydm' | 'myd' | 'mdy' | 'dym' | 'dmy';
 }
 
-export type DateListGroupEmit = (eventName: 'change', detail: {
+export type YyyyMmDdListGrpEmit = (eventName: 'change', detail: {
     oldMs: number;
     newMs: number;
 }) => void;
 
+export type YyyyMmDdListGrpEventListener<K extends Parameters<YyyyMmDdListGrpEmit>[0]> = CustomEleEventListener<YyyyMmDdListGrp, K>;
+
 /**
  * 日期选择器
  */
-@DefEle('yyyymmdd-list-group')
-export class DateListGroup extends UiBase<DateListGroupAttrs, DateListGroupEmit> {
+@DefEle('yyyymmdd-list-grp')
+export default class YyyyMmDdListGrp extends UiBase<YyyyMmDdListGrpAttrs, YyyyMmDdListGrpEmit> {
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
@@ -37,7 +39,7 @@ export class DateListGroup extends UiBase<DateListGroupAttrs, DateListGroupEmit>
             'max-granularity',
             'min-granularity',
             'col-order',
-        ] satisfies (keyof DateListGroupAttrs)[];
+        ] satisfies (keyof YyyyMmDdListGrpAttrs)[];
     }
 
     protected _style = styleStr;
@@ -190,7 +192,7 @@ export class DateListGroup extends UiBase<DateListGroupAttrs, DateListGroupEmit>
         return +date;
     }
 
-    private _onColsSelect: CustomEleEventListener<NumListEle, 'select-num'> =
+    private _onColsSelect: NumListEventListener<'select-num'> =
         ({ target, detail: { newNum } }) => {
             if (!(target instanceof NumListEle)) return;
             target.currentNum = newNum;

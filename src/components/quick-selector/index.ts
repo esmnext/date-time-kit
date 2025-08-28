@@ -1,5 +1,5 @@
 import { html } from "@/utils";
-import { BaseAttrs, DefEle, UiBase } from "@/components/web-component-base";
+import { BaseAttrs, CustomEleEventListener, DefEle, UiBase } from "@/components/web-component-base";
 import styleStr from './index.scss?inline';
 import backArrowSvg from '@/assets/back-arrow.svg?raw';
 import ArrowRightSvg from '@/assets/arrow-right.svg?raw';
@@ -16,6 +16,8 @@ export interface QuickSelectorAttrs extends BaseAttrs {
 
 export type QuickSelectorEmit = (eventName: '', detail: unknown) => void;
 
+export type QuickSelectorEventListener<K extends Parameters<QuickSelectorEmit>[0]> = CustomEleEventListener<QuickSelector, K>;
+
 const getCurrentTz = () => -new Date().getTimezoneOffset();
 
 const utcText = (tz: number = getCurrentTz()) => tz >= 0
@@ -28,7 +30,7 @@ const genTzRadio = (tz: number) => html`<label><input type="radio" name="tz" val
  * 快速选择下拉选项
  */
 @DefEle('quick-selector')
-export class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelectorEmit> {
+export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelectorEmit> {
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),

@@ -1,8 +1,8 @@
 import { closestByEvent, debounce, html } from "@/utils";
-import { BaseAttrs, DefEle, UiBase } from "../web-component-base";
+import { BaseAttrs, CustomEleEventListener, DefEle, UiBase } from "../web-component-base";
 import styleStr from './index.scss?inline';
 
-export interface ListsAttrs extends BaseAttrs {
+export interface NumListAttrs extends BaseAttrs {
     /**
      * The current number in the list. The component will scroll to this number when rendered.
      * @type {number}
@@ -28,9 +28,11 @@ export interface ListsAttrs extends BaseAttrs {
     'position'?: ScrollLogicalPosition;
 }
 
-export type ListsEmit = (eventName: 'select-num', detail: {
+export type NumListEmit = (eventName: 'select-num', detail: {
     oldNum: number, newNum: number
 }) => void;
+
+export type NumListEventListener<K extends Parameters<NumListEmit>[0]> = CustomEleEventListener<NumList, K>;
 
 /**
  * 基础的数字列表组件。允许无限滚动。点击后可以滚动定位到当前数字。
@@ -38,14 +40,14 @@ export type ListsEmit = (eventName: 'select-num', detail: {
  * 存在一个 formatter 方法，可以重写该方法以自定义数字的显示格式。
  */
 @DefEle('num-list')
-export class NumListEle extends UiBase<ListsAttrs, ListsEmit> {
+export default class NumList extends UiBase<NumListAttrs, NumListEmit> {
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
             'current-num',
             'min-num',
             'max-num',
-        ] satisfies (keyof ListsAttrs)[];
+        ] satisfies (keyof NumListAttrs)[];
     }
 
     protected _style = styleStr;

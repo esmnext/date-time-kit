@@ -1,8 +1,8 @@
 import { debounce, html } from "@/utils";
 import { BaseAttrs, CustomEleEventListener, DefEle, UiBase } from "@/components/web-component-base";
 import styleStr from './date-nav.scss?inline';
-import { Popover } from "../popover";
-import { DateListGroup } from "../yyyymmdd-list-group";
+import Popover, { PopoverEventListener } from "../popover";
+import YyyyMmDdListGrpEle from "../yyyymmdd-list-grp";
 
 export interface DateNavAttrs extends BaseAttrs {
     'millisecond': number;
@@ -33,13 +33,15 @@ export type DateNavEmit = (eventName: 'change', detail: {
     newEndTime: Date;
 }) => void;
 
+export type DateNavEventListener<K extends Parameters<DateNavEmit>[0]> = CustomEleEventListener<DateNav, K>;
+
 /**
  * 日期导航组件
  *
  * 存在一个 titleFormatter 方法，可以重写该方法以自定义年月标题的回显格式。
  */
 @DefEle('date-nav')
-export class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
+export default class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
@@ -62,7 +64,7 @@ export class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
         <span class="title">title</span>
         <i class="title-arrow"></i>
     </div>
-    <dt-yyyymmdd-list-group slot="pop" min-granularity="month"></dt-yyyymmdd-list-group>
+    <dt-yyyymmdd-list-grp slot="pop" min-granularity="month"></dt-yyyymmdd-list-grp>
 </dt-popover>
 <div class="btns add">
     <i class="btn add month"></i>
@@ -112,11 +114,11 @@ export class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
 
     private _render = debounce(() => {
         const root = this.shadowRoot!, ms = this.millisecond;
-        root.querySelector<DateListGroup>('dt-yyyymmdd-list-group')!.millisecond = ms;
+        root.querySelector<YyyyMmDdListGrpEle>('dt-yyyymmdd-list-grp')!.millisecond = ms;
         root.querySelector('.title')!.textContent = this.titleFormatter(ms);
     }, 0);
 
-    private _onTitleToggle: CustomEleEventListener<Popover, 'open-change'> =
+    private _onTitleToggle: PopoverEventListener<'open-change'> =
         ({ detail: isOpen }) => {
             this.classList.toggle('show-list', isOpen);
         };

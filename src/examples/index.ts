@@ -2,8 +2,8 @@
 import '@/components/calendar';
 import '@/components/num-list';
 import '@/components/popover';
-import '@/components/hhmmss-ms-list-group';
-import '@/components/yyyymmdd-list-group';
+import '@/components/hhmmss-ms-list-grp';
+import '@/components/yyyymmdd-list-grp';
 import '@/components/quick-selector';
 import '@/components/period-selector/date-nav'
 
@@ -21,12 +21,12 @@ window.onload = () => {
     });
 };
 
-const hhmmssMsListGrp = document.querySelector('dt-hhmmss-ms-list-group');
+const hhmmssMsListGrp = document.querySelector('dt-hhmmss-ms-list-grp');
 hhmmssMsListGrp?.addEventListener('change', (e) => {
     console.log('time-picker change', hhmmssMsListGrp, (e as CustomEvent).detail);
 });
 
-const yyyymmddListGrp = document.querySelector('dt-yyyymmdd-list-group');
+const yyyymmddListGrp = document.querySelector('dt-yyyymmdd-list-grp');
 yyyymmddListGrp?.addEventListener('change', (e) => {
     console.log('date-picker change', yyyymmddListGrp, (e as CustomEvent).detail);
 });

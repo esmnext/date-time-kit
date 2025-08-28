@@ -1,9 +1,9 @@
 import { debounce, html } from "@/utils";
 import { BaseAttrs, CustomEleEventListener, DefEle, UiBase } from "@/components/web-component-base";
-import { NumListEle } from "../num-list";
+import NumListEle, { NumListEventListener } from "../num-list";
 import styleStr from './index.scss?inline';
 
-export interface TimePickerAttrs extends BaseAttrs {
+export interface HhMmSsMsListGrpAttrs extends BaseAttrs {
     'millisecond': number;
     // 'max-millisecond'?: number;
     // 'min-millisecond'?: number;
@@ -20,16 +20,18 @@ export interface TimePickerAttrs extends BaseAttrs {
     'col-order'?: 'hms' | 'hsm' | 'mhs' | 'msh' | 'shm' | 'smh';
 }
 
-export type TimePickerEmit = (eventName: 'change', detail: {
+export type HhMmSsMsListGrpEmit = (eventName: 'change', detail: {
     oldMs: number;
     newMs: number;
 }) => void;
 
+export type HhMmSsMsListGrpEventListener<K extends Parameters<HhMmSsMsListGrpEmit>[0]> = CustomEleEventListener<HhMmSsMsListGrp, K>;
+
 /**
  * 时分秒毫秒选择器
  */
-@DefEle('hhmmss-ms-list-group')
-export class HhMmSsMsListGroup extends UiBase<TimePickerAttrs, TimePickerEmit> {
+@DefEle('hhmmss-ms-list-grp')
+export default class HhMmSsMsListGrp extends UiBase<HhMmSsMsListGrpAttrs, HhMmSsMsListGrpEmit> {
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
@@ -37,7 +39,7 @@ export class HhMmSsMsListGroup extends UiBase<TimePickerAttrs, TimePickerEmit> {
             'max-granularity',
             'min-granularity',
             'col-order',
-        ] satisfies (keyof TimePickerAttrs)[];
+        ] satisfies (keyof HhMmSsMsListGrpAttrs)[];
     }
 
     protected _style = styleStr;
@@ -222,7 +224,7 @@ export class HhMmSsMsListGroup extends UiBase<TimePickerAttrs, TimePickerEmit> {
         }, true);
     };
 
-    private _onColsSelect: CustomEleEventListener<NumListEle, 'select-num'> =
+    private _onColsSelect: NumListEventListener<'select-num'> =
         ({ target, detail: { newNum } }) => {
             console.log('cols select', target, newNum);
             if (!(target instanceof NumListEle)) return;

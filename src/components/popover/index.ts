@@ -1,5 +1,5 @@
 import { html } from "@/utils";
-import { BaseAttrs, DefEle, UiBase } from "../web-component-base";
+import { BaseAttrs, CustomEleEventListener, DefEle, UiBase } from "../web-component-base";
 import '@/components/i18n';
 
 export interface PopoverAttrs extends BaseAttrs {
@@ -9,11 +9,13 @@ export interface PopoverAttrs extends BaseAttrs {
 
 export type PopoverEmit = (eventName: 'open-change', detail: boolean) => void;
 
+export type PopoverEventListener<K extends Parameters<PopoverEmit>[0]> = CustomEleEventListener<Popover, K>;
+
 /**
  * 点击触发器后气泡弹出
  */
 @DefEle('popover')
-export class Popover extends UiBase<PopoverAttrs, PopoverEmit> {
+export default class Popover extends UiBase<PopoverAttrs, PopoverEmit> {
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),

@@ -1,5 +1,5 @@
 import { html } from "@/utils";
-import { BaseAttrs, DefEle, UiBase } from "@/components/web-component-base";
+import { BaseAttrs, CustomEleEventListener, DefEle, UiBase } from "@/components/web-component-base";
 // import styleStr from './index.scss?inline';
 
 export interface PeriodSelectorAttrs extends BaseAttrs {
@@ -29,11 +29,13 @@ export type PeriodSelectorEmit = (eventName: 'change', detail: {
     newEndTime: Date;
 }) => void;
 
+export type PeriodSelectorEventListener<K extends Parameters<PeriodSelectorEmit>[0]> = CustomEleEventListener<PeriodSelector, K>;
+
 /**
  * 时间段选择器（两个日历）
  */
 @DefEle('period-selector')
-export class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSelectorEmit> {
+export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSelectorEmit> {
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
