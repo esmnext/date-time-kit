@@ -58,7 +58,7 @@
     <div id="root"></div>
 
 
-    <dt-date-nav
+    <!-- <dt-date-nav
         millisecond="1756304532472"
         show-ctrl-btn-year
         show-ctrl-btn-month
@@ -76,10 +76,10 @@
         <div slot="pop">
             asdf
         </div>
-    </dt-popover>
+    </dt-popover> -->
 
     <!-- 2:38:12.089 ((((2*60)+38)*60+12)*1000)+89 -->
-    <dt-hhmmss-ms-list-grp
+    <!-- <dt-hhmmss-ms-list-grp
         millisecond="9492089"
         col-order="hms"
     ></dt-hhmmss-ms-list-grp>
@@ -90,7 +90,13 @@
         min-granularity="month"
     ></dt-yyyymmdd-list-grp>
 
-    <dt-quick-selector></dt-quick-selector>
+    <dt-quick-selector></dt-quick-selector> -->
+
+    <dt-period-selector
+        time-start="2022-03-31T22:32:43.013+08:00"
+        time-end="2023-01-01T10:00:02.899+08:00"
+        min-granularity="day"
+    ></dt-period-selector>
 
     <script type="module" src="./index.ts"></script>
 </body>

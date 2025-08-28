@@ -102,14 +102,29 @@ export default class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
         if (!super.connectedCallback()) return;
         this._render();
         this.shadowRoot!.querySelector<Popover>('.echo')!.addEventListener('open-change', this._onTitleToggle);
+        this.shadowRoot!.querySelectorAll<HTMLElement>('.btn').forEach(btn => {
+            btn.addEventListener('click', this._onBtnClick);
+        });
     }
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
+        this.shadowRoot!.querySelector<Popover>('.echo')!.removeEventListener('open-change', this._onTitleToggle);
+        this.shadowRoot!.querySelectorAll<HTMLElement>('.btn').forEach(btn => {
+            btn.removeEventListener('click', this._onBtnClick);
+        });
     }
 
     protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
         super._onAttrChanged(name, oldValue, newValue);
         this._render();
+        if (name === 'millisecond') {
+            this.dispatchEvent('change', {
+                oldStartTime: new Date(+oldValue),
+                oldEndTime: new Date(+oldValue),
+                newStartTime: new Date(+newValue),
+                newEndTime: new Date(+newValue),
+            });
+        }
     }
 
     private _render = debounce(() => {
@@ -122,6 +137,25 @@ export default class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
         ({ detail: isOpen }) => {
             this.classList.toggle('show-list', isOpen);
         };
+
+    private _onBtnClick = (e: MouseEvent) => {
+        if (!(e.target instanceof HTMLElement)) return;
+        const date = new Date(this.millisecond);
+        date.setDate(1);
+        if (e.target.matches('.add.year')) {
+            date.setFullYear(date.getFullYear() + 1);
+        }
+        else if (e.target.matches('.sub.year')) {
+            date.setFullYear(date.getFullYear() - 1);
+        }
+        else if (e.target.matches('.add.month')) {
+            date.setMonth(date.getMonth() + 1);
+        }
+        else if (e.target.matches('.sub.month')) {
+            date.setMonth(date.getMonth() - 1);
+        }
+        this.millisecond = +date;
+    };
 
     public titleFormatter = (ms: number) => {
         const date = new Date(ms);

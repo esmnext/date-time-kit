@@ -5,7 +5,8 @@ import '@/components/popover';
 import '@/components/hhmmss-ms-list-grp';
 import '@/components/yyyymmdd-list-grp';
 import '@/components/quick-selector';
-import '@/components/period-selector/date-nav'
+import '@/components/period-selector/date-nav';
+import '@/components/period-selector';
 
 window.onload = () => {
     const ele = document.querySelector('dt-calendar-base');

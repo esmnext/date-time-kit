@@ -75,16 +75,68 @@ export default class CalendarBase extends UiBase<CalendarBaseAttrs, CalendarBase
         ] satisfies (keyof CalendarBaseAttrs)[];
     }
 
+    public get showingTime() {
+        const v = this._getAttr('showing-time', '' + Date.now());
+        return new Date(Number.isNaN(+v) ? v: +v);
+    }
+    public get timeStart() {
+        const v = this._getAttr('time-start', '' + this.showingTime);
+        return new Date(Number.isNaN(+v) ? v: +v);
+    }
+    public get timeEnd() {
+        const v = this._getAttr('time-end', '' + this.timeStart);
+        return new Date(Number.isNaN(+v) ? v: +v);
+    }
+    public get minTime() {
+        const v = this._getAttr('min-time', '');
+        return new Date(Number.isNaN(+v) ? v: +v);
+    }
+    public get maxTime() {
+        const v = this._getAttr('max-time', '');
+        return new Date(Number.isNaN(+v) ? v: +v);
+    }
+    private _setTimeAttr(name: keyof Omit<CalendarBaseAttrs,
+        | 'week-start-at' | 'show-other-month' | keyof BaseAttrs
+    >, value: number | string | Date) {
+        const v = new Date(value);
+        if (Number.isNaN(+v)) return;
+        this.setAttribute(name, '' + value);
+    }
+    public set showingTime(val: number | string | Date) {
+        this._setTimeAttr('showing-time', val);
+    }
+    public set timeStart(val: number | string | Date) {
+        this._setTimeAttr('time-start', val);
+    }
+    public set timeEnd(val: number | string | Date) {
+        this._setTimeAttr('time-end', val);
+    }
+    public set minTime(val: number | string | Date) {
+        this._setTimeAttr('min-time', val);
+    }
+    public set maxTime(val: number | string | Date) {
+        this._setTimeAttr('max-time', val);
+    }
+    public get weekStartAt() {
+        return this._getAttr('week-start-at', 'sun');
+    }
+    public set weekStartAt(val: Weeks) {
+        if (weekKey.includes(val)) return;
+        this.setAttribute('week-start-at', val);
+    }
+    public get showOtherMonth() {
+        return this.hasAttribute('show-other-month');
+    }
+    public set showOtherMonth(val: boolean) {
+        this.setAttribute('show-other-month', '' + val);
+    }
+
     protected _style = styleStr;
-    protected _template = `${
-        weekKey.map(
-            (key) => html`<dt-i18n class="week" i18n-key="date.${key}"></dt-i18n>`
-        ).join('')
-    }${
-        [...Array(7 * 6)].map(
-            (_, i) => html`<div class="item" part="item">${i % 31 + 1}</div>`
-        ).join('')
-    }`;
+    protected _template = weekKey.map(
+        (key) => html`<dt-i18n class="week" i18n-key="date.${key}"></dt-i18n>`
+    ).join('') + [...Array(7 * 6)].map(
+        (_, i) => html`<div class="item" part="item">${i % 31 + 1}</div>`
+    ).join('');
 
     constructor() {
         super();
@@ -118,7 +170,7 @@ export default class CalendarBase extends UiBase<CalendarBaseAttrs, CalendarBase
 
     private _onWeekStartAtChange = debounce(() => {
         if (!this.isConnected) return;
-        const weekOrder = getWeekInOrder(this._getAttr('week-start-at'));
+        const weekOrder = getWeekInOrder(this.weekStartAt);
         this.shadowRoot!.querySelectorAll('.week').forEach((ele, i) => {
             ele.setAttribute('i18n-key', `date.${weekOrder[i]}`!);
         });
@@ -127,12 +179,11 @@ export default class CalendarBase extends UiBase<CalendarBaseAttrs, CalendarBase
 
     private _onTimeChange = debounce(() => {
         if (!this.isConnected) return;
-        const showingTime = this._getAttr('showing-time');
 
-        const currentTime = showingTime ? new Date(showingTime) : new Date();
+        const currentTime = this.showingTime as Date;
+        let timeStart = this.timeStart as Date;
+        let timeEnd = this.timeEnd as Date;
         currentTime.setHours(0, 0, 0, 0);
-        let timeStart = new Date(this._getAttr('time-start') || currentTime);
-        let timeEnd = new Date(this._getAttr('time-end') || timeStart);
         timeStart.setHours(0, 0, 0, 0);
         timeEnd.setHours(0, 0, 0, 0);
 
@@ -151,7 +202,7 @@ export default class CalendarBase extends UiBase<CalendarBaseAttrs, CalendarBase
         if (maxTime < timeEnd) timeEnd = maxTime;
         if (timeStart < minTime) timeStart = minTime;
 
-        const weekStartAt: Weeks = this._getAttr('week-start-at') || 'sun';
+        const weekStartAt = this.weekStartAt;
 
         const year = currentTime.getFullYear();
         const month = currentTime.getMonth();
@@ -180,27 +231,39 @@ export default class CalendarBase extends UiBase<CalendarBaseAttrs, CalendarBase
         // set previous month days
         for (let i = daysPrev - adjustedFirstWeek + 1; i <= daysPrev; ++i) {
             const ele = items[itemIdx++];
-            if (!this.hasAttribute('show-other-month')) continue;
-            ele.textContent = i + '';
+            ele.classList.add('prev');
+            ele.part.add('prev');
+            ele.textContent = this.showOtherMonth ? this.formatter(i) : ' ';
         }
 
         // set current month days
         for (let i = 1; i <= days; ++i) {
             const ele = items[itemIdx++];
             const time = new Date(year, month, i);
+            ele.classList.toggle('month-start', i === 1);
+            ele.classList.toggle('month-end', i === days);
             ele.classList.toggle('disabled', time < minTime || time > maxTime);
             ele.classList.toggle('start', +time === +timeStart);
+            ele.classList.toggle('in-range', +time >= +timeStart && +time <= +timeEnd);
             ele.classList.toggle('end', +time === +timeEnd);
             ele.setAttribute('part', ele.className);
             ele.dataset.time = time.toISOString();
-            ele.textContent = i + '';
+            ele.textContent = this.formatter(i);
+        }
+        const inRangeItem = Array.from(this.shadowRoot!.querySelectorAll('.item.in-range'));
+        if (inRangeItem.length) {
+            inRangeItem[0].classList.add('range-start');
+            inRangeItem[0].part.add('range-start');
+            inRangeItem[inRangeItem.length - 1].classList.add('range-end');
+            inRangeItem[inRangeItem.length - 1].part.add('range-end');
         }
 
         // set next month days
         for (let i = 1; itemIdx < items.length; ++i) {
             const ele = items[itemIdx++];
-            if (!this.hasAttribute('show-other-month')) continue;
-            ele.textContent = i + '';
+            ele.classList.add('next');
+            ele.part.add('next');
+            ele.textContent = this.showOtherMonth ? this.formatter(i) : ' ';
         }
     }, 0);
 
@@ -210,4 +273,6 @@ export default class CalendarBase extends UiBase<CalendarBaseAttrs, CalendarBase
         const time = new Date(item.dataset.time!);
         super.dispatchEvent('select-time', time, true);
     };
+
+    public formatter = (i: number) => '' + i;
 }

@@ -1,6 +1,9 @@
-import { html } from "@/utils";
+import { closestByEvent, debounce, html } from "@/utils";
 import { BaseAttrs, CustomEleEventListener, DefEle, UiBase } from "@/components/web-component-base";
-// import styleStr from './index.scss?inline';
+import styleStr from './index.scss?inline';
+import DateNavEle, { DateNavEventListener } from "./date-nav";
+import CalendarBaseEle, { CalendarBaseEventListener } from "../calendar";
+import HhMmSsMsListGrpEle from "../hhmmss-ms-list-grp";
 
 export interface PeriodSelectorAttrs extends BaseAttrs {
     /**
@@ -33,31 +36,143 @@ export type PeriodSelectorEventListener<K extends Parameters<PeriodSelectorEmit>
 
 /**
  * 时间段选择器（两个日历）
+ *
+ * 存在一个 timeFormatter 方法，可以重写该方法以自定义时分秒毫秒的回显格式。
  */
 @DefEle('period-selector')
 export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSelectorEmit> {
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
+            'time-start',
+            'time-end',
+            'min-granularity',
         ] satisfies (keyof PeriodSelectorAttrs)[];
     }
 
-    // protected _style = styleStr;
-    protected _template = html``;
+    public get timeStart() {
+        const v = this._getAttr('time-start', '');
+        return new Date(Number.isNaN(+v) ? v: +v);
+    }
+    public set timeStart(val: number | string | Date) {
+        const v = new Date(val);
+        if (Number.isNaN(+v)) return;
+        this.setAttribute('time-start', '' + val);
+    }
+    public get timeEnd() {
+        const v = this._getAttr('time-end', '');
+        return new Date(Number.isNaN(+v) ? v: +v);
+    }
+    public set timeEnd(val: number | string | Date) {
+        const v = new Date(val);
+        if (Number.isNaN(+v)) return;
+        this.setAttribute('time-end', '' + val);
+    }
+
+    protected _style = styleStr;
+    protected _template = ['start', 'end'].map(s => html`
+<div class="wrapper ${s}">
+    <dt-date-nav
+        show-ctrl-btn-month
+    ></dt-date-nav>
+    <dt-calendar-base data-type="${s}" show-other-month></dt-calendar-base>
+    <dt-popover>
+        <div slot="trigger" class="time-echo-wrapper">
+            <i class="time-icon"></i>
+            <span class="time-echo">hh:mm:ss.sss</span>
+        </div>
+        <dt-hhmmss-ms-list-grp slot="pop"></dt-hhmmss-ms-list-grp>
+    </dt-popover>
+</div>`).join('');
 
     constructor() {
         super();
         this._applyTemplate();
     }
 
+    private get _startNavEle() {
+        return this.shadowRoot?.querySelector('.start dt-date-nav') as DateNavEle;
+    }
+    private get _endNavEle() {
+        return this.shadowRoot?.querySelector('.end dt-date-nav') as DateNavEle;
+    }
+    private get _startCalendar() {
+        return this.shadowRoot?.querySelector('.start dt-calendar-base') as CalendarBaseEle;
+    }
+    private get _endCalendar() {
+        return this.shadowRoot?.querySelector('.end dt-calendar-base') as CalendarBaseEle;
+    }
+    private get _startTimeSelector() {
+        return this.shadowRoot?.querySelector('.start dt-hhmmss-ms-list-grp') as HhMmSsMsListGrpEle;
+    }
+    private get _endTimeSelector() {
+        return this.shadowRoot?.querySelector('.end dt-hhmmss-ms-list-grp') as HhMmSsMsListGrpEle;
+    }
+
     public connectedCallback() {
         if (!super.connectedCallback()) return;
+        this._startCalendar.formatter = this._endCalendar.formatter =
+            (i: number) => String(i).padStart(2, '0');
+        this._render();
+        this._startCalendar.addEventListener('select-time', this._onCalendarSelect);
+        this._endCalendar.addEventListener('select-time', this._onCalendarSelect);
+        this._startNavEle.addEventListener('change', this._onNavChange);
+        this._endNavEle.addEventListener('change', this._onNavChange);
     }
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
+        this._startCalendar.removeEventListener('select-time', this._onCalendarSelect);
+        this._endCalendar.removeEventListener('select-time', this._onCalendarSelect);
+        this._startNavEle.removeEventListener('change', this._onNavChange);
+        this._endNavEle.removeEventListener('change', this._onNavChange);
     }
 
     protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
         super._onAttrChanged(name, oldValue, newValue);
+        this._render();
     }
+
+    private _render = debounce(() => {
+        if (!this.isConnected) return;
+        let { timeStart, timeEnd } = this;
+        if (timeStart > timeEnd) [timeStart, timeEnd] = [timeEnd, timeStart];
+        this._startNavEle.millisecond =
+            this._startCalendar.showingTime =
+            this._startCalendar.timeStart =
+            this._endCalendar.timeStart = +timeStart;
+        this._startTimeSelector.millisecond = +timeStart % (24 * 60 * 60 * 1000);
+        this._endNavEle.millisecond =
+            this._endCalendar.showingTime =
+            this._endCalendar.timeEnd =
+            this._startCalendar.timeEnd = +timeEnd;
+        this._endTimeSelector.millisecond = +timeEnd % (24 * 60 * 60 * 1000);
+        this.shadowRoot!.querySelector('.wrapper.start .time-echo')!.textContent =
+            this.timeFormatter(timeStart as Date);
+        this.shadowRoot!.querySelector('.wrapper.end .time-echo')!.textContent =
+            this.timeFormatter(timeEnd as Date);
+    }, 0);
+
+    private _onCalendarSelect: CalendarBaseEventListener<'select-time'> = (e) => {
+        const wrapper = closestByEvent(e, '.wrapper');
+        if (!wrapper) return;
+        const tz = new Date().getTimezoneOffset() * 60 * 1000;
+        if (wrapper.classList.contains('start')) {
+            this.timeStart = +e.detail + this._startTimeSelector.millisecond - tz;
+        } else {
+            this.timeEnd = +e.detail + this._endTimeSelector.millisecond - tz;
+        }
+    };
+    private _onNavChange: DateNavEventListener<'change'> = (e) => {
+        const wrapper = closestByEvent(e, '.wrapper');
+        if (!wrapper) return;
+        const { newStartTime, newEndTime } = e.detail;
+        if (wrapper.classList.contains('start')) {
+            this._startCalendar.showingTime = +newStartTime;
+        } else {
+            this._endCalendar.showingTime = +newEndTime;
+        }
+    };
+
+    public timeFormatter = (time: Date) =>
+        new Date(+time - new Date().getTimezoneOffset() * 60 * 1000).toISOString().slice(11, 23);
 }
