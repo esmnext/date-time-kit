@@ -177,11 +177,10 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
     private _onCalendarSelect: CalendarBaseEventListener<'select-time'> = (e) => {
         const wrapper = closestByEvent(e, '.wrapper');
         if (!wrapper) return;
-        const tz = new Date().getTimezoneOffset() * 60 * 1000;
         if (wrapper.classList.contains('start')) {
-            this.timeStart = +e.detail + this._startTimeSelector.millisecond - tz;
+            this.timeStart = +e.detail + this._startTimeSelector.millisecond;
         } else {
-            this.timeEnd = +e.detail + this._endTimeSelector.millisecond - tz;
+            this.timeEnd = +e.detail + this._endTimeSelector.millisecond;
         }
     };
     private _onNavChange: DateNavEventListener<'change'> = (e) => {
