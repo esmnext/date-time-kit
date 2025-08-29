@@ -1,5 +1,5 @@
 import { closestByEvent, debounce, html } from "@/utils";
-import { BaseAttrs, CustomEleEventListener, DefEle, UiBase } from "../web-component-base";
+import { BaseAttrs, DefEle, UiBase } from "../web-component-base";
 import '@/components/i18n';
 import styleStr from './index.scss?inline';
 
@@ -56,9 +56,9 @@ export interface CalendarBaseAttrs extends BaseAttrs {
     'show-other-month'?: boolean;
 }
 
-export type CalendarBaseEmit = (eventName: 'select-time', detail: Date) => void;
-
-export type CalendarBaseEventListener<K extends Parameters<CalendarBaseEmit>[0]> = CustomEleEventListener<CalendarBase, K>;
+export interface CalendarBaseEmit {
+    'select-time': Date
+}
 
 /**
  * 基础的日历显示组件。仅显示星期和数字。
@@ -147,11 +147,11 @@ export default class CalendarBase extends UiBase<CalendarBaseAttrs, CalendarBase
         if (!super.connectedCallback()) return;
         this._onWeekStartAtChange();
         this._onTimeChange();
-        this.addEventListener('click', this.onClick);
+        this.addEventListener('click', this._onClick);
     }
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
-        this.removeEventListener('click', this.onClick);
+        this.removeEventListener('click', this._onClick);
     }
 
     protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
@@ -267,7 +267,7 @@ export default class CalendarBase extends UiBase<CalendarBaseAttrs, CalendarBase
         }
     }, 0);
 
-    private onClick = (e: MouseEvent) => {
+    private _onClick = (e: MouseEvent) => {
         const item = closestByEvent(e, '.item[data-time]:not(.disabled)', this);
         if (!item) return;
         const time = new Date(item.dataset.time!);

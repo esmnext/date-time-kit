@@ -1,5 +1,5 @@
 import { html } from "@/utils";
-import { BaseAttrs, CustomEleEventListener, DefEle, UiBase } from "../web-component-base";
+import { BaseAttrs, DefEle, UiBase } from "../web-component-base";
 import '@/components/i18n';
 
 export interface PopoverAttrs extends BaseAttrs {
@@ -7,9 +7,9 @@ export interface PopoverAttrs extends BaseAttrs {
     'disabled'?: boolean;
 }
 
-export type PopoverEmit = (eventName: 'open-change', detail: boolean) => void;
-
-export type PopoverEventListener<K extends Parameters<PopoverEmit>[0]> = CustomEleEventListener<Popover, K>;
+export interface PopoverEmit {
+    'open-change': boolean;
+}
 
 /**
  * 点击触发器后气泡弹出
@@ -82,9 +82,7 @@ export default class Popover extends UiBase<PopoverAttrs, PopoverEmit> {
         this.dispatchEvent('open-change', this.open, true);
     }
 
-    private _onToggleClick = (_e: Event) => {
-        this.toggleOpen();
-    };
+    private _onToggleClick = () => { this.toggleOpen(); };
     private _onDocClick = (e: Event) => {
         if (e.composedPath().includes(this)) return;
         e.stopImmediatePropagation();

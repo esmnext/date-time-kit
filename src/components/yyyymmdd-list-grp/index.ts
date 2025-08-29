@@ -1,6 +1,6 @@
 import { debounce, html } from "@/utils";
-import { BaseAttrs, CustomEleEventListener, DefEle, UiBase } from "@/components/web-component-base";
-import NumListEle, { NumListEventListener } from "../num-list";
+import { BaseAttrs, DefEle, UiBase } from "@/components/web-component-base";
+import NumListEle, { NumListEmit } from "../num-list";
 import styleStr from './index.scss?inline';
 
 export interface YyyyMmDdListGrpAttrs extends BaseAttrs {
@@ -20,12 +20,12 @@ export interface YyyyMmDdListGrpAttrs extends BaseAttrs {
     'col-order'?: 'ymd' | 'ydm' | 'myd' | 'mdy' | 'dym' | 'dmy';
 }
 
-export type YyyyMmDdListGrpEmit = (eventName: 'change', detail: {
-    oldMs: number;
-    newMs: number;
-}) => void;
-
-export type YyyyMmDdListGrpEventListener<K extends Parameters<YyyyMmDdListGrpEmit>[0]> = CustomEleEventListener<YyyyMmDdListGrp, K>;
+export interface YyyyMmDdListGrpEmit {
+    'change': {
+        oldMs: number;
+        newMs: number;
+    };
+}
 
 /**
  * 日期选择器
@@ -192,16 +192,15 @@ export default class YyyyMmDdListGrp extends UiBase<YyyyMmDdListGrpAttrs, YyyyMm
         return +date;
     }
 
-    private _onColsSelect: NumListEventListener<'select-num'> =
-        ({ target, detail: { newNum } }) => {
-            if (!(target instanceof NumListEle)) return;
-            target.currentNum = newNum;
-            const oldMs = this.millisecond;
-            const newMs = this._getMsFromEle();
-            this.millisecond = newMs;
-            this.dispatchEvent('change', {
-                oldMs,
-                newMs: this.millisecond
-            }, true);
-        };
+    private _onColsSelect = ({ target, detail: { newNum } }: CustomEvent<NumListEmit['select-num']>) => {
+        if (!(target instanceof NumListEle)) return;
+        target.currentNum = newNum;
+        const oldMs = this.millisecond;
+        const newMs = this._getMsFromEle();
+        this.millisecond = newMs;
+        this.dispatchEvent('change', {
+            oldMs,
+            newMs: this.millisecond
+        }, true);
+    };
 }

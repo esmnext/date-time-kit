@@ -1,7 +1,7 @@
 import { debounce, html } from "@/utils";
-import { BaseAttrs, CustomEleEventListener, DefEle, UiBase } from "@/components/web-component-base";
+import { BaseAttrs, DefEle, UiBase } from "@/components/web-component-base";
 import styleStr from './date-nav.scss?inline';
-import Popover, { PopoverEventListener } from "../popover";
+import Popover, { PopoverEmit } from "../popover";
 import YyyyMmDdListGrpEle from "../yyyymmdd-list-grp";
 
 export interface DateNavAttrs extends BaseAttrs {
@@ -26,14 +26,14 @@ export interface DateNavAttrs extends BaseAttrs {
     'show-ctrl-btn-month'?: boolean;
 }
 
-export type DateNavEmit = (eventName: 'change', detail: {
-    oldStartTime: Date;
-    oldEndTime: Date;
-    newStartTime: Date;
-    newEndTime: Date;
-}) => void;
-
-export type DateNavEventListener<K extends Parameters<DateNavEmit>[0]> = CustomEleEventListener<DateNav, K>;
+export interface DateNavEmit {
+    'change': {
+        oldStartTime: Date;
+        oldEndTime: Date;
+        newStartTime: Date;
+        newEndTime: Date;
+    };
+};
 
 /**
  * 日期导航组件
@@ -133,10 +133,9 @@ export default class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
         root.querySelector('.title')!.textContent = this.titleFormatter(ms);
     }, 0);
 
-    private _onTitleToggle: PopoverEventListener<'open-change'> =
-        ({ detail: isOpen }) => {
-            this.classList.toggle('show-list', isOpen);
-        };
+    private _onTitleToggle = ({ detail: isOpen }: CustomEvent<PopoverEmit['open-change']>) => {
+        this.classList.toggle('show-list', isOpen);
+    };
 
     private _onBtnClick = (e: MouseEvent) => {
         if (!(e.target instanceof HTMLElement)) return;

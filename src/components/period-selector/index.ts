@@ -1,10 +1,10 @@
 import { closestByEvent, debounce, html } from "@/utils";
-import { BaseAttrs, CustomEleEventListener, DefEle, UiBase } from "@/components/web-component-base";
+import { BaseAttrs, DefEle, UiBase } from "@/components/web-component-base";
 import styleStr from './index.scss?inline';
-import DateNavEle, { DateNavEventListener } from "./date-nav";
-import CalendarBaseEle, { CalendarBaseEventListener } from "../calendar";
+import DateNavEle, { DateNavEmit } from "./date-nav";
+import CalendarBaseEle, { CalendarBaseEmit } from "../calendar";
 import HhMmSsMsListGrpEle from "../hhmmss-ms-list-grp";
-import Popover, { PopoverEventListener } from "../popover";
+import Popover, { PopoverEmit } from "../popover";
 
 export interface PeriodSelectorAttrs extends BaseAttrs {
     /**
@@ -26,14 +26,14 @@ export interface PeriodSelectorAttrs extends BaseAttrs {
     'min-granularity'?: 'day' | 'hour' | 'minute' | 'second' | 'millisecond';
 }
 
-export type PeriodSelectorEmit = (eventName: 'change', detail: {
-    oldStartTime: Date;
-    oldEndTime: Date;
-    newStartTime: Date;
-    newEndTime: Date;
-}) => void;
-
-export type PeriodSelectorEventListener<K extends Parameters<PeriodSelectorEmit>[0]> = CustomEleEventListener<PeriodSelector, K>;
+export interface PeriodSelectorEmit {
+    'change': {
+        oldStartTime: Date;
+        oldEndTime: Date;
+        newStartTime: Date;
+        newEndTime: Date;
+    };
+}
 
 /**
  * 时间段选择器（两个日历）
@@ -174,7 +174,7 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
             this.timeFormatter(timeEnd as Date);
     }, 0);
 
-    private _onCalendarSelect: CalendarBaseEventListener<'select-time'> = (e) => {
+    private _onCalendarSelect = (e: CustomEvent<CalendarBaseEmit['select-time']>) => {
         const wrapper = closestByEvent(e, '.wrapper');
         if (!wrapper) return;
         if (wrapper.classList.contains('start')) {
@@ -183,7 +183,7 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
             this.timeEnd = +e.detail + this._endTimeSelector.millisecond;
         }
     };
-    private _onNavChange: DateNavEventListener<'change'> = (e) => {
+    private _onNavChange = (e: CustomEvent<DateNavEmit['change']>) => {
         const wrapper = closestByEvent(e, '.wrapper');
         if (!wrapper) return;
         const { newStartTime, newEndTime } = e.detail;
@@ -193,7 +193,7 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
             this._endCalendar.showingTime = +newEndTime;
         }
     };
-    private _onTimePopoverOpenChange: PopoverEventListener<'open-change'> = (e) => {
+    private _onTimePopoverOpenChange = (e: CustomEvent<PopoverEmit['open-change']>) => {
         if (!(e.target instanceof Popover)) return;
         if (!e.detail) return this._render(); // for reset time selector value
         e.target.querySelectorAll<HhMmSsMsListGrpEle>('dt-hhmmss-ms-list-grp').forEach(ele => {

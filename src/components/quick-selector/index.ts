@@ -1,5 +1,5 @@
 import { html } from "@/utils";
-import { BaseAttrs, CustomEleEventListener, DefEle, UiBase } from "@/components/web-component-base";
+import { BaseAttrs, DefEle, UiBase } from "@/components/web-component-base";
 import styleStr from './index.scss?inline';
 import backArrowSvg from '@/assets/back-arrow.svg?raw';
 import ArrowRightSvg from '@/assets/arrow-right.svg?raw';
@@ -14,9 +14,8 @@ export interface QuickSelectorAttrs extends BaseAttrs {
     'time-zone'?: number;
 }
 
-export type QuickSelectorEmit = (eventName: '', detail: unknown) => void;
-
-export type QuickSelectorEventListener<K extends Parameters<QuickSelectorEmit>[0]> = CustomEleEventListener<QuickSelector, K>;
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface QuickSelectorEmit {}
 
 const getCurrentTz = () => -new Date().getTimezoneOffset();
 

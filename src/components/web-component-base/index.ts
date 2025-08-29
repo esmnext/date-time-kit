@@ -3,31 +3,24 @@ import styleStr from './index.scss?inline';
 import scrollbarStyleStr from './scrollbar.scss?inline';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type EmitType = (eventName: string | any, detailData: any) => any;
+type EmitType = Record<string, any>;
 
-type ListenerFn<Emit extends EmitType, K extends keyof HTMLElementEventMap | Parameters<Emit>[0]> =
-    (this: HTMLElement, ev: K extends Parameters<Emit>[0]
-        ? CustomEvent<Parameters<Emit>[1]>
+export type ListenerFn<Emit extends EmitType, K extends keyof Emit | keyof HTMLElementEventMap> =
+    (this: HTMLElement, ev: K extends keyof Emit
+        ? CustomEvent<Emit[K]>
         : HTMLElementEventMap[K & keyof HTMLElementEventMap]
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ) => any;
 
-type EventListener<Emit extends EmitType, K extends keyof HTMLElementEventMap | Parameters<Emit>[0]> =
+export type EventListenerObj<Emit extends EmitType, K extends keyof Emit | keyof HTMLElementEventMap> =
+    { handleEvent: ListenerFn<Emit, K>; };
+
+export type EventListenerOrListenerObj<Emit extends EmitType, K extends keyof Emit | keyof HTMLElementEventMap> =
     | ListenerFn<Emit, K>
-    | { handleEvent: ListenerFn<Emit, K>; };
+    | EventListenerObj<Emit, K>;
 
 type getAttrType<Attr, K extends keyof Attr> =
     Extract<Attr[K], string> extends never ? string : Extract<Attr[K], string>;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type CustomEleEventListener<Ele extends UiBase<any, any>, K extends string> =
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Ele extends UiBase<any, infer Emit>
-        ? K extends keyof HTMLElementEventMap | Parameters<Emit>[0]
-            ? EventListener<Emit, K>
-            : never
-        : never;
-
 
 // tagName to template element cache
 const templateCache = new Map<string, HTMLTemplateElement>();
@@ -51,7 +44,8 @@ if (typeof document === 'object') {
 
 export class UiBase<
     Attr extends BaseAttrs = BaseAttrs,
-    Emit extends EmitType = () => void
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-empty-object-type
+    Emit extends Record<string, any> = {}
 > extends HTMLElement {
     // TODO: use override keyword in subclasses
     static get observedAttributes(): string[] {
@@ -115,14 +109,15 @@ export class UiBase<
     connectedMoveCallback() {}
     adoptedCallback() {}
 
-    dispatchEvent(
-        type: Parameters<Emit>[0] | Event,
-        data?: Parameters<Emit>[1],
+    dispatchEvent<K extends keyof Emit | undefined = undefined>(
+        type: K | Event,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data?: K extends keyof Emit ? Emit[K] : any,
         global = false
     ) {
         return type instanceof Event
             ? super.dispatchEvent(type)
-            : super.dispatchEvent(new CustomEvent(type, {
+            : super.dispatchEvent(new CustomEvent(type as string, {
                 ...(global ? {
                     bubbles: true,
                     cancelable: true,
@@ -132,13 +127,13 @@ export class UiBase<
             }));
     }
 
-    public addEventListener<K extends keyof HTMLElementEventMap | Parameters<Emit>[0]>(
-        type: K | string, listener: EventListener<Emit, K>, options?: boolean | EventListenerOptions
+    public addEventListener<K extends keyof Emit | keyof HTMLElementEventMap>(
+        type: K | string, listener: EventListenerOrListenerObj<Emit, K>, options?: boolean | EventListenerOptions
     ): void {
         super.addEventListener(type as string, listener as EventListenerOrEventListenerObject, options);
     }
-    public removeEventListener<K extends keyof HTMLElementEventMap | Parameters<Emit>[0]>(
-        type: K | string, listener: EventListener<Emit, K>, options?: boolean | EventListenerOptions
+    public removeEventListener<K extends keyof Emit | keyof HTMLElementEventMap>(
+        type: K | string, listener: EventListenerOrListenerObj<Emit, K>, options?: boolean | EventListenerOptions
     ): void {
         super.removeEventListener(type as string, listener as EventListenerOrEventListenerObject, options);
     }
