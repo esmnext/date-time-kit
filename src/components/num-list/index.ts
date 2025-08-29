@@ -223,14 +223,14 @@ export default class NumList extends UiBase<NumListAttrs, NumListEmit> {
         return Math.max(10, Math.ceil(this.clientHeight / this._itemHeight));
     }
 
-    private _scrollToCurrent = () => {
+    public scrollToCurrent = () => {
         const ele = this._currentItemEle;
         if (!ele) return;
         this._intersectionOb?.observe(ele);
         ele.scrollIntoView({
             block: this._getAttr('position', 'start')
         });
-    }
+    };
 
     private _render = debounce(() => {
         if (!this.isConnected) return;
@@ -253,7 +253,7 @@ export default class NumList extends UiBase<NumListAttrs, NumListEmit> {
         else for (let i = minNum; i <= maxNum; ++i) {
             container.appendChild(this._createItem(i, currentNum));
         }
-        setTimeout(this._scrollToCurrent, 0);
+        setTimeout(this.scrollToCurrent, 0);
     }, 0);
 
     private _onClick = (e: MouseEvent) => {
@@ -266,7 +266,7 @@ export default class NumList extends UiBase<NumListAttrs, NumListEmit> {
         oldCurrent?.part.remove('item-current');
         item.classList.add('item-current');
         item.part.add('item-current');
-        this._scrollToCurrent();
+        this.scrollToCurrent();
         super.dispatchEvent('select-num', {
             oldNum: +(oldCurrent?.dataset.number ?? this.currentNum),
             newNum: +item.dataset.number!,

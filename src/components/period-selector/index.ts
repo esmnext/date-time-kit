@@ -4,6 +4,7 @@ import styleStr from './index.scss?inline';
 import DateNavEle, { DateNavEventListener } from "./date-nav";
 import CalendarBaseEle, { CalendarBaseEventListener } from "../calendar";
 import HhMmSsMsListGrpEle from "../hhmmss-ms-list-grp";
+import Popover, { PopoverEventListener } from "../popover";
 
 export interface PeriodSelectorAttrs extends BaseAttrs {
     /**
@@ -57,7 +58,7 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
     public set timeStart(val: number | string | Date) {
         const v = new Date(val);
         if (Number.isNaN(+v)) return;
-        this.setAttribute('time-start', '' + val);
+        this.setAttribute('time-start', +v + '');
     }
     public get timeEnd() {
         const v = this._getAttr('time-end', '');
@@ -66,7 +67,7 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
     public set timeEnd(val: number | string | Date) {
         const v = new Date(val);
         if (Number.isNaN(+v)) return;
-        this.setAttribute('time-end', '' + val);
+        this.setAttribute('time-end', +v + '');
     }
 
     protected _style = styleStr;
@@ -81,7 +82,11 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
             <i class="time-icon"></i>
             <span class="time-echo">hh:mm:ss.sss</span>
         </div>
-        <dt-hhmmss-ms-list-grp slot="pop"></dt-hhmmss-ms-list-grp>
+        <div slot="pop" class="time-selector">
+            <h3 class="title">${s === 'start' ? 'Start Time' : 'End Time'}</h3>
+            <dt-hhmmss-ms-list-grp></dt-hhmmss-ms-list-grp>
+            <button id="time-selector-done-btn" data-type="${s}">Done</button>
+        </div>
     </dt-popover>
 </div>`).join('');
 
@@ -108,6 +113,12 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
     private get _endTimeSelector() {
         return this.shadowRoot?.querySelector('.end dt-hhmmss-ms-list-grp') as HhMmSsMsListGrpEle;
     }
+    private get _startTimePopover() {
+        return this.shadowRoot?.querySelector('.start dt-popover') as Popover;
+    }
+    private get _endTimePopover() {
+        return this.shadowRoot?.querySelector('.end dt-popover') as Popover;
+    }
 
     public connectedCallback() {
         if (!super.connectedCallback()) return;
@@ -118,6 +129,11 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
         this._endCalendar.addEventListener('select-time', this._onCalendarSelect);
         this._startNavEle.addEventListener('change', this._onNavChange);
         this._endNavEle.addEventListener('change', this._onNavChange);
+        this._startTimePopover.addEventListener('open-change', this._onTimePopoverOpenChange);
+        this._endTimePopover.addEventListener('open-change', this._onTimePopoverOpenChange);
+        this.shadowRoot?.querySelectorAll('#time-selector-done-btn').forEach(btn => {
+            btn.addEventListener('click', this._onTimeSelectorDoneClick);
+        });
     }
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
@@ -125,6 +141,11 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
         this._endCalendar.removeEventListener('select-time', this._onCalendarSelect);
         this._startNavEle.removeEventListener('change', this._onNavChange);
         this._endNavEle.removeEventListener('change', this._onNavChange);
+        this._startTimePopover.removeEventListener('open-change', this._onTimePopoverOpenChange);
+        this._endTimePopover.removeEventListener('open-change', this._onTimePopoverOpenChange);
+        this.shadowRoot?.querySelectorAll('#time-selector-done-btn').forEach(btn => {
+            btn.removeEventListener('click', this._onTimeSelectorDoneClick);
+        });
     }
 
     protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
@@ -136,16 +157,17 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
         if (!this.isConnected) return;
         let { timeStart, timeEnd } = this;
         if (timeStart > timeEnd) [timeStart, timeEnd] = [timeEnd, timeStart];
+        const tz = new Date().getTimezoneOffset() * 60 * 1000;
         this._startNavEle.millisecond =
             this._startCalendar.showingTime =
             this._startCalendar.timeStart =
             this._endCalendar.timeStart = +timeStart;
-        this._startTimeSelector.millisecond = +timeStart % (24 * 60 * 60 * 1000);
+        this._startTimeSelector.millisecond = (+timeStart - tz) % (24 * 60 * 60 * 1000);
         this._endNavEle.millisecond =
             this._endCalendar.showingTime =
             this._endCalendar.timeEnd =
             this._startCalendar.timeEnd = +timeEnd;
-        this._endTimeSelector.millisecond = +timeEnd % (24 * 60 * 60 * 1000);
+        this._endTimeSelector.millisecond = (+timeEnd - tz) % (24 * 60 * 60 * 1000);
         this.shadowRoot!.querySelector('.wrapper.start .time-echo')!.textContent =
             this.timeFormatter(timeStart as Date);
         this.shadowRoot!.querySelector('.wrapper.end .time-echo')!.textContent =
@@ -170,6 +192,30 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
             this._startCalendar.showingTime = +newStartTime;
         } else {
             this._endCalendar.showingTime = +newEndTime;
+        }
+    };
+    private _onTimePopoverOpenChange: PopoverEventListener<'open-change'> = (e) => {
+        if (!(e.target instanceof Popover)) return;
+        if (!e.detail) return this._render(); // for reset time selector value
+        e.target.querySelectorAll<HhMmSsMsListGrpEle>('dt-hhmmss-ms-list-grp').forEach(ele => {
+            ele.scrollToCurrentItem();
+        });
+    };
+    private _onTimeSelectorDoneClick = (e: Event) => {
+        const btn = closestByEvent(e, '#time-selector-done-btn');
+        if (!btn) return;
+        const type = btn.dataset.type;
+        const calcTime = (time: Date, ms: number) => {
+            time.setHours(0, 0, 0, 0);
+            time.setMilliseconds(ms);
+            return time;
+        };
+        if (type === 'start') {
+            this.timeStart = calcTime(this.timeStart as Date, this._startTimeSelector.millisecond);
+            this._startTimePopover.open = false;
+        } else if (type === 'end') {
+            this.timeEnd = calcTime(this.timeEnd as Date, this._endTimeSelector.millisecond);
+            this._endTimePopover.open = false;
         }
     };
 

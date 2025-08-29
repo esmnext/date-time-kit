@@ -100,7 +100,7 @@ export default class CalendarBase extends UiBase<CalendarBaseAttrs, CalendarBase
     >, value: number | string | Date) {
         const v = new Date(value);
         if (Number.isNaN(+v)) return;
-        this.setAttribute(name, '' + value);
+        this.setAttribute(name, +v + '');
     }
     public set showingTime(val: number | string | Date) {
         this._setTimeAttr('showing-time', val);

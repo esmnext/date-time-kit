@@ -12,6 +12,14 @@
   gap: 15px;
 }
 
+dt-popover {
+  position: relative;
+}
+
+[open] .time-echo-wrapper {
+  border-color: #18181B;
+}
+
 .time-echo-wrapper {
   width: 100%;
   padding: 4px;
@@ -22,6 +30,50 @@
   border: 1px solid #0001;
   box-sizing: border-box;
   align-items: center;
+}
+
+.time-selector {
+  position: absolute;
+  width: 100%;
+  height: 461px;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #eee;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+
+  .title {
+    font-size: 16px;
+    margin: 0;
+    line-height: 1;
+  }
+}
+
+dt-hhmmss-ms-list-grp{
+  &::part(list-container) {
+    gap: 2px;
+  }
+  &::part(list) {
+    scroll-behavior: smooth;
+  }
+  &::part(item) {
+    font-size: 14px;
+    line-height: 17px;
+  }
+}
+
+#time-selector-done-btn {
+  border: none;
+  min-height: 30px;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 14px;
+  background-color: #18181B;
+  color: #fff;
 }
 
 .time-icon {

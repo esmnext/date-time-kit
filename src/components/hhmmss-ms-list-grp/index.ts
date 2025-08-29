@@ -47,15 +47,33 @@ export default class HhMmSsMsListGrp extends UiBase<HhMmSsMsListGrpAttrs, HhMmSs
         <div class="cols" part="cols">
             <div class="col" part="col hour">
                 <span>Hour</span>
-                <dt-num-list part="list hour" class="hour" min-num="0" max-num="23"></dt-num-list>
+                <dt-num-list
+                    exportparts="container:list-container, item, item-current"
+                    part="list hour"
+                    class="hour"
+                    min-num="0"
+                    max-num="23"
+                ></dt-num-list>
             </div>
             <div class="col" part="col minute">
                 <span>Minute</span>
-                <dt-num-list part="list minute" class="minute" min-num="0" max-num="59"></dt-num-list>
+                <dt-num-list
+                    exportparts="container:list-container, item, item-current"
+                    part="list minute"
+                    class="minute"
+                    min-num="0"
+                    max-num="59"
+                ></dt-num-list>
             </div>
             <div class="col" part="col second">
                 <span>Second</span>
-                <dt-num-list part="list second" class="second" min-num="0" max-num="59"></dt-num-list>
+                <dt-num-list
+                    exportparts="container:list-container, item, item-current"
+                    part="list second"
+                    class="second"
+                    min-num="0"
+                    max-num="59"
+                ></dt-num-list>
             </div>
         </div>
         <label class="ms-input" part="ms-wrapper">
@@ -110,6 +128,12 @@ export default class HhMmSsMsListGrp extends UiBase<HhMmSsMsListGrpAttrs, HhMmSs
     public set colOrder(v: 'hms' | 'hsm' | 'mhs' | 'msh' | 'shm' | 'smh') {
         if (!['hms', 'hsm', 'mhs', 'msh', 'shm', 'smh'].includes(v)) return;
         this.setAttribute('col-order', v);
+    }
+
+    public scrollToCurrentItem() {
+        this.shadowRoot?.querySelectorAll('dt-num-list').forEach(ele => {
+            if (ele instanceof NumListEle) ele.scrollToCurrent();
+        });
     }
 
     public connectedCallback() {
@@ -226,7 +250,6 @@ export default class HhMmSsMsListGrp extends UiBase<HhMmSsMsListGrpAttrs, HhMmSs
 
     private _onColsSelect: NumListEventListener<'select-num'> =
         ({ target, detail: { newNum } }) => {
-            console.log('cols select', target, newNum);
             if (!(target instanceof NumListEle)) return;
             target.currentNum = newNum;
             const oldMs = this.millisecond;
