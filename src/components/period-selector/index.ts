@@ -76,7 +76,7 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
     <dt-date-nav
         show-ctrl-btn-month
     ></dt-date-nav>
-    <dt-calendar-base data-type="${s}" show-other-month></dt-calendar-base>
+    <dt-calendar-base data-type="${s}"></dt-calendar-base>
     <dt-popover>
         <div slot="trigger" class="time-echo-wrapper">
             <i class="time-icon"></i>

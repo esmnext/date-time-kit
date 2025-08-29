@@ -88,3 +88,17 @@ dt-hhmmss-ms-list-grp{
   color: #999;
   line-height: 1;
 }
+
+dt-calendar-base {
+  // 254 = item height 6 * 30 + week 14 + gap 10 * 6
+  height: 254px;
+
+  &::part(week) {
+    font-size: 12px;
+    line-height: 14px;
+  }
+
+  &::part(item) {
+    font-size: 14px;
+  }
+}

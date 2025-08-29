@@ -133,7 +133,7 @@ export default class CalendarBase extends UiBase<CalendarBaseAttrs, CalendarBase
 
     protected _style = styleStr;
     protected _template = weekKey.map(
-        (key) => html`<dt-i18n class="week" i18n-key="date.${key}"></dt-i18n>`
+        (key) => html`<dt-i18n class="week" i18n-key="date.${key}" part="week"></dt-i18n>`
     ).join('') + [...Array(7 * 6)].map(
         (_, i) => html`<div class="item" part="item">${i % 31 + 1}</div>`
     ).join('');
