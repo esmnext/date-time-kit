@@ -35,6 +35,15 @@ export interface PeriodSelectorEmit {
     };
 }
 
+const diffInMonth = (a: Date, b: Date) => {
+    if (a > b) [a, b] = [b, a];
+    const aYear = a.getFullYear();
+    const aMonth = a.getMonth();
+    const bYear = b.getFullYear();
+    const bMonth = b.getMonth();
+    return (bYear * 12 + bMonth) - (aYear * 12 + aMonth);
+};
+
 /**
  * 时间段选择器（两个日历）
  *
@@ -169,14 +178,9 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
     }
 
     private _updateNavCtrlBtn() {
-        let timeStart = new Date(this._startNavEle.millisecond),
+        const timeStart = new Date(this._startNavEle.millisecond),
             timeEnd = new Date(this._endNavEle.millisecond);
-        if (timeStart > timeEnd) [timeStart, timeEnd] = [timeEnd, timeStart];
-        const startYear = timeStart.getFullYear();
-        const startMonth = timeStart.getMonth();
-        const endYear = timeEnd.getFullYear();
-        const endMonth = timeEnd.getMonth();
-        const showCtrlBtn = startYear !== endYear || startMonth !== endMonth;
+        const showCtrlBtn = diffInMonth(timeStart, timeEnd) > 1;
         this._startNavEle.showCtrlBtnMonthAdd = showCtrlBtn;
         this._endNavEle.showCtrlBtnMonthSub = showCtrlBtn;
     }
@@ -191,10 +195,16 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
             this._startCalendar.timeStart =
             this._endCalendar.timeStart = +timeStart;
         this._startTimeSelector.millisecond = (+timeStart - tz) % (24 * 60 * 60 * 1000);
-        this._endNavEle.millisecond =
-            this._endCalendar.showingTime =
-            this._endCalendar.timeEnd =
+        this._endCalendar.timeEnd =
             this._startCalendar.timeEnd = +timeEnd;
+        if (diffInMonth(timeStart, timeEnd) <= 1) {
+            const nextMonth = new Date(timeStart.getFullYear(), timeStart.getMonth() + 1);
+            this._endCalendar.showingTime = nextMonth;
+            this._endNavEle.millisecond = +nextMonth;
+        } else {
+            this._endCalendar.showingTime = timeEnd;
+            this._endNavEle.millisecond = +timeEnd;
+        }
         this._endTimeSelector.millisecond = (+timeEnd - tz) % (24 * 60 * 60 * 1000);
         this.shadowRoot!.querySelector('.wrapper.start .time-echo')!.textContent =
             this.timeFormatter(timeStart as Date);
