@@ -71,7 +71,18 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
     }
 
     protected _style = styleStr;
-    protected _template = ['start', 'end'].map(s => html`
+    protected _template = html`
+<div class="date-echo">
+    <div class="start-date-echo-wrapper">
+        <span class="label">Start Date</span>
+        <span class="start-date-echo">dd/mm/yyyy</span>
+    </div>
+    <i class="dividing-line"></i>
+    <div class="end-date-echo-wrapper">
+        <span class="label">End Date</span>
+        <span class="end-date-echo">dd/mm/yyyy</span>
+    </div>
+</div><div class="calendars">${['start', 'end'].map(s => html`
 <div class="wrapper ${s}">
     <dt-date-nav
         show-ctrl-btn-month-add
@@ -89,7 +100,7 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
             <button id="time-selector-done-btn" data-type="${s}">Done</button>
         </div>
     </dt-popover>
-</div>`).join('');
+</div>`).join('')}</div>`;
 
     constructor() {
         super();
@@ -186,6 +197,8 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
             this.timeFormatter(timeStart as Date);
         this.shadowRoot!.querySelector('.wrapper.end .time-echo')!.textContent =
             this.timeFormatter(timeEnd as Date);
+        this.shadowRoot!.querySelector('.start-date-echo')!.textContent = this.dateFormatter(timeStart);
+        this.shadowRoot!.querySelector('.end-date-echo')!.textContent = this.dateFormatter(timeEnd);
         this._updateNavCtrlBtn();
     }, 0);
 
@@ -236,4 +249,6 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
 
     public timeFormatter = (time: Date) =>
         new Date(+time - new Date().getTimezoneOffset() * 60 * 1000).toISOString().slice(11, 23);
+    public dateFormatter = (time: Date) =>
+        time.toLocaleDateString('en-GB');
 }
