@@ -154,9 +154,22 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
         this._render();
     }
 
+    private _updateNavCtrlBtn() {
+        let timeStart = new Date(this._startNavEle.millisecond),
+            timeEnd = new Date(this._endNavEle.millisecond);
+        if (timeStart > timeEnd) [timeStart, timeEnd] = [timeEnd, timeStart];
+        const startYear = timeStart.getFullYear();
+        const startMonth = timeStart.getMonth();
+        const endYear = timeEnd.getFullYear();
+        const endMonth = timeEnd.getMonth();
+        const showCtrlBtn = startYear !== endYear || startMonth !== endMonth;
+        this._startNavEle.showCtrlBtnMonthAdd = showCtrlBtn;
+        this._endNavEle.showCtrlBtnMonthSub = showCtrlBtn;
+    }
+
     private _render = debounce(() => {
         if (!this.isConnected) return;
-        let { timeStart, timeEnd } = this;
+        let timeStart = this.timeStart as Date, timeEnd = this.timeEnd as Date;
         if (timeStart > timeEnd) [timeStart, timeEnd] = [timeEnd, timeStart];
         const tz = new Date().getTimezoneOffset() * 60 * 1000;
         this._startNavEle.millisecond =
@@ -173,6 +186,7 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
             this.timeFormatter(timeStart as Date);
         this.shadowRoot!.querySelector('.wrapper.end .time-echo')!.textContent =
             this.timeFormatter(timeEnd as Date);
+        this._updateNavCtrlBtn();
     }, 0);
 
     private _onCalendarSelect = (e: CustomEvent<CalendarBaseEmit['select-time']>) => {
@@ -193,6 +207,7 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
         } else {
             this._endCalendar.showingTime = +newEndTime;
         }
+        this._updateNavCtrlBtn();
     };
     private _onTimePopoverOpenChange = (e: CustomEvent<PopoverEmit['open-change']>) => {
         if (!(e.target instanceof Popover)) return;
