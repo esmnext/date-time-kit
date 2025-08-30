@@ -1,5 +1,9 @@
 
 :host {
+    --color-current-bg: var(--calendar-item-in-range-bg, #002BE726);
+    --color-current-text: var(--calendar-item-in-range-text, #002BE7);
+    --color-hover-bg: var(--calendar-item-hover-bg, #0000000D);
+    --color-hover-text: var(--calendar-item-hover-text, #000);
     display: block;
     overflow: hidden auto;
     position: relative !important;
@@ -23,10 +27,12 @@
     box-sizing: border-box;
 
     &.item-current {
-        background-color: var(--color-primary-light);
+        color: var(--color-current-text);
+        background-color: var(--color-current-bg);
     }
 
     &:hover {
-        background-color: var(--color-hover);
+        color: var(--color-hover-text);
+        background-color: var(--color-hover-bg);
     }
 }
