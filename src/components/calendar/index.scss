@@ -9,11 +9,14 @@
     --color-in-range-text: var(--calendar-item-in-range-text, #002BE7);
     --color-hover-bg: var(--calendar-item-hover-bg, #0000000D);
     --color-hover-text: var(--calendar-item-hover-text, #000);
+}
 
+.wrapper {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: var(--gap);
     width: 100%;
+    height: 100%;
     justify-content: space-between;
     text-align: center;
 }

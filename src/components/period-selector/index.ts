@@ -141,6 +141,7 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
         return this.shadowRoot?.querySelector('.end dt-popover') as Popover;
     }
 
+    // 存放的是结束时间点
     private _selectedDate: Date | null = null;
 
     public connectedCallback() {
@@ -155,6 +156,8 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
         this._endNavEle.addEventListener('change', this._onNavChange);
         this._startTimePopover.addEventListener('open-change', this._onTimePopoverOpenChange);
         this._endTimePopover.addEventListener('open-change', this._onTimePopoverOpenChange);
+        this._startCalendar.addEventListener('hover-item', this._onCalendarItemHover);
+        this._endCalendar.addEventListener('hover-item', this._onCalendarItemHover);
         this.shadowRoot?.querySelectorAll('#time-selector-done-btn').forEach(btn => {
             btn.addEventListener('click', this._onTimeSelectorDoneClick);
         });
@@ -167,6 +170,8 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
         this._endNavEle.removeEventListener('change', this._onNavChange);
         this._startTimePopover.removeEventListener('open-change', this._onTimePopoverOpenChange);
         this._endTimePopover.removeEventListener('open-change', this._onTimePopoverOpenChange);
+        this._startCalendar.removeEventListener('hover-item', this._onCalendarItemHover);
+        this._endCalendar.removeEventListener('hover-item', this._onCalendarItemHover);
         this.shadowRoot?.querySelectorAll('#time-selector-done-btn').forEach(btn => {
             btn.removeEventListener('click', this._onTimeSelectorDoneClick);
         });
@@ -224,16 +229,18 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
     }
 
     private _onCalendarSelect = (e: CustomEvent<CalendarBaseEmit['select-time']>) => {
-        const wrapper = closestByEvent(e, '.wrapper');
-        if (!wrapper) return;
         if (this._selectedDate) {
-            this.timeEnd = +e.detail + this._endTimeSelector.millisecond;
             this._selectedDate = null;
+            this.timeEnd = +e.detail + this._endTimeSelector.millisecond;
         } else {
+            this._selectedDate = this.timeEnd as unknown as Date;
             this.timeStart = +e.detail + this._startTimeSelector.millisecond;
-            this._selectedDate = this.timeStart as unknown as Date;
         }
         this._updateDateEcho();
+    };
+    private _onCalendarItemHover = (e: CustomEvent<CalendarBaseEmit['hover-item']>) => {
+        if (!this._selectedDate) return;
+        this.timeEnd = +e.detail + this._endTimeSelector.millisecond;
     };
     private _onNavChange = (e: CustomEvent<DateNavEmit['change']>) => {
         const wrapper = closestByEvent(e, '.wrapper');

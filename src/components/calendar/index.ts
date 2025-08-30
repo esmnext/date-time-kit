@@ -57,7 +57,8 @@ export interface CalendarBaseAttrs extends BaseAttrs {
 }
 
 export interface CalendarBaseEmit {
-    'select-time': Date
+    'select-time': Date;
+    'hover-item': Date;
 }
 
 /**
@@ -132,11 +133,14 @@ export default class CalendarBase extends UiBase<CalendarBaseAttrs, CalendarBase
     }
 
     protected _style = styleStr;
-    protected _template = weekKey.map(
+    protected _template = html`
+<div class="wrapper">${
+    weekKey.map(
         (key) => html`<dt-i18n class="week" i18n-key="date.${key}" part="week"></dt-i18n>`
     ).join('') + [...Array(7 * 6)].map(
         (_, i) => html`<div class="item" part="item">${i % 31 + 1}</div>`
-    ).join('');
+    ).join('')
+}</div>`;
 
     constructor() {
         super();
@@ -148,10 +152,12 @@ export default class CalendarBase extends UiBase<CalendarBaseAttrs, CalendarBase
         this._onWeekStartAtChange();
         this._onTimeChange();
         this.addEventListener('click', this._onClick);
+        this.shadowRoot!.querySelector('.wrapper')!.addEventListener('pointerover', this._onPointerOver);
     }
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
         this.removeEventListener('click', this._onClick);
+        this.shadowRoot!.querySelector('.wrapper')!.removeEventListener('pointerover', this._onPointerOver);
     }
 
     protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
@@ -272,6 +278,12 @@ export default class CalendarBase extends UiBase<CalendarBaseAttrs, CalendarBase
         if (!item) return;
         const time = new Date(item.dataset.time!);
         super.dispatchEvent('select-time', time, true);
+    };
+    private _onPointerOver = (e: Event) => {
+        const item = closestByEvent(e, '.item[data-time]:not(.disabled)', this);
+        if (!item) return;
+        const time = new Date(item.dataset.time!);
+        super.dispatchEvent('hover-item', time, true);
     };
 
     public formatter = (i: number) => '' + i;
