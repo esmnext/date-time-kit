@@ -73,7 +73,7 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
     protected _style = styleStr;
     protected _template = html`
 <div class="date-echo">
-    <div class="start-date-echo-wrapper">
+    <div class="start-date-echo-wrapper active">
         <span class="label">Start Date</span>
         <span class="start-date-echo">dd/mm/yyyy</span>
     </div>
@@ -132,8 +132,11 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
         return this.shadowRoot?.querySelector('.end dt-popover') as Popover;
     }
 
+    private _selectedDate: Date | null = null;
+
     public connectedCallback() {
         if (!super.connectedCallback()) return;
+        this._selectedDate = null;
         this._startCalendar.formatter = this._endCalendar.formatter =
             (i: number) => String(i).padStart(2, '0');
         this._render();
@@ -197,18 +200,24 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
             this.timeFormatter(timeStart as Date);
         this.shadowRoot!.querySelector('.wrapper.end .time-echo')!.textContent =
             this.timeFormatter(timeEnd as Date);
-        this.shadowRoot!.querySelector('.start-date-echo')!.textContent = this.dateFormatter(timeStart);
-        this.shadowRoot!.querySelector('.end-date-echo')!.textContent = this.dateFormatter(timeEnd);
+        const startDateEcho = this.shadowRoot!.querySelector('.start-date-echo')!;
+        const endDateEcho = this.shadowRoot!.querySelector('.end-date-echo')!;
+        startDateEcho.textContent = this.dateFormatter(timeStart);
+        endDateEcho.textContent = this.dateFormatter(timeEnd);
+        startDateEcho.classList.toggle('active', !this._selectedDate);
+        endDateEcho.classList.toggle('active', !!this._selectedDate);
         this._updateNavCtrlBtn();
     }, 0);
 
     private _onCalendarSelect = (e: CustomEvent<CalendarBaseEmit['select-time']>) => {
         const wrapper = closestByEvent(e, '.wrapper');
         if (!wrapper) return;
-        if (wrapper.classList.contains('start')) {
-            this.timeStart = +e.detail + this._startTimeSelector.millisecond;
-        } else {
+        if (this._selectedDate) {
             this.timeEnd = +e.detail + this._endTimeSelector.millisecond;
+            this._selectedDate = null;
+        } else {
+            this.timeStart = +e.detail + this._startTimeSelector.millisecond;
+            this._selectedDate = this.timeStart as unknown as Date;
         }
     };
     private _onNavChange = (e: CustomEvent<DateNavEmit['change']>) => {
