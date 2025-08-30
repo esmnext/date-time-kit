@@ -1,17 +1,13 @@
 
-:host {
+.wrapper {
     display: block;
     width: 100%;
     height: 100%;
     display: flex;
     justify-content: space-between;
     overflow: hidden;
-}
 
-:host(.show-list) {
-    height: 200px;
-
-    .btns {
+    &.show-list .btns {
         display: none;
     }
 }
@@ -66,6 +62,9 @@
 dt-yyyymmdd-list-grp {
     width: 100%;
 
+    &::part(list) {
+        scroll-behavior: smooth;
+    }
     &::part(col label) {
         display: none;
     }

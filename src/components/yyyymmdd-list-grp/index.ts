@@ -104,6 +104,12 @@ export default class YyyyMmDdListGrp extends UiBase<YyyyMmDdListGrpAttrs, YyyyMm
         this.setAttribute('col-order', v);
     }
 
+    public scrollToCurrentItem() {
+        this.shadowRoot?.querySelectorAll('dt-num-list').forEach(ele => {
+            if (ele instanceof NumListEle) ele.scrollToCurrent();
+        });
+    }
+
     public connectedCallback() {
         if (!super.connectedCallback()) return;
         this._listEleYear.formatter = (num) => '' + num;

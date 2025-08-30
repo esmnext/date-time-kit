@@ -158,6 +158,8 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
         this._endTimePopover.addEventListener('open-change', this._onTimePopoverOpenChange);
         this._startCalendar.addEventListener('hover-item', this._onCalendarItemHover);
         this._endCalendar.addEventListener('hover-item', this._onCalendarItemHover);
+        this._startNavEle.addEventListener('popover-open-change', this._onNavOpenToggle);
+        this._endNavEle.addEventListener('popover-open-change', this._onNavOpenToggle);
         this.shadowRoot?.querySelectorAll('#time-selector-done-btn').forEach(btn => {
             btn.addEventListener('click', this._onTimeSelectorDoneClick);
         });
@@ -172,6 +174,8 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
         this._endTimePopover.removeEventListener('open-change', this._onTimePopoverOpenChange);
         this._startCalendar.removeEventListener('hover-item', this._onCalendarItemHover);
         this._endCalendar.removeEventListener('hover-item', this._onCalendarItemHover);
+        this._startNavEle.removeEventListener('popover-open-change', this._onNavOpenToggle);
+        this._endNavEle.removeEventListener('popover-open-change', this._onNavOpenToggle);
         this.shadowRoot?.querySelectorAll('#time-selector-done-btn').forEach(btn => {
             btn.removeEventListener('click', this._onTimeSelectorDoneClick);
         });
@@ -252,6 +256,10 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
             this._endCalendar.showingTime = +newEndTime;
         }
         this._updateNavCtrlBtn();
+    };
+    private _onNavOpenToggle = (e: CustomEvent<DateNavEmit['popover-open-change']>) => {
+        if (!(e.target instanceof DateNavEle)) return;
+        e.target.nextElementSibling?.classList.toggle('hide', e.detail);
     };
     private _onTimePopoverOpenChange = (e: CustomEvent<PopoverEmit['open-change']>) => {
         if (!(e.target instanceof Popover)) return;

@@ -45,6 +45,15 @@
   background-color: #eee;
 }
 
+dt-date-nav::part(list-grp) {
+  height: 254px;
+  margin-top: 15px;
+}
+
+dt-calendar-base.hide {
+  display: none;
+}
+
 .calendars {
   display: flex;
   gap: 20px;

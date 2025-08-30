@@ -2,7 +2,7 @@ import { debounce, html } from "@/utils";
 import { BaseAttrs, DefEle, UiBase } from "@/components/web-component-base";
 import styleStr from './date-nav.scss?inline';
 import Popover, { PopoverEmit } from "../popover";
-import YyyyMmDdListGrpEle from "../yyyymmdd-list-grp";
+import YyyyMmDdListGrpEle, { YyyyMmDdListGrpEmit } from "../yyyymmdd-list-grp";
 
 export interface DateNavAttrs extends BaseAttrs {
     'millisecond': number;
@@ -60,20 +60,22 @@ export default class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
 
     protected _style = styleStr;
     protected _template = html`
-<div class="btns sub">
-    <i class="btn sub year"></i>
-    <i class="btn sub month"></i>
-</div>
-<dt-popover class="echo">
-    <div slot="trigger" class="title-wrapper">
-        <span class="title">title</span>
-        <i class="title-arrow"></i>
+<div class="wrapper">
+    <div class="btns sub">
+        <i class="btn sub year"></i>
+        <i class="btn sub month"></i>
     </div>
-    <dt-yyyymmdd-list-grp slot="pop" min-granularity="month"></dt-yyyymmdd-list-grp>
-</dt-popover>
-<div class="btns add">
-    <i class="btn add month"></i>
-    <i class="btn add year"></i>
+    <dt-popover class="echo">
+        <div slot="trigger" class="title-wrapper">
+            <span class="title">title</span>
+            <i class="title-arrow"></i>
+        </div>
+        <dt-yyyymmdd-list-grp slot="pop" min-granularity="month" part="list-grp"></dt-yyyymmdd-list-grp>
+    </dt-popover>
+    <div class="btns add">
+        <i class="btn add month"></i>
+        <i class="btn add year"></i>
+    </div>
 </div>
 `;
 
@@ -119,6 +121,7 @@ export default class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
         if (!super.connectedCallback()) return;
         this._render();
         this.shadowRoot!.querySelector<Popover>('.echo')!.addEventListener('open-change', this._onTitleToggle);
+        this.shadowRoot!.querySelector<YyyyMmDdListGrpEle>('dt-yyyymmdd-list-grp')!.addEventListener('change', this._onItemSelect);
         this.shadowRoot!.querySelectorAll<HTMLElement>('.btn').forEach(btn => {
             btn.addEventListener('click', this._onBtnClick);
         });
@@ -126,6 +129,7 @@ export default class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
         this.shadowRoot!.querySelector<Popover>('.echo')!.removeEventListener('open-change', this._onTitleToggle);
+        this.shadowRoot!.querySelector<YyyyMmDdListGrpEle>('dt-yyyymmdd-list-grp')!.removeEventListener('change', this._onItemSelect);
         this.shadowRoot!.querySelectorAll<HTMLElement>('.btn').forEach(btn => {
             btn.removeEventListener('click', this._onBtnClick);
         });
@@ -151,9 +155,14 @@ export default class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
     }, 0);
 
     private _onTitleToggle = ({ detail: isOpen }: CustomEvent<PopoverEmit['open-change']>) => {
-        this.classList.toggle('show-list', isOpen);
+        this.shadowRoot!.querySelector('.wrapper')!.classList.toggle('show-list', isOpen);
+        this.shadowRoot!.querySelector<YyyyMmDdListGrpEle>('dt-yyyymmdd-list-grp')!.scrollToCurrentItem();
+        this.dispatchEvent('popover-open-change', isOpen);
     };
-
+    private _onItemSelect = (e: CustomEvent<YyyyMmDdListGrpEmit['change']>) => {
+        if (!(e.target instanceof YyyyMmDdListGrpEle)) return;
+        this.millisecond = e.target.millisecond;
+    };
     private _onBtnClick = (e: MouseEvent) => {
         if (!(e.target instanceof HTMLElement)) return;
         const date = new Date(this.millisecond);

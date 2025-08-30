@@ -138,7 +138,6 @@ export default class NumList extends UiBase<NumListAttrs, NumListEmit> {
         const lastItem = container.lastElementChild as HTMLElement;
         const firstNum = Number(firstItem.dataset.number);
         const curNum = this.currentNum, pageSize = this._pageSize, itemHeight = this._itemHeight;
-        console.log(pageSize, this.clientHeight, this._itemHeight);
         const items = [...Array(pageSize * 2)].map(
             (_, i) => this._createItem(firstNum - pageSize * 2 + i, curNum)
         );
@@ -195,6 +194,13 @@ export default class NumList extends UiBase<NumListAttrs, NumListEmit> {
 
     protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
         super._onAttrChanged(name, oldValue, newValue);
+        // 选中选项后，会更新 dom class，此时触发的更新不需要重新渲染。
+        // 这里是针对无限滚动时重新渲染会导致元素滚动异常。
+        if (name === 'current-num' &&
+            newValue === this._containerEle.querySelector<HTMLElement>('.item-current')?.dataset.number
+        ) {
+            return;
+        }
         this._render();
     }
 
@@ -221,7 +227,9 @@ export default class NumList extends UiBase<NumListAttrs, NumListEmit> {
         return h + gap;
     }
     private get _pageSize() {
-        return Math.max(10, Math.ceil(this.clientHeight / this._itemHeight));
+        const thisHeight = this.clientHeight;
+        if (thisHeight === 0) return 10;
+        return Math.min(10, Math.ceil(thisHeight / this._itemHeight));
     }
 
     public scrollToCurrent = () => {
@@ -236,7 +244,7 @@ export default class NumList extends UiBase<NumListAttrs, NumListEmit> {
     private _render = debounce(() => {
         if (!this.isConnected) return;
         this._destroyOb();
-        const container = this.shadowRoot!.querySelector('.container')!;
+        const container = this._containerEle;
         container.innerHTML = '';
         if (!this.hasAttribute('current-num')) return;
 
