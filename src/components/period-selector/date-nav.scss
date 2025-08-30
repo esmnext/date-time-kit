@@ -37,15 +37,18 @@
         background-color: #eee;
     }
 
-    :host(:not([show-ctrl-btn-year])) &.year,
-    :host(:not([show-ctrl-btn-month])) &.month {
+    :host(:not([show-ctrl-btn-year-add])) &.add.year,
+    :host(:not([show-ctrl-btn-year-sub])) &.sub.year,
+    :host(:not([show-ctrl-btn-month-add])) &.add.month,
+    :host(:not([show-ctrl-btn-month-sub])) &.sub.month {
         display: none;
     }
 
     &.sub {
         --bg-img: var(--icon-arrow-left);
 
-        :host([show-ctrl-btn-month]) &.year {
+        :host([show-ctrl-btn-month-add]) &.add.year,
+        :host([show-ctrl-btn-month-sub]) &.sub.year {
             --bg-img: var(--icon-arrow-left-double);
         }
     }
@@ -53,7 +56,8 @@
     &.add {
         --bg-img: var(--icon-arrow-right);
 
-        :host([show-ctrl-btn-month]) &.year {
+        :host([show-ctrl-btn-month-add]) &.add.year,
+        :host([show-ctrl-btn-month-sub]) &.sub.year {
             --bg-img: var(--icon-arrow-right-double);
         }
     }

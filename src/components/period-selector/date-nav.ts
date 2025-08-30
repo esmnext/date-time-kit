@@ -18,12 +18,14 @@ export interface DateNavAttrs extends BaseAttrs {
      * 是否显示年份控制按钮（快速增减年份）
      * @default false
      */
-    'show-ctrl-btn-year'?: boolean;
+    'show-ctrl-btn-year-add'?: boolean;
+    'show-ctrl-btn-year-sub'?: boolean;
     /**
      * 是否显示月份控制按钮（快速增减月份）
      * @default false
      */
-    'show-ctrl-btn-month'?: boolean;
+    'show-ctrl-btn-month-add'?: boolean;
+    'show-ctrl-btn-month-sub'?: boolean;
 }
 
 export interface DateNavEmit {
@@ -33,6 +35,7 @@ export interface DateNavEmit {
         newStartTime: Date;
         newEndTime: Date;
     };
+    'popover-open-change': boolean;
 };
 
 /**
@@ -48,8 +51,10 @@ export default class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
             'millisecond',
             'max-granularity',
             'min-granularity',
-            'show-ctrl-btn-year',
-            'show-ctrl-btn-month',
+            'show-ctrl-btn-month-add',
+            'show-ctrl-btn-year-sub',
+            'show-ctrl-btn-month-add',
+            'show-ctrl-btn-month-sub',
         ] satisfies (keyof DateNavAttrs)[];
     }
 
@@ -80,17 +85,29 @@ export default class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
         this.setAttribute('millisecond', '' + Math.floor(v));
     }
 
-    public get showCtrlBtnYear() {
-        return this.hasAttribute('show-ctrl-btn-year');
+    public get showCtrlBtnYearAdd() {
+        return this.hasAttribute('show-ctrl-btn-year-add');
     }
-    public set showCtrlBtnYear(val: boolean) {
-        this.toggleAttribute('show-ctrl-btn-year', val);
+    public set showCtrlBtnYearAdd(val: boolean) {
+        this.toggleAttribute('show-ctrl-btn-year-add', val);
     }
-    public get showCtrlBtnMonth() {
-        return this.hasAttribute('show-ctrl-btn-month');
+    public get showCtrlBtnYearSub() {
+        return this.hasAttribute('show-ctrl-btn-year-sub');
     }
-    public set showCtrlBtnMonth(val: boolean) {
-        this.toggleAttribute('show-ctrl-btn-month', val);
+    public set showCtrlBtnYearSub(val: boolean) {
+        this.toggleAttribute('show-ctrl-btn-year-sub', val);
+    }
+    public get showCtrlBtnMonthAdd() {
+        return this.hasAttribute('show-ctrl-btn-month-add');
+    }
+    public set showCtrlBtnMonthAdd(val: boolean) {
+        this.toggleAttribute('show-ctrl-btn-month-add', val);
+    }
+    public get showCtrlBtnMonthSub() {
+        return this.hasAttribute('show-ctrl-btn-month-sub');
+    }
+    public set showCtrlBtnMonthSub(val: boolean) {
+        this.toggleAttribute('show-ctrl-btn-month-sub', val);
     }
 
     constructor() {

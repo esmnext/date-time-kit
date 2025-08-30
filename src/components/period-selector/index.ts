@@ -74,7 +74,8 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
     protected _template = ['start', 'end'].map(s => html`
 <div class="wrapper ${s}">
     <dt-date-nav
-        show-ctrl-btn-month
+        show-ctrl-btn-month-add
+        show-ctrl-btn-month-sub
     ></dt-date-nav>
     <dt-calendar-base data-type="${s}"></dt-calendar-base>
     <dt-popover>
