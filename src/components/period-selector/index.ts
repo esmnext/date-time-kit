@@ -200,14 +200,18 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
             this.timeFormatter(timeStart as Date);
         this.shadowRoot!.querySelector('.wrapper.end .time-echo')!.textContent =
             this.timeFormatter(timeEnd as Date);
-        const startDateEcho = this.shadowRoot!.querySelector('.start-date-echo')!;
-        const endDateEcho = this.shadowRoot!.querySelector('.end-date-echo')!;
-        startDateEcho.textContent = this.dateFormatter(timeStart);
-        endDateEcho.textContent = this.dateFormatter(timeEnd);
-        startDateEcho.classList.toggle('active', !this._selectedDate);
-        endDateEcho.classList.toggle('active', !!this._selectedDate);
+        this._updateDateEcho();
         this._updateNavCtrlBtn();
     }, 0);
+
+    private _updateDateEcho() {
+        let timeStart = this.timeStart as Date, timeEnd = this.timeEnd as Date;
+        if (timeStart > timeEnd) [timeStart, timeEnd] = [timeEnd, timeStart];
+        this.shadowRoot!.querySelector('.start-date-echo')!.textContent = this.dateFormatter(timeStart);
+        this.shadowRoot!.querySelector('.end-date-echo')!.textContent = this.dateFormatter(timeEnd);
+        this.shadowRoot!.querySelector('.start-date-echo-wrapper')!.classList.toggle('active', !this._selectedDate);
+        this.shadowRoot!.querySelector('.end-date-echo-wrapper')!.classList.toggle('active', !!this._selectedDate);
+    }
 
     private _onCalendarSelect = (e: CustomEvent<CalendarBaseEmit['select-time']>) => {
         const wrapper = closestByEvent(e, '.wrapper');
@@ -219,6 +223,7 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
             this.timeStart = +e.detail + this._startTimeSelector.millisecond;
             this._selectedDate = this.timeStart as unknown as Date;
         }
+        this._updateDateEcho();
     };
     private _onNavChange = (e: CustomEvent<DateNavEmit['change']>) => {
         const wrapper = closestByEvent(e, '.wrapper');
