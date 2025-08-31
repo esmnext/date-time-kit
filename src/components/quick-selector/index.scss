@@ -4,7 +4,7 @@
     display: block;
 }
 
-.menu-top {
+.menu {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -14,6 +14,11 @@
     border-radius: 6px;
     border: 1px solid #eee;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+
+    & > * {
+        width: 100%;
+        box-sizing: border-box;
+    }
 }
 
 .radio-grp {
@@ -78,43 +83,31 @@
     }
 }
 
-.menu-tz {
+.title {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    padding: 10px 5px;
-    font-size: 14px;
+    padding: 5px;
     gap: 10px;
-    border-radius: 6px;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    font-weight: 700;
+    font-size: 18px;
+    box-sizing: border-box;
+
+    svg {
+        border: 5px solid transparent;
+        border-radius: 50%;
+        margin: -5px;
+        cursor: pointer;
+    }
+    svg:hover {
+        background-color: #eee;
+        border-color: #eee;
+    }
+}
+
+.menu.tz {
     min-width: 180px;
     max-height: 293px;
     overflow: hidden auto;
-
-    & > * {
-        width: 100%;
-    }
-
-    .title {
-        display: flex;
-        align-items: center;
-        padding: 5px;
-        gap: 10px;
-        font-weight: 700;
-        font-size: 18px;
-        box-sizing: border-box;
-
-        svg {
-            border: 5px solid transparent;
-            border-radius: 50%;
-            margin: -5px;
-            cursor: pointer;
-        }
-        svg:hover {
-            background-color: #eee;
-            border-color: #eee;
-        }
-    }
 
     fieldset {
         width: 100%;
@@ -153,5 +146,35 @@
         width: 24px;
         height: 24px;
         cursor: pointer;
+    }
+}
+
+button {
+    border: none;
+    min-height: 40px;
+    border-radius: 6px;
+    padding: 5px 15px;
+    font-size: 16px;
+    line-height: 1;
+    background-color: #18181B;
+    color: #fff;
+    font-weight: 500;
+}
+
+.menu.custom {
+    padding: 14px;
+    gap: 15px;
+
+    dt-period-selector {
+        width: 590px;
+    }
+    .btns {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+    #reset {
+        background-color: #E5E7E8;
+        color: #333;
     }
 }

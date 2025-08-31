@@ -39,7 +39,7 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
 
     protected _style = styleStr;
     protected _template = html`
-<div class="menu-top"
+<div class="menu top"
     ><div class="radio-grp">${['all', 'today', 'yesterday', 'week', 'lastWeek', 'last7Days', 'month', 'last30Days', 'last180Days', 'last6Month', 'year']
             .map(k =>
                 html`<label
@@ -47,7 +47,7 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
                     /><dt-i18n i18n-key="quick.${k}">${k}</dt-i18n
                 ></label>`
             ).join('')
-        }<label
+        }<label class="custom-trigger"
             ><input type="radio" name="radio" value="custom"
             /><dt-i18n i18n-key="quick.custom">Custom</dt-i18n
             >${ArrowRightSvg
@@ -62,7 +62,7 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
         >${ArrowRightSvg
         }</div
 ></div
-><div class="menu-tz" style="display:none;"
+><div class="menu tz" style="display:none;"
     ><div class="title"
         >${backArrowSvg}<span>Time Zone</span
     ></div
@@ -75,8 +75,17 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
         >${[-12, -11, -10, -9.5, -9, -8, -7, -6, -5, -4, -3, -3.5, -2, -1, 0, 1, 2, 3, 3.5, 4, 4.5, 5, 5.5, 5.75, 6, 6.5, 7, 8, 8.75, 9, 9.5, 10, 10.5, 11, 12, 12.45, 13, 14]
             .map(tz => tz === 2 || tz * 60 === getCurrentTz() ? '' : genTzRadio(tz * 60)).join('')
         }</fieldset
-    ></div>
-`;
+    ></div
+><div class="menu custom" style="display:none;"
+    ><div class="title"
+        >${backArrowSvg}<span>Custom</span
+    ></div
+    ><dt-period-selector></dt-period-selector
+    ><div class="btns"
+        ><button id="reset">Reset</button
+        ><button id="done">Done</button
+    ></div
+></div>`;
 
     constructor() {
         super();
@@ -86,12 +95,16 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
     public connectedCallback() {
         if (!super.connectedCallback()) return;
         this.shadowRoot!.querySelector('.tz-trigger')?.addEventListener('click', this._onTzTriggerClick);
-        this.shadowRoot!.querySelector('.menu-tz .title svg')?.addEventListener('click', this._onTzBackBtnClick);
+        this.shadowRoot!.querySelector('.custom-trigger')?.addEventListener('click', this._onCustomTriggerClick);
+        this.shadowRoot!.querySelector('.menu.tz .title svg')?.addEventListener('click', this._onBackBtnClick);
+        this.shadowRoot!.querySelector('.menu.custom .title svg')?.addEventListener('click', this._onBackBtnClick);
     }
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
         this.shadowRoot!.querySelector('.tz-trigger')?.removeEventListener('click', this._onTzTriggerClick);
-        this.shadowRoot!.querySelector('.menu-tz .title svg')?.removeEventListener('click', this._onTzBackBtnClick);
+        this.shadowRoot!.querySelector('.custom-trigger')?.removeEventListener('click', this._onCustomTriggerClick);
+        this.shadowRoot!.querySelector('.menu.tz .title svg')?.removeEventListener('click', this._onBackBtnClick);
+        this.shadowRoot!.querySelector('.menu.custom .title svg')?.removeEventListener('click', this._onBackBtnClick);
     }
 
     protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
@@ -100,16 +113,25 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
 
     private _onTzTriggerClick = () => {
         if (!this.isConnected) return;
-        const menuTop = this.shadowRoot!.querySelector<HTMLElement>('.menu-top');
+        const menuTop = this.shadowRoot!.querySelector<HTMLElement>('.menu.top');
         if (menuTop) menuTop.style.display = 'none';
-        const menuTz = this.shadowRoot!.querySelector<HTMLElement>('.menu-tz');
+        const menuTz = this.shadowRoot!.querySelector<HTMLElement>('.menu.tz');
         if (menuTz) menuTz.style.display = '';
     };
-    private _onTzBackBtnClick = () => {
+    private _onCustomTriggerClick = () => {
         if (!this.isConnected) return;
-        const menuTop = this.shadowRoot!.querySelector<HTMLElement>('.menu-top');
+        const menuTop = this.shadowRoot!.querySelector<HTMLElement>('.menu.top');
+        if (menuTop) menuTop.style.display = 'none';
+        const menuCustom = this.shadowRoot!.querySelector<HTMLElement>('.menu.custom');
+        if (menuCustom) menuCustom.style.display = '';
+    };
+    private _onBackBtnClick = () => {
+        if (!this.isConnected) return;
+        const menuTop = this.shadowRoot!.querySelector<HTMLElement>('.menu.top');
         if (menuTop) menuTop.style.display = '';
-        const menuTz = this.shadowRoot!.querySelector<HTMLElement>('.menu-tz');
+        const menuTz = this.shadowRoot!.querySelector<HTMLElement>('.menu.tz');
         if (menuTz) menuTz.style.display = 'none';
+        const menuCustom = this.shadowRoot!.querySelector<HTMLElement>('.menu.custom');
+        if (menuCustom) menuCustom.style.display = 'none';
     };
 }

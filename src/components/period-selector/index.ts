@@ -10,9 +10,9 @@ export interface PeriodSelectorAttrs extends BaseAttrs {
     /**
      * The start time of the calendar display range.
      * @type {`string | number`} A value that can be passed to the Date constructor.
-     * @default 'current-time'
+     * @default Date.now()
      */
-    'time-start': string | number;
+    'time-start'?: string | number;
     /**
      * The end time of the calendar display range.
      * @type {`string | number`} A value that can be passed to the Date constructor.
@@ -61,7 +61,7 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
     }
 
     public get timeStart() {
-        const v = this._getAttr('time-start', '');
+        const v = this._getAttr('time-start', '' + Date.now());
         return new Date(Number.isNaN(+v) ? v: +v);
     }
     public set timeStart(val: number | string | Date) {
@@ -70,7 +70,7 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
         this.setAttribute('time-start', +v + '');
     }
     public get timeEnd() {
-        const v = this._getAttr('time-end', '');
+        const v = this._getAttr('time-end', '' + this.timeStart);
         return new Date(Number.isNaN(+v) ? v: +v);
     }
     public set timeEnd(val: number | string | Date) {
