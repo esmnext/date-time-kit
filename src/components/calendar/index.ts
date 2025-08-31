@@ -3,10 +3,10 @@ import { BaseAttrs, DefEle, UiBase } from "../web-component-base";
 import '@/components/i18n';
 import styleStr from './index.scss?inline';
 
-type Weeks = 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
+export type Weeks = 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
 
-const weekKey: Weeks[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-const getWeekInOrder = (startAt?: Weeks | null) => {
+export const weekKey: Weeks[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+export const getWeekInOrder = (startAt?: Weeks | null) => {
     if (!startAt) startAt = 'sun';
     const index = weekKey.indexOf(startAt);
     if (index === -1) return weekKey;

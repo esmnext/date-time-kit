@@ -240,7 +240,6 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
             this._selectedDate = this.timeEnd as unknown as Date;
             this.timeStart = +e.detail + this._startTimeSelector.millisecond;
         }
-        this._updateDateEcho();
     };
     private _onCalendarItemHover = (e: CustomEvent<CalendarBaseEmit['hover-item']>) => {
         if (!this._selectedDate) return;
@@ -285,6 +284,10 @@ export default class PeriodSelector extends UiBase<PeriodSelectorAttrs, PeriodSe
             this._endTimePopover.open = false;
         }
     };
+
+    public showCalendarDatePoint() {
+        this._render();
+    }
 
     public timeFormatter = (time: Date) =>
         new Date(+time - new Date().getTimezoneOffset() * 60 * 1000).toISOString().slice(11, 23);

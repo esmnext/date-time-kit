@@ -4,6 +4,10 @@ import styleStr from './index.scss?inline';
 import backArrowSvg from '@/assets/back-arrow.svg?raw';
 import ArrowRightSvg from '@/assets/arrow-right.svg?raw';
 import { kitDataLimit } from "@/types";
+import PeriodSelector from "../period-selector";
+import { weekKey, Weeks } from "../calendar";
+
+type QuickKey = kitDataLimit | 'custom';
 
 export interface QuickSelectorAttrs extends BaseAttrs {
     /**
@@ -13,17 +17,35 @@ export interface QuickSelectorAttrs extends BaseAttrs {
      * -new Date().getTimezoneOffset() // local timezone in minutes
      */
     'time-zone'?: number;
+    /**
+     * Set which day of the week is the first day.
+     * @type `'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'`
+     * @default 'sun'
+     */
+    'week-start-at'?: Weeks;
+    /**
+     * Quick selection key.
+     * 
+     * @default 'all'
+     */
+    'quick-key'?: QuickKey;
+    /**
+     * Start time of the quick selection. Only works in custom mode.
+     */
+    'start-time'?: Date | null | 'null';
+    /**
+     * End time of the quick selection. Only works in custom mode.
+     */
+    'end-time'?: Date | null | 'null';
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface QuickSelectorEmit {
-    'change': 'all' | {
+    'time-changed': 'all' | {
         start: Date;
         end: Date;
+        type: QuickKey;
     };
 }
-
-type QuickKey = kitDataLimit;
 
 const getCurrentTz = () => -new Date().getTimezoneOffset();
 
@@ -94,6 +116,10 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
             'time-zone',
+            'week-start-at',
+            'quick-key',
+            'start-time',
+            'end-time',
         ] satisfies (keyof QuickSelectorAttrs)[];
     }
 
@@ -104,6 +130,23 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
         if (!Number.isSafeInteger(v)) return;
         this.setAttribute('time-zone', '' + v);
     }
+    public get quickKey() {
+        return this._getAttr('quick-key', 'all');
+    }
+    public set quickKey(val: QuickKey) {
+        if (!['all', 'today', 'yesterday', 'week', 'lastWeek', 'last7Days', 'month', 'last30Days', 'last180Days', 'last6Month', 'year', 'custom'].includes(val)) {
+            return;
+        }
+        this.setAttribute('quick-key', val);
+    }
+    public get weekStartAt() {
+        return this._getAttr('week-start-at', 'sun');
+    }
+    public set weekStartAt(val: Weeks) {
+        if (weekKey.includes(val)) return;
+        this.setAttribute('week-start-at', val);
+    }
+
 
     protected _style = styleStr;
     protected _template = html`
@@ -155,6 +198,10 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
     ></div
 ></div>`;
 
+    private get _periodSelector() {
+        return this.shadowRoot!.querySelector('dt-period-selector') as PeriodSelector;
+    }
+
     constructor() {
         super();
         this._applyTemplate();
@@ -163,6 +210,8 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
     public connectedCallback() {
         if (!super.connectedCallback()) return;
         this._renderTz();
+        this._updatePeriodSelector();
+        this._updateRadio();
         this.shadowRoot!.querySelector('.tz-trigger')?.addEventListener('click', this._onTzTriggerClick);
         this.shadowRoot!.querySelector('.custom-trigger')?.addEventListener('click', this._onCustomTriggerClick);
         this.shadowRoot!.querySelector('.menu.tz .title svg')?.addEventListener('click', this._onBackBtnClick);
@@ -170,6 +219,8 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
         this.shadowRoot!.querySelectorAll('.menu').forEach(menu => {
             menu.addEventListener('change', this._onRadioChange);
         });
+        this.shadowRoot!.querySelector('#reset')?.addEventListener('click', this._updatePeriodSelector);
+        this.shadowRoot!.querySelector('#done')?.addEventListener('click', this._onDoneBtnClick);
     }
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
@@ -180,6 +231,8 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
         this.shadowRoot!.querySelectorAll('.menu').forEach(menu => {
             menu.removeEventListener('change', this._onRadioChange);
         });
+        this.shadowRoot!.querySelector('#reset')?.removeEventListener('click', this._updatePeriodSelector);
+        this.shadowRoot!.querySelector('#done')?.removeEventListener('click', this._onDoneBtnClick);
     }
 
     protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
@@ -187,7 +240,18 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
         if (name === 'time-zone') {
             this._renderTz();
         }
+        if (name === 'quick-key') {
+            this._updateRadio();
+        }
     }
+
+    private _updatePeriodSelector = debounce(() => {
+        const defaultPeriod = quickPeriodTimes().last30Days;
+        const ele = this._periodSelector;
+        ele.timeStart = defaultPeriod.start;
+        ele.timeEnd = defaultPeriod.end;
+        ele.showCalendarDatePoint();
+    }, 0);
 
     private _renderTz = debounce(() => {
         const tz = this.timezone;
@@ -197,25 +261,49 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
         });
         this.shadowRoot!.querySelector('.tz-trigger bdo')!.textContent = utcText(tz);
     }, 0);
+    private _updateRadio = debounce(() => {
+        const quickKey = this.quickKey;
+        const radio = this.shadowRoot!.querySelector<HTMLInputElement>(`input[name="radio"][value="${quickKey}"]`);
+        radio!.checked = true;
+    }, 0);
 
     private _showMenu(type: 'top' | 'tz' | 'custom') {
         const menus = this.shadowRoot?.querySelectorAll<HTMLElement>('.menu');
         menus?.forEach(menu => menu.style.display = menu.classList.contains(type) ? '' : 'none');
     }
     private _onTzTriggerClick = () => this._showMenu('tz');
-    private _onCustomTriggerClick = () => this._showMenu('custom');
+    private _onCustomTriggerClick = (e: Event) => {
+        e.preventDefault();
+        this._showMenu('custom');
+    };
     private _onBackBtnClick = () => this._showMenu('top');
 
     private _onRadioChange = (e: Event) => {
         if (!(e.target instanceof HTMLInputElement)) return;
         if (e.target.type !== 'radio') return;
         const { name, value } = e.target;
+        console.trace('on change');
         if (name === 'radio') {
-            if (value === 'custom') return;
-            this.dispatchEvent('change', quickPeriodTimes()[value as QuickKey]!);
+            const v = value as QuickKey;
+            if (v === 'custom') return;
+            const t = quickPeriodTimes()[v];
+            this.dispatchEvent('time-changed', !t ? 'all' : {
+                ...t,
+                type: v
+            }, true);
         }
         else if (name === 'tz') {
             this.timezone = +value;
         }
+    };
+    private _onDoneBtnClick = (_e: Event) => {
+        const selector = this._periodSelector;
+        this._showMenu('top');
+        this.shadowRoot!.querySelector<HTMLInputElement>('input[name="radio"][value="custom"]')!.checked = true;
+        this.dispatchEvent('time-changed', {
+            start: selector.timeStart as Date,
+            end: selector.timeEnd as Date,
+            type: 'custom'
+        }, true);
     };
 }

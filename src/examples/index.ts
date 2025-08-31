@@ -7,6 +7,8 @@ import '@/components/yyyymmdd-list-grp';
 import '@/components/quick-selector';
 import '@/components/period-selector/date-nav';
 import '@/components/period-selector';
+import Popover from '@/components/popover';
+import QuickSelectorEle from '@/components/quick-selector';
 
 window.onload = () => {
     const ele = document.querySelector('dt-calendar-base');
@@ -35,13 +37,22 @@ yyyymmddListGrp?.addEventListener('change', (e) => {
 const quickPopover = document.querySelector<Popover>('#quick-popover');
 quickPopover?.addEventListener('open-change', ({ detail: isOpen }) => {
     const quickResult = document.querySelector('#quick-result');
-    if (isOpen) {
-        if (quickResult) quickResult.textContent = 'Selecting...';
+    if (!quickResult) return;
+    if (isOpen) quickResult.textContent = 'Selecting...';
+    else quickResult.textContent += '\nDone';
+});
+const quickSelector = document.querySelector<QuickSelectorEle>('dt-quick-selector[slot="pop"]');
+quickSelector?.addEventListener('time-changed', (e) => {
+    const quickResult = document.querySelector('#quick-result');
+    if (!quickResult) return;
+    if (e.detail === 'all') {
+        quickResult.textContent = 'Selected: All';
+    } else {
+        quickResult.textContent = `Selected: ${ JSON.stringify(e.detail, null, 2) }`;
     }
 });
 
 import dataTimeKit from '@/export';
-import Popover from '@/components/popover';
 
 // const rand = dataTimeKit.getTimestampByLimitKey('week', 2); 
 // const keyName = dataTimeKit.getLimitKeyByTimestamp(rand.startTime, rand.endTime, 2); 

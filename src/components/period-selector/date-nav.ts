@@ -144,7 +144,7 @@ export default class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
                 oldEndTime: new Date(+oldValue),
                 newStartTime: new Date(+newValue),
                 newEndTime: new Date(+newValue),
-            });
+            }, true);
         }
     }
 
@@ -157,7 +157,7 @@ export default class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
     private _onTitleToggle = ({ detail: isOpen }: CustomEvent<PopoverEmit['open-change']>) => {
         this.shadowRoot!.querySelector('.wrapper')!.classList.toggle('show-list', isOpen);
         this.shadowRoot!.querySelector<YyyyMmDdListGrpEle>('dt-yyyymmdd-list-grp')!.scrollToCurrentItem();
-        this.dispatchEvent('popover-open-change', isOpen);
+        this.dispatchEvent('popover-open-change', isOpen, true);
     };
     private _onItemSelect = (e: CustomEvent<YyyyMmDdListGrpEmit['change']>) => {
         if (!(e.target instanceof YyyyMmDdListGrpEle)) return;
