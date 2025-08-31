@@ -1,8 +1,9 @@
-import { html } from "@/utils";
+import { debounce, html } from "@/utils";
 import { BaseAttrs, DefEle, UiBase } from "@/components/web-component-base";
 import styleStr from './index.scss?inline';
 import backArrowSvg from '@/assets/back-arrow.svg?raw';
 import ArrowRightSvg from '@/assets/arrow-right.svg?raw';
+import { kitDataLimit } from "@/types";
 
 export interface QuickSelectorAttrs extends BaseAttrs {
     /**
@@ -15,7 +16,14 @@ export interface QuickSelectorAttrs extends BaseAttrs {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface QuickSelectorEmit {}
+export interface QuickSelectorEmit {
+    'change': 'all' | {
+        start: Date;
+        end: Date;
+    };
+}
+
+type QuickKey = kitDataLimit;
 
 const getCurrentTz = () => -new Date().getTimezoneOffset();
 
@@ -24,6 +32,58 @@ const utcText = (tz: number = getCurrentTz()) => tz >= 0
     : `UTC-${(~~-(tz / 60) + '').padStart(2, '0')}:${(-tz % 60 + '').padStart(2, '0')}` as const;
 
 const genTzRadio = (tz: number) => html`<label><input type="radio" name="tz" value="${tz}"/><span>${utcText(tz)}</span></label>`;
+
+const genDateWithHours = (isStart: boolean, fn = (_t: Date) => {}, t = new Date()) => {
+    if (isStart) t.setHours(0, 0, 0, 0);
+    else t.setHours(23, 59, 59, 999);
+    fn(t);
+    return t;
+};
+const genStartDate = (fn?: (_t: Date) => void, t?: Date) => genDateWithHours(true, fn, t);
+const genEndDate = (fn?: (_t: Date) => void, t?: Date) => genDateWithHours(false, fn, t);
+const quickPeriodTimes = (weekOffset = 0) => ({
+    all: null,
+    today: {
+        start: genStartDate(),
+        end: genEndDate()
+    },
+    yesterday: {
+        start: genStartDate(t => t.setDate(t.getDate() - 1)),
+        end: genEndDate(t => t.setDate(t.getDate() - 1))
+    },
+    week: {
+        start: genStartDate(t => t.setDate(t.getDate() - t.getDay() + weekOffset)),
+        end: genEndDate(t => t.setDate(t.getDate() - t.getDay() + weekOffset + 6))
+    },
+    lastWeek: {
+        start: genStartDate(t => t.setDate(t.getDate() - t.getDay() + weekOffset - 7)),
+        end: genEndDate(t => t.setDate(t.getDate() - t.getDay() + weekOffset - 1))
+    },
+    last7Days: {
+        start: genStartDate(t => t.setDate(t.getDate() - 6)),
+        end: genEndDate()
+    },
+    month: {
+        start: genStartDate(t => t.setDate(1)),
+        end: genEndDate(t => t.setMonth(t.getMonth() + 1, 0))
+    },
+    last30Days: {
+        start: genStartDate(t => t.setDate(t.getDate() - 29)),
+        end: genEndDate()
+    },
+    last180Days: {
+        start: genStartDate(t => t.setDate(t.getDate() - 179)),
+        end: genEndDate()
+    },
+    last6Month: {
+        start: genStartDate(t => t.setMonth(t.getMonth() - 5, 1)),
+        end: genEndDate(t => t.setMonth(t.getMonth() + 1, 0))
+    },
+    year: {
+        start: genStartDate(t => t.setMonth(0, 1)),
+        end: genEndDate(t => t.setFullYear(t.getFullYear() + 1, 0, 0))
+    },
+} as const);
 
 /**
  * 快速选择下拉选项
@@ -37,10 +97,18 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
         ] satisfies (keyof QuickSelectorAttrs)[];
     }
 
+    public get timezone() {
+        return +this._getAttr('time-zone', '' + getCurrentTz());
+    }
+    public set timezone(v: number) {
+        if (!Number.isSafeInteger(v)) return;
+        this.setAttribute('time-zone', '' + v);
+    }
+
     protected _style = styleStr;
     protected _template = html`
 <div class="menu top"
-    ><div class="radio-grp">${['all', 'today', 'yesterday', 'week', 'lastWeek', 'last7Days', 'month', 'last30Days', 'last180Days', 'last6Month', 'year']
+    ><div class="radio-grp">${(['all', 'today', 'yesterday', 'week', 'lastWeek', 'last7Days', 'month', 'last30Days', 'last180Days', 'last6Month', 'year'] as QuickKey[])
             .map(k =>
                 html`<label
                     ><input type="radio" name="radio" value="${k}"
@@ -62,7 +130,7 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
         >${ArrowRightSvg
         }</div
 ></div
-><div class="menu tz" style="display:none;"
+><div class="menu tz" style="display:none"
     ><div class="title"
         >${backArrowSvg}<span>Time Zone</span
     ></div
@@ -76,7 +144,7 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
             .map(tz => tz === 2 || tz * 60 === getCurrentTz() ? '' : genTzRadio(tz * 60)).join('')
         }</fieldset
     ></div
-><div class="menu custom" style="display:none;"
+><div class="menu custom" style="display:none"
     ><div class="title"
         >${backArrowSvg}<span>Custom</span
     ></div
@@ -94,10 +162,14 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
 
     public connectedCallback() {
         if (!super.connectedCallback()) return;
+        this._renderTz();
         this.shadowRoot!.querySelector('.tz-trigger')?.addEventListener('click', this._onTzTriggerClick);
         this.shadowRoot!.querySelector('.custom-trigger')?.addEventListener('click', this._onCustomTriggerClick);
         this.shadowRoot!.querySelector('.menu.tz .title svg')?.addEventListener('click', this._onBackBtnClick);
         this.shadowRoot!.querySelector('.menu.custom .title svg')?.addEventListener('click', this._onBackBtnClick);
+        this.shadowRoot!.querySelectorAll('.menu').forEach(menu => {
+            menu.addEventListener('change', this._onRadioChange);
+        });
     }
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
@@ -105,33 +177,45 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
         this.shadowRoot!.querySelector('.custom-trigger')?.removeEventListener('click', this._onCustomTriggerClick);
         this.shadowRoot!.querySelector('.menu.tz .title svg')?.removeEventListener('click', this._onBackBtnClick);
         this.shadowRoot!.querySelector('.menu.custom .title svg')?.removeEventListener('click', this._onBackBtnClick);
+        this.shadowRoot!.querySelectorAll('.menu').forEach(menu => {
+            menu.removeEventListener('change', this._onRadioChange);
+        });
     }
 
     protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
         super._onAttrChanged(name, oldValue, newValue);
+        if (name === 'time-zone') {
+            this._renderTz();
+        }
     }
 
-    private _onTzTriggerClick = () => {
-        if (!this.isConnected) return;
-        const menuTop = this.shadowRoot!.querySelector<HTMLElement>('.menu.top');
-        if (menuTop) menuTop.style.display = 'none';
-        const menuTz = this.shadowRoot!.querySelector<HTMLElement>('.menu.tz');
-        if (menuTz) menuTz.style.display = '';
-    };
-    private _onCustomTriggerClick = () => {
-        if (!this.isConnected) return;
-        const menuTop = this.shadowRoot!.querySelector<HTMLElement>('.menu.top');
-        if (menuTop) menuTop.style.display = 'none';
-        const menuCustom = this.shadowRoot!.querySelector<HTMLElement>('.menu.custom');
-        if (menuCustom) menuCustom.style.display = '';
-    };
-    private _onBackBtnClick = () => {
-        if (!this.isConnected) return;
-        const menuTop = this.shadowRoot!.querySelector<HTMLElement>('.menu.top');
-        if (menuTop) menuTop.style.display = '';
-        const menuTz = this.shadowRoot!.querySelector<HTMLElement>('.menu.tz');
-        if (menuTz) menuTz.style.display = 'none';
-        const menuCustom = this.shadowRoot!.querySelector<HTMLElement>('.menu.custom');
-        if (menuCustom) menuCustom.style.display = 'none';
+    private _renderTz = debounce(() => {
+        const tz = this.timezone;
+        const tzRadios = this.shadowRoot!.querySelectorAll<HTMLInputElement>('input[name="tz"]');
+        tzRadios!.forEach(radio => {
+            radio.checked = +radio.value === tz;
+        });
+        this.shadowRoot!.querySelector('.tz-trigger bdo')!.textContent = utcText(tz);
+    }, 0);
+
+    private _showMenu(type: 'top' | 'tz' | 'custom') {
+        const menus = this.shadowRoot?.querySelectorAll<HTMLElement>('.menu');
+        menus?.forEach(menu => menu.style.display = menu.classList.contains(type) ? '' : 'none');
+    }
+    private _onTzTriggerClick = () => this._showMenu('tz');
+    private _onCustomTriggerClick = () => this._showMenu('custom');
+    private _onBackBtnClick = () => this._showMenu('top');
+
+    private _onRadioChange = (e: Event) => {
+        if (!(e.target instanceof HTMLInputElement)) return;
+        if (e.target.type !== 'radio') return;
+        const { name, value } = e.target;
+        if (name === 'radio') {
+            if (value === 'custom') return;
+            this.dispatchEvent('change', quickPeriodTimes()[value as QuickKey]!);
+        }
+        else if (name === 'tz') {
+            this.timezone = +value;
+        }
     };
 }

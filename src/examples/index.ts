@@ -32,7 +32,16 @@ yyyymmddListGrp?.addEventListener('change', (e) => {
     console.log('date-picker change', yyyymmddListGrp, (e as CustomEvent).detail);
 });
 
+const quickPopover = document.querySelector<Popover>('#quick-popover');
+quickPopover?.addEventListener('open-change', ({ detail: isOpen }) => {
+    const quickResult = document.querySelector('#quick-result');
+    if (isOpen) {
+        if (quickResult) quickResult.textContent = 'Selecting...';
+    }
+});
+
 import dataTimeKit from '@/export';
+import Popover from '@/components/popover';
 
 // const rand = dataTimeKit.getTimestampByLimitKey('week', 2); 
 // const keyName = dataTimeKit.getLimitKeyByTimestamp(rand.startTime, rand.endTime, 2); 

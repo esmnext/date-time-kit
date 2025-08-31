@@ -22,7 +22,7 @@
             scroll-behavior: smooth;
         }
 
-        dt-popover {
+        /* dt-popover {
             position: fixed;
             top: 50%;
             left: 50%;
@@ -36,6 +36,13 @@
             height: 50px;
             background: #eee;
             border: 1px solid #ccc;
+        } */
+
+        #quick-popover {
+            display: inline-block;
+        }
+        #quick-popover [slot="pop"] {
+            position: absolute;
         }
 
         dt-hhmmss-ms-list-grp, dt-yyyymmdd-list-grp {
@@ -90,7 +97,11 @@
         min-granularity="month"
     ></dt-yyyymmdd-list-grp> -->
 
-    <dt-quick-selector></dt-quick-selector>
+    <p>quick select: <dt-popover id="quick-popover"
+        ><button slot="trigger">quick selector</button
+        ><dt-quick-selector slot="pop"></dt-quick-selector
+    ></dt-popover><br/>result: <pre id="quick-result"></pre></p>
+    
 
     <!-- <dt-period-selector
         time-start="2022-03-31T22:32:43.013+08:00"
