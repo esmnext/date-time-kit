@@ -138,7 +138,7 @@ export default class CalendarBase extends UiBase<CalendarBaseAttrs, CalendarBase
     weekKey.map(
         (key) => html`<dt-i18n class="week" i18n-key="date.${key}" part="week"></dt-i18n>`
     ).join('') + [...Array(7 * 6)].map(
-        (_, i) => html`<div class="item" part="item">${i % 31 + 1}</div>`
+        (_, i) => html`<div class="item" part="item"><i class="bg"></i><i class="highlight"></i><span>${i % 31 + 1}</span></div>`
     ).join('')
 }</div>`;
 
@@ -227,11 +227,14 @@ export default class CalendarBase extends UiBase<CalendarBaseAttrs, CalendarBase
 
         let itemIdx = 0;
         const items = this.shadowRoot!.querySelectorAll<HTMLElement>('.item');
+        const changeItemText = (item: HTMLElement, text: string) => {
+            item.querySelector('span')!.textContent = text;
+        };
         items.forEach(ele => {
             ele.className = 'item disabled';
             ele.removeAttribute('data-time');
             ele.setAttribute('part', 'item disabled');
-            ele.innerHTML = '';
+            changeItemText(ele, ' ');
         });
 
         // set previous month days
@@ -239,7 +242,7 @@ export default class CalendarBase extends UiBase<CalendarBaseAttrs, CalendarBase
             const ele = items[itemIdx++];
             ele.classList.add('prev');
             ele.part.add('prev');
-            ele.textContent = this.showOtherMonth ? this.formatter(i) : ' ';
+            changeItemText(ele, this.showOtherMonth ? this.formatter(i) : ' ');
         }
 
         // set current month days
@@ -254,7 +257,7 @@ export default class CalendarBase extends UiBase<CalendarBaseAttrs, CalendarBase
             ele.classList.toggle('end', +time === +timeEnd);
             ele.setAttribute('part', ele.className);
             ele.dataset.time = time.toISOString();
-            ele.textContent = this.formatter(i);
+            changeItemText(ele, this.formatter(i));
         }
         const inRangeItem = Array.from(this.shadowRoot!.querySelectorAll('.item.in-range'));
         if (inRangeItem.length) {
@@ -269,7 +272,7 @@ export default class CalendarBase extends UiBase<CalendarBaseAttrs, CalendarBase
             const ele = items[itemIdx++];
             ele.classList.add('next');
             ele.part.add('next');
-            ele.textContent = this.showOtherMonth ? this.formatter(i) : ' ';
+            changeItemText(ele, this.showOtherMonth ? this.formatter(i) : ' ');
         }
     }, 0);
 

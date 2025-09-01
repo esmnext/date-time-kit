@@ -31,10 +31,17 @@
     height: var(--item-size);
     position: relative;
 
+    span {
+        position: relative;
+        z-index: 2;
+    }
+
     &:not(.disabled) {
         cursor: pointer;
     }
-    :host([show-other-month]) &.disabled {
+    :host([show-other-month]) &.prev.disabled,
+    :host([show-other-month]) &.next.disabled,
+    &.disabled:not(.prev, .next) {
         cursor: not-allowed;
         color: var(--color-disabled-text);
     }
@@ -47,8 +54,7 @@
     }
 
     // for circle
-    &:not(.disabled)::after {
-        content: '';
+    &:not(.disabled) .highlight {
         display: block;
         border-radius: 50%;
         position: absolute;
@@ -57,34 +63,31 @@
         width: var(--item-size);
         height: var(--item-size);
         transform: translate(-50%, -50%);
-        z-index: -1;
     }
     &.start, &.end {
         color: var(--color-active-text);
-        &::after {
+        & .highlight {
             background-color: var(--color-active-bg);
         }
     }
-    &:hover::after {
+    &:hover .highlight {
         background-color: var(--color-hover-bg);
     }
 
     // for period background
     --half-period-bg-w: calc(50% + var(--item-size) / 2);
-    &.in-range::before {
-        content: '';
+    &.in-range .bg {
         display: block;
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        z-index: -1;
         background-color: #002BE726;
     }
     // leftmost column period background
     &:nth-of-type(7n + 1) {
-        &::before {
+        & .bg {
             border-radius: var(--item-size) 0 0 var(--item-size);
             width: var(--half-period-bg-w);
             left: calc(50% - var(--item-size) / 2);
@@ -92,34 +95,34 @@
     }
     // rightmost column period background
     &:nth-of-type(7n) {
-        &::before {
+        & .bg {
             border-radius: 0 var(--item-size) var(--item-size) 0;
             width: var(--half-period-bg-w);
         }
-        &.range-start::before {
+        &.range-start .bg {
             width: var(--item-size);
             left: calc(50% - var(--item-size) / 2);
         }
     }
-    &.range-start::before {
+    &.range-start .bg {
         border-top-left-radius: var(--item-size);
         border-bottom-left-radius: var(--item-size);
 
         width: var(--half-period-bg-w);
         left: calc(50% - var(--item-size) / 2);
     }
-    &.range-end::before {
+    &.range-end .bg {
         border-top-right-radius: var(--item-size);
         border-bottom-right-radius: var(--item-size);
 
         width: var(--half-period-bg-w);
     }
-    &.range-start.range-end::before {
+    &.range-start.range-end .bg {
         width: var(--item-size);
     }
     // start point at right column, or end point at left column
-    &:nth-of-type(7n).range-start::before,
-    &:nth-of-type(7n + 1).range-end::before {
+    &:nth-of-type(7n).range-start .bg,
+    &:nth-of-type(7n + 1).range-end .bg {
         width: var(--item-size);
     }
 }
