@@ -10,6 +10,10 @@ export default defineConfig({
                 import: './src/export.ts',
                 html: false,
             },
+            'web-component': {
+                import: './src/web-component-export.ts',
+                html: false,
+            },
             // 示例页面入口
             'examples/index': './src/examples/index.ts'
         }

@@ -25,3 +25,5 @@ export {
     getLimitKeyByTimestamp,
     getTimestampByLimitKey,
 };
+
+export type * from './web-component-export';

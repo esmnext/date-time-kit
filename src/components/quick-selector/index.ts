@@ -5,6 +5,7 @@ import backArrowSvg from '@/assets/back-arrow.svg?raw';
 import ArrowRightSvg from '@/assets/arrow-right.svg?raw';
 import { kitDataLimit } from "@/types";
 import PeriodSelector from "../period-selector";
+import '@/components/period-selector';
 import { weekKey, Weeks } from "../calendar";
 
 type QuickKey = kitDataLimit | 'custom';

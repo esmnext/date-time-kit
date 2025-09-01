@@ -8,6 +8,10 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/types/export.d.ts"
+    },
+    "./web-component": {
+      "import": "./dist/web-component.js",
+      "types": "./dist/types/web-component-export.d.ts"
     }
   },
   "main": "./dist/index.js",

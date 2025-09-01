@@ -71,7 +71,6 @@ export class UiBase<
 
     constructor() {
         super();
-        this.setAttribute('dt', '');
         this.attachShadow({ mode: 'open' });
     }
 
@@ -100,6 +99,7 @@ export class UiBase<
     }
     /** return false | void means not continue */
     connectedCallback(): boolean | void {
+        this.setAttribute('dt', '');
         return !!this.shadowRoot;
     }
     /** return false | void means not continue */
