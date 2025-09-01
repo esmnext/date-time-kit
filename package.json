@@ -1,6 +1,6 @@
 {
   "name": "@gez/date-time-kit",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "A JavaScript library for handling date and time operations efficiently.",
   "type": "module",
   "types": "./dist/types/export.d.ts",
