@@ -83,7 +83,7 @@ export default class Popover extends UiBase<PopoverAttrs, PopoverEmit> {
     }
 
     private _onToggleClick = () => { this.toggleOpen(); };
-    private _onDocClick = (e: PointerEvent) => {
+    private _onDocClick = (e: MouseEvent) => {
         if (e.composedPath().includes(this)) {
             const popRect = this.querySelector('[slot="pop"]')?.getBoundingClientRect();
             if (popRect &&

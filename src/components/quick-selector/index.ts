@@ -210,7 +210,6 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
     public connectedCallback() {
         if (!super.connectedCallback()) return;
         this._renderTz();
-        this._updatePeriodSelector();
         this._updateRadio();
         this.shadowRoot!.querySelector('.tz-trigger')?.addEventListener('click', this._onTzTriggerClick);
         this.shadowRoot!.querySelector('.custom-trigger')?.addEventListener('click', this._onCustomTriggerClick);
@@ -246,6 +245,9 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
     }
 
     private _updatePeriodSelector = debounce(() => {
+        if (this.shadowRoot?.querySelector<HTMLElement>('.menu.custom')?.style.display === 'none') {
+            return;
+        }
         const defaultPeriod = quickPeriodTimes().last30Days;
         const ele = this._periodSelector;
         ele.timeStart = defaultPeriod.start;
@@ -270,6 +272,9 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
     private _showMenu(type: 'top' | 'tz' | 'custom') {
         const menus = this.shadowRoot?.querySelectorAll<HTMLElement>('.menu');
         menus?.forEach(menu => menu.style.display = menu.classList.contains(type) ? '' : 'none');
+        if (type === 'custom') {
+            this._updatePeriodSelector();
+        }
     }
     private _onTzTriggerClick = () => this._showMenu('tz');
     private _onCustomTriggerClick = (e: Event) => {
@@ -282,7 +287,6 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
         if (!(e.target instanceof HTMLInputElement)) return;
         if (e.target.type !== 'radio') return;
         const { name, value } = e.target;
-        console.trace('on change');
         if (name === 'radio') {
             const v = value as QuickKey;
             if (v === 'custom') return;
