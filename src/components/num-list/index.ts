@@ -236,8 +236,11 @@ export default class NumList extends UiBase<NumListAttrs, NumListEmit> {
         const ele = this._currentItemEle;
         if (!ele) return;
         this._intersectionOb?.observe(ele);
-        ele.scrollIntoView({
-            block: this._getAttr('position', 'start')
+        const containerRect = this._containerEle.getBoundingClientRect();
+        const eleRect = ele.getBoundingClientRect();
+        const offsetTop = eleRect.top - containerRect.top + this.scrollTop;
+        this.scrollTo({
+            top: offsetTop,
         });
     };
 

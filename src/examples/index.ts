@@ -45,7 +45,7 @@ const quickSelector = document.querySelector<QuickSelectorEle>('dt-quick-selecto
 quickSelector?.addEventListener('time-changed', (e) => {
     const quickResult = document.querySelector('#quick-result');
     if (!quickResult) return;
-    if (e.detail === 'all') {
+    if (e.detail.type === 'all') {
         quickResult.textContent = 'Selected: All';
     } else {
         quickResult.textContent = `Selected: ${ JSON.stringify(e.detail, null, 2) }`;

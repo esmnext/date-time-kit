@@ -8,7 +8,7 @@ import PeriodSelector from "../period-selector";
 import '@/components/period-selector';
 import { weekKey, Weeks } from "../calendar";
 
-type QuickKey = kitDataLimit | 'custom';
+export type QuickKey = kitDataLimit | 'custom';
 
 export interface QuickSelectorAttrs extends BaseAttrs {
     /**
@@ -41,10 +41,14 @@ export interface QuickSelectorAttrs extends BaseAttrs {
 }
 
 export interface QuickSelectorEmit {
-    'time-changed': 'all' | {
+    'time-changed': {
+        type: 'all';
+        start?: null;
+        end?: null;
+    } | {
+        type: QuickKey;
         start: Date;
         end: Date;
-        type: QuickKey;
     };
 }
 
@@ -151,7 +155,7 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
 
     protected _style = styleStr;
     protected _template = html`
-<div class="menu top"
+<div class="menu top" part="menu top"
     ><div class="radio-grp">${(['all', 'today', 'yesterday', 'week', 'lastWeek', 'last7Days', 'month', 'last30Days', 'last180Days', 'last6Month', 'year'] as QuickKey[])
             .map(k =>
                 html`<label
@@ -174,7 +178,7 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
         >${ArrowRightSvg
         }</div
 ></div
-><div class="menu tz" style="display:none"
+><div class="menu tz" part="menu tz" style="display:none"
     ><div class="title"
         >${backArrowSvg}<span>Time Zone</span
     ></div
@@ -188,7 +192,7 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
             .map(tz => tz === 2 || tz * 60 === getCurrentTz() ? '' : genTzRadio(tz * 60)).join('')
         }</fieldset
     ></div
-><div class="menu custom" style="display:none"
+><div class="menu custom" part="menu custom" style="display:none"
     ><div class="title"
         >${backArrowSvg}<span>Custom</span
     ></div
@@ -292,7 +296,7 @@ export default class QuickSelector extends UiBase<QuickSelectorAttrs, QuickSelec
             const v = value as QuickKey;
             if (v === 'custom') return;
             const t = quickPeriodTimes()[v];
-            this.dispatchEvent('time-changed', !t ? 'all' : {
+            this.dispatchEvent('time-changed', !t ? { type: 'all' } : {
                 ...t,
                 type: v
             }, true);
