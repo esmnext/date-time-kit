@@ -57,7 +57,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/dp-os/date-time-kit.git"
+    "url": "git+https://github.com/dp-os/date-time-kit.git"
   },
   "author": "Wes Loong <wesloong@gmail.com>",
   "license": "MIT",
