@@ -1,1 +1,0 @@
-{"root":["./src/index.ts","./src/utils.ts","./src/components/box.ts","./src/components/date.ts","./src/components/month.ts","./src/components/quick.ts","./src/components/time.ts","./type.d.ts"],"errors":true,"version":"5.7.3"}

@@ -11,3 +11,10 @@ dist
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+/logs
+/types
+.proxy
+.env
+.sync
+packages/**/dist
