@@ -1,9 +1,9 @@
 {
   "name": "@gez/date-time-kit",
-  "version": "1.1.9",
+  "version": "1.1.10",
   "description": "A JavaScript library for handling date and time operations efficiently.",
   "type": "module",
-  "types": "./dist/types/export.d.ts",
+  "types": "./dist/types/web-component-export.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -14,8 +14,8 @@
       "types": "./dist/types/web-component-export.d.ts"
     }
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
+  "main": "./dist/web-component.js",
+  "module": "./dist/web-component.js",
   "files": [
     "dist"
   ],
@@ -43,9 +43,6 @@
     "sass-loader": "^16.0.3",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.8.1"
-  },
-  "dependencies": {
-    "lodash": "^4.17.21"
   },
   "keywords": [
     "date",
