@@ -28,7 +28,7 @@ export default defineConfig({
     plugins: [pluginDts(), pluginSass()],
     tools: {
         rspack: {
-            target: 'node', // 设置为 node 环境，避免浏览器特定代码
+            target: 'web',
             output: {
                 filename: '[name].js',
                 chunkFilename: '[name].js',
