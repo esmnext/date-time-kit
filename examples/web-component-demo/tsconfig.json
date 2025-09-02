@@ -17,10 +17,10 @@
         
         "baseUrl": ".",
         "paths": {
-            "web-component/src/*": ["./src/*"],
-            "web-component/*": ["./*"]
+            "web-component-demo/src/*": ["./src/*"],
+            "web-component-demo/*": ["./*"]
         }
     },
     "include": ["src"],
     "exclude": ["dist", "node_modules"]
-} 
+}

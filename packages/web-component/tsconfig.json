@@ -2,7 +2,6 @@
     "compilerOptions": {
         "isolatedModules": true,
         "allowJs": false,
-        "experimentalDecorators": true,
         "resolveJsonModule": true,
         "types": [
             "@types/node"

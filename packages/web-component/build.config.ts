@@ -1,4 +1,4 @@
-// Template generation, do not manually modify
+
 import { defineBuildConfig } from 'unbuild';
 
 export default defineBuildConfig({

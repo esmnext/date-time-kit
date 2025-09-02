@@ -1,5 +1,5 @@
 {
-    "name": "web-component",
+    "name": "@date-time-kit/web-component",
     "template": "library",
     "scripts": {
         "lint:css": "pnpm run lint:js",

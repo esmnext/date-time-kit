@@ -9,7 +9,18 @@ export default {
         return import('@esmx/rspack-vue').then((m) =>
             m.createRspackVue3App(esmx, {
                 chain(context) {
-                    // Custom Rspack configuration
+                    context.chain.module
+                        .rule('vue')
+                        .use('vue-loader')
+                        .tap((options) => {
+                            return {
+                                ...options,
+                                compilerOptions: {
+                                    isCustomElement: (tag: string) =>
+                                        tag.startsWith('dt-')
+                                }
+                            };
+                        });
                 }
             })
         );

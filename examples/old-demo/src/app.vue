@@ -1,127 +1,98 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import HelloWorld from './components/hello-world.vue';
+// import { ref } from 'vue';
+import dataTimeKit from '@date-time-kit/old';
 
-const title = ref<string>('Vue SSR Demo');
+// const rand = dataTimeKit.getTimestampByLimitKey('week', 2);
+// const keyName = dataTimeKit.getLimitKeyByTimestamp(rand.startTime, rand.endTime, 2);
+// console.log(rand, keyName);
+
+// console.log(dataTimeKit.default.getTimeStringByTimeZone(rand.startTime, 2, 7));
+// console.log(dataTimeKit.default.getTimeStringByTimeZone(rand.startTime, 8, 7));
+// console.log(dataTimeKit.default.getTimeStringByTimeZone('2025-02-27 00:00:00.000', 8));
+// event
+// const result = await dataTimeKit.open({
+//     root: document.querySelector('#root'),
+//     minTime: "1990-01-01 00:00:00.000",
+//     maxTime: "2050-01-01 23:59:59.999",
+//     startTime: rand.startTime,
+//     endTime: rand.endTime,
+//     timeZone: 2,
+//     lang: 'zh-CN',
+//     granularity: 'minute',
+//     enableZone: false
+// });
+
+// const result = await dataTimeKit.open({
+//     root: document.querySelector('#root'),
+//     "minTime": "1990-01-01T00:00:00.000",
+//     "maxTime": "2025-08-30T18:35:20.894",
+//     "enableZone": false,
+//     "granularity":  dataTimeKit.Granularity.second,
+//     // "startTime": rand.startTime,
+//     // "endTime": rand.endTime,
+//     "period": false,
+//     // "maxLength": 60 * 60 * 1000,
+//     // "minLength":  60 * 60 * 1000,
+//     "timeZone": 2,
+//     // "lang": 'ar-AE'
+// });
+
+// console.log('start', dataTimeKit.default.getTimeStringByTimeZone(result.time, 8, 2));
+// console.log('end', dataTimeKit.default.getTimeStringByTimeZone(result.endTime, 8, 2));
+
+document.querySelector('#select')?.addEventListener('click', async (e) => {
+    if (!(e.target instanceof HTMLElement)) return;
+    e.stopPropagation();
+    const data = await dataTimeKit.open({
+        root: e.target
+    });
+    console.log(data);
+});
+
+document.querySelector('#select-def')?.addEventListener('click', async (e) => {
+    if (!(e.target instanceof HTMLElement)) return;
+    e.stopPropagation();
+    const data = await dataTimeKit.open({
+        root: e.target,
+        maxTime: '2050-01-02T00:00:00.000',
+        minTime: '1990-01-01T00:00:00.000',
+        startTime: '1990-01-01T00:00:00.000',
+        endTime: '2050-01-01T00:10:10.022',
+        lang: 'zh-CN',
+        period: true
+    });
+    console.log(data);
+});
+
+document.querySelector('#img')?.addEventListener('click', async (e) => {
+    if (!(e.target instanceof HTMLElement)) return;
+    e.stopPropagation();
+    const data = await dataTimeKit.open({
+        root: e.target,
+        maxTime: '2050-01-02T00:00:00.000',
+        minTime: '1990-01-01T00:00:00.000',
+        startTime: '1990-01-01T00:00:00.000',
+        endTime: '2050-01-01T00:10:10.022',
+        lang: 'zh-CN',
+        period: true
+    });
+    console.log(data);
+});
 </script>
 
 <template>
-	<div class="container">
-		<div class="logo-container">
-			<a href="https://www.esmnext.com" target="_blank" class="logo-link">
-				<div class="logo-wrapper esmx">
-					<img src="https://www.esmnext.com/logo.svg" class="logo" alt="Esmx logo" />
-				</div>
-			</a>
-			<a href="https://vuejs.org/" target="_blank" class="logo-link">
-				<div class="logo-wrapper vue">
-					<img src="https://vuejs.org/logo.svg" class="logo" alt="Vue logo" />
-				</div>
-			</a>
-		</div>
-		<HelloWorld :msg="title" />
-	</div>
+    <div class="container">
+        <button id="select" class="select">选择日期</button>
+        <button id="select-def" class="select">默认选中</button>
+        <!-- <img id="img" src="http://dummyimage.com/200x24/4A7BF7&text=ImgBtn" alt=""> -->
+    </div>
 </template>
 
 <style>
-:root {
-	--esmx-primary: #001137;
-	--esmx-secondary: #273498;
-	--esmx-accent: #0074C2;
-	--esmx-light: #00ABE7;
-	--esmx-sun-core: #FFA000;
-	--esmx-sun-rays: #FFC107;
-	--vue-color: #42b883;
-	--vue-dark: #33a06f;
-	--border-color: rgba(0, 17, 55, 0.12);
-	--shadow-color: rgba(0, 17, 55, 0.05);
-	--text-primary: #213547;
-	--text-secondary: #666;
-	--bg-card: #fcfcfc;
-	--bg-hover: rgba(255, 250, 240, 0.8);
-	--font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+button {
+    position: relative;
 }
-
-body {
-	margin: 0;
-	font-family: var(--font-family);
-	color: var(--text-primary);
-	background-color: white;
-	line-height: 1.6;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
-</style>
-
-<style scoped>
-.container {
-	max-width: 1280px;
-	margin: 0 auto;
-	padding: 2rem;
-	text-align: center;
-	font-family: var(--font-family);
-}
-
-.logo-container {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	gap: 3.5rem;
-	margin-bottom: 3rem;
-}
-
-.logo-link {
-	text-decoration: none;
-	position: relative;
-}
-
-.logo-wrapper {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	width: 6.5em;
-	height: 6.5em;
-	border-radius: 12px;
-	background-color: var(--bg-card);
-	padding: 1em;
-	box-shadow: 0 2px 12px var(--shadow-color);
-	border: 1px solid var(--border-color);
-	transition: all 0.3s ease;
-}
-
-.logo-wrapper:hover {
-	transform: translateY(-5px);
-	box-shadow: 0 5px 15px var(--shadow-color);
-}
-
-.logo {
-	height: 100%;
-	width: auto;
-	transition: transform 0.3s ease;
-}
-
-.logo-wrapper:hover .logo {
-	transform: scale(1.1);
-}
-
-.logo-wrapper.esmx:hover {
-	background-color: rgba(255, 192, 7, 0.1);
-	border-color: var(--esmx-sun-rays);
-}
-
-.logo-wrapper.vue:hover {
-	background-color: rgba(66, 184, 131, 0.1);
-	border-color: var(--vue-color);
-}
-
-@media (max-width: 768px) {
-	.logo-container {
-		gap: 2rem;
-	}
-	
-	.logo-wrapper {
-		width: 5em;
-		height: 5em;
-	}
+img {
+    vertical-align: bottom;
 }
 </style>

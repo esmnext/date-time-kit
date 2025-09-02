@@ -1,5 +1,5 @@
 {
-    "name": "",
+    "name": "@date-time-kit/old",
     "template": "library",
     "scripts": {
         "lint:css": "pnpm run lint:js",

@@ -1,5 +1,5 @@
 {
-    "name": "web-component-demo",
+    "name": "@date-time-kit/web-component-demo",
     "version": "1.2.0",
     "description": "Vue Server-Side Rendering framework",
     "type": "module",
@@ -13,7 +13,8 @@
         "build:type": "vue-tsc --declaration --emitDeclarationOnly --noEmit false --outDir dist/src && tsc-alias -p tsconfig.json --outDir dist/src"
     },
     "dependencies": {
-        "@esmx/core": "3.0.0-rc.58"
+        "@esmx/core": "3.0.0-rc.58",
+        "@date-time-kit/web-component": "workspace:*"
     },
     "devDependencies": {
         "tsc-alias": "^1.8.16",
