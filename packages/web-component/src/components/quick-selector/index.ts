@@ -360,7 +360,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         return this._getAttr('week-start-at', 'sun');
     }
     public set weekStartAt(val: Weeks) {
-        if (weekKey.includes(val)) return;
+        if (!weekKey.includes(val)) return;
         this.setAttribute('week-start-at', val);
     }
 
@@ -449,6 +449,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (!super.connectedCallback()) return;
         this._renderTz();
         this._updateRadio();
+        this._updatePeriodSelector();
         this.shadowRoot!.querySelector('.tz-trigger')?.addEventListener(
             'click',
             this._onTzTriggerClick
@@ -513,9 +514,13 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (name === 'quick-key') {
             this._updateRadio();
         }
+        if (name === 'week-start-at') {
+            this._updatePeriodSelector();
+        }
     }
 
     private _updatePeriodSelector = debounce(() => {
+        this._periodSelector.weekStartAt = this.weekStartAt;
         if (
             this.shadowRoot?.querySelector<HTMLElement>('.menu.custom')?.style
                 .display === 'none'

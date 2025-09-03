@@ -253,7 +253,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         return this._getAttr('week-start-at', 'sun');
     }
     public set weekStartAt(val: Weeks) {
-        if (weekKey.includes(val)) return;
+        if (!weekKey.includes(val)) return;
         this.setAttribute('week-start-at', val);
     }
     public get showOtherMonth() {

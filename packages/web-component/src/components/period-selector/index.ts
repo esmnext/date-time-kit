@@ -159,7 +159,9 @@ import { Ele as DateNavEle, type EventMap as DateNavEvent } from './date-nav';
 DateNavEle.define();
 import {
     Ele as CalendarBaseEle,
-    type EventMap as CalendarBaseEvent
+    type EventMap as CalendarBaseEvent,
+    type Weeks,
+    weekKey
 } from '../calendar';
 CalendarBaseEle.define();
 import { Ele as HhMmSsMsListGrpEle } from '../hhmmss-ms-list-grp';
@@ -185,6 +187,12 @@ export interface Attrs extends BaseAttrs {
      * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。
      */
     'min-granularity'?: 'day' | 'hour' | 'minute' | 'second' | 'millisecond';
+    /**
+     * Set which day of the week is the first day.
+     * @type `'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'`
+     * @default 'sun'
+     */
+    'week-start-at'?: Weeks;
 }
 
 export interface Emits {
@@ -218,7 +226,8 @@ export class Ele extends UiBase<Attrs, Emits> {
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
             'time-start',
             'time-end',
-            'min-granularity'
+            'min-granularity',
+            'week-start-at'
         ] satisfies (keyof Attrs)[];
     }
 
@@ -239,6 +248,13 @@ export class Ele extends UiBase<Attrs, Emits> {
         const v = new Date(val);
         if (Number.isNaN(+v)) return;
         this.setAttribute('time-end', +v + '');
+    }
+    public get weekStartAt() {
+        return this._getAttr('week-start-at', 'sun');
+    }
+    public set weekStartAt(val: Weeks) {
+        if (!weekKey.includes(val)) return;
+        this.setAttribute('week-start-at', val);
     }
 
     protected _style = styleStr;
@@ -430,6 +446,8 @@ export class Ele extends UiBase<Attrs, Emits> {
         let timeStart = this.timeStart as Date;
         let timeEnd = this.timeEnd as Date;
         if (timeStart > timeEnd) [timeStart, timeEnd] = [timeEnd, timeStart];
+        this._startCalendar.weekStartAt = this._endCalendar.weekStartAt =
+            this.weekStartAt;
         const tz = new Date().getTimezoneOffset() * 60 * 1000;
         this._startNavEle.millisecond =
             this._startCalendar.showingTime =
