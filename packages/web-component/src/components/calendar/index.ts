@@ -146,7 +146,7 @@ export interface Attrs extends BaseAttrs {
     /**
      * The start time of the calendar display range.
      * @type {`string | number`} A value that can be passed to the Date constructor.
-     * @default 'current-time'
+     * @default 'showing-time'
      */
     'time-start'?: string | number;
     /**

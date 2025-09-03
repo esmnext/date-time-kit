@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { DtQuickSelector as DtQuickSelectorPkg } from '@gez/date-time-kit';
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import {
     DtQuickSelectorEvent,
     DtQuickSelectorQuickKey,
@@ -92,6 +92,10 @@ const quickKeyProxy = computed({
             <option value="custom">custom (next week)</option>
         </select>
         result: <pre id="quick-result">{{ quickResult }}</pre>
+
+        <div>
+            <dt-date-time-selector></dt-date-time-selector>
+        </div>
     </div>
 </template>
 
@@ -102,5 +106,6 @@ const quickKeyProxy = computed({
 }
 #quick-popover [slot="pop"] {
     position: absolute;
+    z-index: 999;
 }
 </style>

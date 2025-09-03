@@ -4,6 +4,7 @@ export * as DtHhMmSsMsListGrp from './components/hhmmss-ms-list-grp';
 export * as DtYyyyMmDdListGrp from './components/yyyymmdd-list-grp';
 export * as DtQuickSelector from './components/quick-selector';
 export * as DtPopover from './components/popover';
+export * as DtDataTimeSelector from './components/date-time-selector';
 
 export {
     i18n as dtI18n,

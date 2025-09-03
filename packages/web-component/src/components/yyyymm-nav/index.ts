@@ -133,10 +133,8 @@ export interface Attrs extends BaseAttrs {
 
 export interface Emits {
     change: {
-        oldStartTime: Date;
-        oldEndTime: Date;
-        newStartTime: Date;
-        newEndTime: Date;
+        oldTime: Date;
+        newTime: Date;
     };
     'popover-open-change': boolean;
 }
@@ -260,10 +258,8 @@ export class Ele extends UiBase<Attrs, Emits> {
             this.dispatchEvent(
                 'change',
                 {
-                    oldStartTime: new Date(+oldValue),
-                    oldEndTime: new Date(+oldValue),
-                    newStartTime: new Date(+newValue),
-                    newEndTime: new Date(+newValue)
+                    oldTime: new Date(+oldValue),
+                    newTime: new Date(+newValue)
                 },
                 true
             );
@@ -279,9 +275,9 @@ export class Ele extends UiBase<Attrs, Emits> {
         root.querySelector('.title')!.textContent = this.titleFormatter(ms);
     }, 0);
 
-    private _onTitleToggle = ({
-        detail: isOpen
-    }: PopoverEvent['open-change']) => {
+    private _onTitleToggle = (e: PopoverEvent['open-change']) => {
+        const isOpen = e.detail;
+        e.stopPropagation();
         this.shadowRoot!.querySelector('.wrapper')!.classList.toggle(
             'show-list',
             isOpen
@@ -293,6 +289,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     };
     private _onItemSelect = (e: YyyyMmDdListGrpEvent['change']) => {
         if (!(e.target instanceof YyyyMmDdListGrpEle)) return;
+        e.stopPropagation();
         this.millisecond = e.target.millisecond;
     };
     private _onBtnClick = (e: MouseEvent) => {

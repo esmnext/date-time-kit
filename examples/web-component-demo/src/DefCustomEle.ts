@@ -32,11 +32,16 @@ export type DefineCustomElement<
     $emit: VueEmit<Events>;
 };
 
-import { DtPopover, DtQuickSelector } from '@gez/date-time-kit';
+import {
+    DtDataTimeSelector,
+    DtPopover,
+    DtQuickSelector
+} from '@gez/date-time-kit';
 
 export type DtPopoverEvent = DtPopover.EventMap;
 export type DtQuickSelectorEvent = DtQuickSelector.EventMap;
 export type DtQuickSelectorQuickKey = DtQuickSelector.QuickKey;
+export type DtDataTimeSelectorEvent = DtDataTimeSelector.EventMap;
 
 // 将新元素类型添加到 Vue 的 GlobalComponents 类型中
 declare module 'vue' {
@@ -51,10 +56,16 @@ declare module 'vue' {
             DtQuickSelector.Attrs,
             DtQuickSelector.EventMap
         >;
+        [DtDataTimeSelector.Ele.tagName]: DefineCustomElement<
+            DtDataTimeSelector.Ele,
+            DtDataTimeSelector.Attrs,
+            DtDataTimeSelector.EventMap
+        >;
     }
 }
 
 export const init = () => {
     DtPopover.Ele.define();
     DtQuickSelector.Ele.define();
+    DtDataTimeSelector.Ele.define();
 };

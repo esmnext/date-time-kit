@@ -502,6 +502,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
 
     private _onCalendarSelect = (e: CalendarBaseEvent['select-time']) => {
+        e.stopPropagation();
         if (this._selectedDate) {
             this._selectedDate = null;
             this.timeEnd = +e.detail + this._endTimeSelector.millisecond;
@@ -511,26 +512,30 @@ export class Ele extends UiBase<Attrs, Emits> {
         }
     };
     private _onCalendarItemHover = (e: CalendarBaseEvent['hover-item']) => {
+        e.stopPropagation();
         if (!this._selectedDate) return;
         this.timeEnd = +e.detail + this._endTimeSelector.millisecond;
     };
     private _onNavChange = (e: YyyyMmNavEvent['change']) => {
+        e.stopPropagation();
         const wrapper = closestByEvent(e, '.wrapper');
         if (!wrapper) return;
-        const { newStartTime, newEndTime } = e.detail;
+        const { newTime } = e.detail;
         if (wrapper.classList.contains('start')) {
-            this._startCalendar.showingTime = +newStartTime;
+            this._startCalendar.showingTime = +newTime;
         } else {
-            this._endCalendar.showingTime = +newEndTime;
+            this._endCalendar.showingTime = +newTime;
         }
         this._updateNavCtrlBtn();
     };
     private _onNavOpenToggle = (e: YyyyMmNavEvent['popover-open-change']) => {
         if (!(e.target instanceof YyyyMmNavEle)) return;
+        e.stopPropagation();
         e.target.nextElementSibling?.classList.toggle('hide', e.detail);
     };
     private _onTimePopoverOpenChange = (e: PopoverEvent['open-change']) => {
         if (!(e.target instanceof PopoverEle)) return;
+        e.stopPropagation();
         if (!e.detail) return this._render(); // for reset time selector value
         e.target
             .querySelectorAll<HhMmSsMsListGrpEle>('dt-hhmmss-ms-list-grp')
