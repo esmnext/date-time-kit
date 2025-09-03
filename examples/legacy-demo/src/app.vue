@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // import { ref } from 'vue';
-import dataTimeKit from '@date-time-kit/old';
+import dataTimeKit from '@date-time-kit/legacy';
 
 // const rand = dataTimeKit.getTimestampByLimitKey('week', 2);
 // const keyName = dataTimeKit.getLimitKeyByTimestamp(rand.startTime, rand.endTime, 2);

@@ -1,5 +1,5 @@
 {
-    "name": "@date-time-kit/old-demo",
+    "name": "@date-time-kit/legacy-demo",
     "version": "1.1.10",
     "description": "Vue Server-Side Rendering framework",
     "type": "module",
@@ -14,7 +14,7 @@
     },
     "dependencies": {
         "@esmx/core": "3.0.0-rc.58",
-        "@date-time-kit/old": "workspace:*"
+        "@date-time-kit/legacy": "workspace:*"
     },
     "devDependencies": {
         "tsc-alias": "^1.8.16",
@@ -25,4 +25,4 @@
         "typescript": "5.8.3",
         "vue-tsc": "^3.0.5"
     }
-} 
+}
