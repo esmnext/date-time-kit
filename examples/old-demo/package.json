@@ -1,6 +1,6 @@
 {
-    "name": "old-demo",
-    "version": "1.2.0",
+    "name": "@date-time-kit/old-demo",
+    "version": "1.1.10",
     "description": "Vue Server-Side Rendering framework",
     "type": "module",
     "private": true,
