@@ -1,5 +1,9 @@
 import { closestByEvent, css, debounce, html } from '../../utils';
-import { type BaseAttrs, UiBase } from '../web-component-base';
+import {
+    type BaseAttrs,
+    type Emit2EventMap,
+    UiBase
+} from '../web-component-base';
 // import styleStr from './index.scss?inline';
 const styleStr = css`
 :host {
@@ -39,7 +43,7 @@ const styleStr = css`
 }
 `;
 
-export interface NumListAttrs extends BaseAttrs {
+export interface Attrs extends BaseAttrs {
     /**
      * The current number in the list. The component will scroll to this number when rendered.
      * @type {number}
@@ -65,20 +69,21 @@ export interface NumListAttrs extends BaseAttrs {
     position?: ScrollLogicalPosition;
 }
 
-export interface NumListEmit {
+export interface Emits {
     'select-num': {
         oldNum: number;
         newNum: number;
     };
 }
+export type EventMap = Emit2EventMap<Emits>;
 
 /**
  * 基础的数字列表组件。允许无限滚动。点击后可以滚动定位到当前数字。
  *
  * 存在一个 formatter 方法，可以重写该方法以自定义数字的显示格式。
  */
-export default class NumList extends UiBase<NumListAttrs, NumListEmit> {
-    protected static tagName = 'dt-num-list';
+export class Ele extends UiBase<Attrs, Emits> {
+    public static tagName = 'dt-num-list' as const;
 
     static get observedAttributes(): string[] {
         return [
@@ -86,7 +91,7 @@ export default class NumList extends UiBase<NumListAttrs, NumListEmit> {
             'current-num',
             'min-num',
             'max-num'
-        ] satisfies (keyof NumListAttrs)[];
+        ] satisfies (keyof Attrs)[];
     }
 
     protected _style = styleStr;
@@ -349,4 +354,4 @@ export default class NumList extends UiBase<NumListAttrs, NumListEmit> {
     public formatter = (num: number) => '' + num;
 }
 
-NumList.define();
+Ele.define();

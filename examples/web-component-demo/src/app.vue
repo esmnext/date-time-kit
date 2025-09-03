@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { DtPopover, DtQuickSelector } from '@date-time-kit/web-component';
 import { ref } from 'vue';
+import { DtQuickSelectorEvent, init } from './DefCustomEle';
+
+init();
 
 const quickResult = ref('');
-const onChange = (
-    e: CustomEvent<DtQuickSelector.QuickSelectorEmit['time-changed']>
-) => {
+const onChange = (e: DtQuickSelectorEvent['time-changed']) => {
     quickResult.value = JSON.stringify(e.detail, null, 2);
 };
 </script>
@@ -14,6 +14,7 @@ const onChange = (
     <div>
         <p
             >quick select: <dt-popover id="quick-popover"
+                @open-change="$event.detail ? quickResult = 'Selecting...' : quickResult += '\nDone'"
                 ><button slot="trigger">quick selector</button
                 ><dt-quick-selector ref="el" slot="pop" @time-changed="onChange"></dt-quick-selector
             ></dt-popover

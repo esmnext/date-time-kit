@@ -43,6 +43,9 @@ const scrollbarStyleStr = css`
 `;
 
 type EmitType = Record<string, any>;
+export type Emit2EventMap<Emit extends EmitType> = {
+    [K in keyof Emit]: CustomEvent<Emit[K]>;
+};
 
 export type ListenerFn<
     Emit extends EmitType,
@@ -100,7 +103,7 @@ export class UiBase<
     Attr extends BaseAttrs = BaseAttrs,
     Emit extends Record<string, any> = {}
 > extends HTMLElementBase {
-    protected static tagName = '';
+    public static readonly tagName: string = '';
     protected static _definePromise: Promise<CustomElementConstructor> | null =
         null;
     public static define() {

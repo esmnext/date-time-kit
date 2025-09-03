@@ -2,18 +2,18 @@ import i18n, { langs } from "../../i18n";
 import { BaseAttrs, UiBase } from "../web-component-base";
 import { html } from "../../utils";
 
-export interface I18nAttrs extends BaseAttrs {
+export interface Attrs extends BaseAttrs {
     'i18n-key'?: string;
 }
 
-export default class I18n extends UiBase<I18nAttrs> {
-    protected static tagName = 'dt-i18n';
+export class Ele extends UiBase<Attrs> {
+    public static readonly tagName = 'dt-i18n' as const;
 
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
             'i18n-key'
-        ] satisfies (keyof I18nAttrs)[];
+        ] satisfies (keyof Attrs)[];
     }
 
     protected _template = html`<slot></slot>`;
@@ -45,4 +45,4 @@ export default class I18n extends UiBase<I18nAttrs> {
     }
 }
 
-I18n.define();
+Ele.define();

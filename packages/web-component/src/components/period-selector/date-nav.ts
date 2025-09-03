@@ -1,4 +1,8 @@
-import { type BaseAttrs, UiBase } from '../../components/web-component-base';
+import {
+    type BaseAttrs,
+    type Emit2EventMap,
+    UiBase
+} from '../../components/web-component-base';
 import { css, debounce, html } from '../../utils';
 // import styleStr from './date-nav.scss?inline';
 const styleStr = css`
@@ -95,14 +99,15 @@ dt-popover[open] .title-arrow {
   transform: rotate(180deg);
 }
 `;
-import Popover, { type PopoverEmit } from '../popover';
-Popover.define();
-import YyyyMmDdListGrpEle, {
-    type YyyyMmDdListGrpEmit
+import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
+PopoverEle.define();
+import {
+    Ele as YyyyMmDdListGrpEle,
+    type EventMap as YyyyMmDdListGrpEvent
 } from '../yyyymmdd-list-grp';
 YyyyMmDdListGrpEle.define();
 
-export interface DateNavAttrs extends BaseAttrs {
+export interface Attrs extends BaseAttrs {
     millisecond: number;
     /**
      * 选择器的粒度，表示最大可选的时间单位。默认为 year。
@@ -126,7 +131,7 @@ export interface DateNavAttrs extends BaseAttrs {
     'show-ctrl-btn-month-sub'?: boolean;
 }
 
-export interface DateNavEmit {
+export interface Emits {
     change: {
         oldStartTime: Date;
         oldEndTime: Date;
@@ -135,14 +140,15 @@ export interface DateNavEmit {
     };
     'popover-open-change': boolean;
 }
+export type EventMap = Emit2EventMap<Emits>;
 
 /**
  * 日期导航组件
  *
  * 存在一个 titleFormatter 方法，可以重写该方法以自定义年月标题的回显格式。
  */
-export default class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
-    protected static tagName = 'dt-date-nav';
+export class Ele extends UiBase<Attrs, Emits> {
+    public static readonly tagName = 'dt-date-nav' as const;
 
     static get observedAttributes(): string[] {
         return [
@@ -154,7 +160,7 @@ export default class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
             'show-ctrl-btn-year-sub',
             'show-ctrl-btn-month-add',
             'show-ctrl-btn-month-sub'
-        ] satisfies (keyof DateNavAttrs)[];
+        ] satisfies (keyof Attrs)[];
     }
 
     protected _style = styleStr;
@@ -219,7 +225,7 @@ export default class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
     public connectedCallback() {
         if (!super.connectedCallback()) return;
         this._render();
-        this.shadowRoot!.querySelector<Popover>('.echo')!.addEventListener(
+        this.shadowRoot!.querySelector<PopoverEle>('.echo')!.addEventListener(
             'open-change',
             this._onTitleToggle
         );
@@ -234,10 +240,9 @@ export default class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
     }
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
-        this.shadowRoot!.querySelector<Popover>('.echo')!.removeEventListener(
-            'open-change',
-            this._onTitleToggle
-        );
+        this.shadowRoot!.querySelector<PopoverEle>(
+            '.echo'
+        )!.removeEventListener('open-change', this._onTitleToggle);
         this.shadowRoot!.querySelector<YyyyMmDdListGrpEle>(
             'dt-yyyymmdd-list-grp'
         )!.removeEventListener('change', this._onItemSelect);
@@ -276,7 +281,7 @@ export default class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
 
     private _onTitleToggle = ({
         detail: isOpen
-    }: CustomEvent<PopoverEmit['open-change']>) => {
+    }: PopoverEvent['open-change']) => {
         this.shadowRoot!.querySelector('.wrapper')!.classList.toggle(
             'show-list',
             isOpen
@@ -286,7 +291,7 @@ export default class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
         )!.scrollToCurrentItem();
         this.dispatchEvent('popover-open-change', isOpen, true);
     };
-    private _onItemSelect = (e: CustomEvent<YyyyMmDdListGrpEmit['change']>) => {
+    private _onItemSelect = (e: YyyyMmDdListGrpEvent['change']) => {
         if (!(e.target instanceof YyyyMmDdListGrpEle)) return;
         this.millisecond = e.target.millisecond;
     };
@@ -314,4 +319,4 @@ export default class DateNav extends UiBase<DateNavAttrs, DateNavEmit> {
     };
 }
 
-DateNav.define();
+Ele.define();

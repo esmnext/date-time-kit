@@ -1,27 +1,32 @@
 import { html } from '../../utils';
-import { type BaseAttrs, UiBase } from '../web-component-base';
+import {
+    type BaseAttrs,
+    type Emit2EventMap,
+    UiBase
+} from '../web-component-base';
 
-export interface PopoverAttrs extends BaseAttrs {
+export interface Attrs extends BaseAttrs {
     open?: boolean;
     disabled?: boolean;
 }
 
-export interface PopoverEmit {
+export interface Emits {
     'open-change': boolean;
 }
+export type EventMap = Emit2EventMap<Emits>;
 
 /**
  * 点击触发器后气泡弹出
  */
-export default class Popover extends UiBase<PopoverAttrs, PopoverEmit> {
-    protected static tagName = 'dt-popover';
+export class Ele extends UiBase<Attrs, Emits> {
+    public static readonly tagName = 'dt-popover' as const;
 
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
             'open',
             'disabled'
-        ] satisfies (keyof PopoverAttrs)[];
+        ] satisfies (keyof Attrs)[];
     }
 
     protected _template =
@@ -119,4 +124,4 @@ export default class Popover extends UiBase<PopoverAttrs, PopoverEmit> {
     };
 }
 
-Popover.define();
+Ele.define();

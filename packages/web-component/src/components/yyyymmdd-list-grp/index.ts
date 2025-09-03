@@ -1,10 +1,15 @@
 import { debounce, html } from '../../utils';
-import NumListEle, { type NumListEmit } from '../num-list';
-import { type BaseAttrs, UiBase } from '../web-component-base';
+import { Ele as NumListEle, type EventMap as NumListEvent } from '../num-list';
+NumListEle.define();
+import {
+    type BaseAttrs,
+    type Emit2EventMap,
+    UiBase
+} from '../web-component-base';
 // import styleStr from './index.scss?inline';
 const styleStr = '';
 
-export interface YyyyMmDdListGrpAttrs extends BaseAttrs {
+export interface Attrs extends BaseAttrs {
     millisecond: number;
     // 'max-millisecond'?: number;
     // 'min-millisecond'?: number;
@@ -21,21 +26,19 @@ export interface YyyyMmDdListGrpAttrs extends BaseAttrs {
     'col-order'?: 'ymd' | 'ydm' | 'myd' | 'mdy' | 'dym' | 'dmy';
 }
 
-export interface YyyyMmDdListGrpEmit {
+export interface Emits {
     change: {
         oldMs: number;
         newMs: number;
     };
 }
+export type EventMap = Emit2EventMap<Emits>;
 
 /**
  * 日期选择器
  */
-export default class YyyyMmDdListGrp extends UiBase<
-    YyyyMmDdListGrpAttrs,
-    YyyyMmDdListGrpEmit
-> {
-    protected static tagName = 'dt-yyyymmdd-list-grp';
+export class Ele extends UiBase<Attrs, Emits> {
+    public static readonly tagName = 'dt-yyyymmdd-list-grp' as const;
 
     static get observedAttributes(): string[] {
         return [
@@ -44,7 +47,7 @@ export default class YyyyMmDdListGrp extends UiBase<
             'max-granularity',
             'min-granularity',
             'col-order'
-        ] satisfies (keyof YyyyMmDdListGrpAttrs)[];
+        ] satisfies (keyof Attrs)[];
     }
 
     protected _style = styleStr;
@@ -234,7 +237,7 @@ export default class YyyyMmDdListGrp extends UiBase<
     private _onColsSelect = ({
         target,
         detail: { newNum }
-    }: CustomEvent<NumListEmit['select-num']>) => {
+    }: NumListEvent['select-num']) => {
         if (!(target instanceof NumListEle)) return;
         target.currentNum = newNum;
         const oldMs = this.millisecond;
@@ -251,4 +254,4 @@ export default class YyyyMmDdListGrp extends UiBase<
     };
 }
 
-YyyyMmDdListGrp.define();
+Ele.define();

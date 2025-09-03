@@ -155,16 +155,19 @@ dt-calendar-base::part(item) {
   font-size: 14px;
 }
 `;
-import DateNavEle, { type DateNavEmit } from './date-nav';
+import { Ele as DateNavEle, type EventMap as DateNavEvent } from './date-nav';
 DateNavEle.define();
-import CalendarBaseEle, { type CalendarBaseEmit } from '../calendar';
+import {
+    Ele as CalendarBaseEle,
+    type EventMap as CalendarBaseEvent
+} from '../calendar';
 CalendarBaseEle.define();
-import HhMmSsMsListGrpEle from '../hhmmss-ms-list-grp';
+import { Ele as HhMmSsMsListGrpEle } from '../hhmmss-ms-list-grp';
 HhMmSsMsListGrpEle.define();
-import Popover, { type PopoverEmit } from '../popover';
-Popover.define();
+import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
+PopoverEle.define();
 
-export interface PeriodSelectorAttrs extends BaseAttrs {
+export interface Attrs extends BaseAttrs {
     /**
      * The start time of the calendar display range.
      * @type {`string | number`} A value that can be passed to the Date constructor.
@@ -184,7 +187,7 @@ export interface PeriodSelectorAttrs extends BaseAttrs {
     'min-granularity'?: 'day' | 'hour' | 'minute' | 'second' | 'millisecond';
 }
 
-export interface PeriodSelectorEmit {
+export interface Emits {
     change: {
         oldStartTime: Date;
         oldEndTime: Date;
@@ -207,11 +210,8 @@ const diffInMonth = (a: Date, b: Date) => {
  *
  * 存在一个 timeFormatter 方法，可以重写该方法以自定义时分秒毫秒的回显格式。
  */
-export default class PeriodSelector extends UiBase<
-    PeriodSelectorAttrs,
-    PeriodSelectorEmit
-> {
-    protected static tagName = 'dt-period-selector';
+export class Ele extends UiBase<Attrs, Emits> {
+    public static readonly tagName = 'dt-period-selector' as const;
 
     static get observedAttributes(): string[] {
         return [
@@ -219,7 +219,7 @@ export default class PeriodSelector extends UiBase<
             'time-start',
             'time-end',
             'min-granularity'
-        ] satisfies (keyof PeriodSelectorAttrs)[];
+        ] satisfies (keyof Attrs)[];
     }
 
     public get timeStart() {
@@ -311,10 +311,12 @@ export default class PeriodSelector extends UiBase<
         ) as HhMmSsMsListGrpEle;
     }
     private get _startTimePopover() {
-        return this.shadowRoot?.querySelector('.start dt-popover') as Popover;
+        return this.shadowRoot?.querySelector(
+            '.start dt-popover'
+        ) as PopoverEle;
     }
     private get _endTimePopover() {
-        return this.shadowRoot?.querySelector('.end dt-popover') as Popover;
+        return this.shadowRoot?.querySelector('.end dt-popover') as PopoverEle;
     }
 
     // 存放的是结束时间点
@@ -475,9 +477,7 @@ export default class PeriodSelector extends UiBase<
         )!.classList.toggle('active', !!this._selectedDate);
     }
 
-    private _onCalendarSelect = (
-        e: CustomEvent<CalendarBaseEmit['select-time']>
-    ) => {
+    private _onCalendarSelect = (e: CalendarBaseEvent['select-time']) => {
         if (this._selectedDate) {
             this._selectedDate = null;
             this.timeEnd = +e.detail + this._endTimeSelector.millisecond;
@@ -486,13 +486,11 @@ export default class PeriodSelector extends UiBase<
             this.timeStart = +e.detail + this._startTimeSelector.millisecond;
         }
     };
-    private _onCalendarItemHover = (
-        e: CustomEvent<CalendarBaseEmit['hover-item']>
-    ) => {
+    private _onCalendarItemHover = (e: CalendarBaseEvent['hover-item']) => {
         if (!this._selectedDate) return;
         this.timeEnd = +e.detail + this._endTimeSelector.millisecond;
     };
-    private _onNavChange = (e: CustomEvent<DateNavEmit['change']>) => {
+    private _onNavChange = (e: DateNavEvent['change']) => {
         const wrapper = closestByEvent(e, '.wrapper');
         if (!wrapper) return;
         const { newStartTime, newEndTime } = e.detail;
@@ -503,16 +501,12 @@ export default class PeriodSelector extends UiBase<
         }
         this._updateNavCtrlBtn();
     };
-    private _onNavOpenToggle = (
-        e: CustomEvent<DateNavEmit['popover-open-change']>
-    ) => {
+    private _onNavOpenToggle = (e: DateNavEvent['popover-open-change']) => {
         if (!(e.target instanceof DateNavEle)) return;
         e.target.nextElementSibling?.classList.toggle('hide', e.detail);
     };
-    private _onTimePopoverOpenChange = (
-        e: CustomEvent<PopoverEmit['open-change']>
-    ) => {
-        if (!(e.target instanceof Popover)) return;
+    private _onTimePopoverOpenChange = (e: PopoverEvent['open-change']) => {
+        if (!(e.target instanceof PopoverEle)) return;
         if (!e.detail) return this._render(); // for reset time selector value
         e.target
             .querySelectorAll<HhMmSsMsListGrpEle>('dt-hhmmss-ms-list-grp')
@@ -555,4 +549,4 @@ export default class PeriodSelector extends UiBase<
     public dateFormatter = (time: Date) => time.toLocaleDateString('en-GB');
 }
 
-PeriodSelector.define();
+Ele.define();

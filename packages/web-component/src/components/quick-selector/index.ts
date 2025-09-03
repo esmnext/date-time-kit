@@ -1,10 +1,14 @@
 import type { DataLimit } from '../../i18n';
 import { css, debounce, html } from '../../utils';
-import PeriodSelector from '../period-selector';
-import { type BaseAttrs, UiBase } from '../web-component-base';
-PeriodSelector.define();
-import I18n from '../i18n';
-I18n.define();
+import { Ele as PeriodSelectorEle } from '../period-selector';
+import {
+    type BaseAttrs,
+    type Emit2EventMap,
+    UiBase
+} from '../web-component-base';
+PeriodSelectorEle.define();
+import { Ele as I18nEle } from '../i18n';
+I18nEle.define();
 import { type Weeks, weekKey } from '../calendar';
 // import styleStr from './index.scss?inline';
 const styleStr = css`
@@ -183,7 +187,7 @@ const ArrowRightSvg = html`<svg xmlns="http://www.w3.org/2000/svg" width="17" he
 
 export type QuickKey = DataLimit | 'custom';
 
-export interface QuickSelectorAttrs extends BaseAttrs {
+export interface Attrs extends BaseAttrs {
     /**
      * Timezone in minutes. For example: UTC+05:45 => `345`, UTC-01:00 => `-60`.
      *
@@ -213,7 +217,7 @@ export interface QuickSelectorAttrs extends BaseAttrs {
     'end-time'?: Date | null | 'null';
 }
 
-export interface QuickSelectorEmit {
+export interface Emits {
     'time-changed':
         | {
               type: 'all';
@@ -226,6 +230,7 @@ export interface QuickSelectorEmit {
               end: Date;
           };
 }
+export type EventMap = Emit2EventMap<Emits>;
 
 const getCurrentTz = () => -new Date().getTimezoneOffset();
 
@@ -307,11 +312,8 @@ const quickPeriodTimes = (weekOffset = 0) =>
 /**
  * 快速选择下拉选项
  */
-export default class QuickSelector extends UiBase<
-    QuickSelectorAttrs,
-    QuickSelectorEmit
-> {
-    protected static tagName = 'dt-quick-selector';
+export class Ele extends UiBase<Attrs, Emits> {
+    public static readonly tagName = 'dt-quick-selector' as const;
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
@@ -320,7 +322,7 @@ export default class QuickSelector extends UiBase<
             'quick-key',
             'start-time',
             'end-time'
-        ] satisfies (keyof QuickSelectorAttrs)[];
+        ] satisfies (keyof Attrs)[];
     }
 
     public get timezone() {
@@ -435,7 +437,7 @@ export default class QuickSelector extends UiBase<
     private get _periodSelector() {
         return this.shadowRoot!.querySelector(
             'dt-period-selector'
-        ) as PeriodSelector;
+        ) as PeriodSelectorEle;
     }
 
     constructor() {
@@ -606,4 +608,4 @@ export default class QuickSelector extends UiBase<
     };
 }
 
-QuickSelector.define();
+Ele.define();

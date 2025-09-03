@@ -1,6 +1,10 @@
 import { css, debounce, html } from '../../utils';
-import NumListEle, { type NumListEmit } from '../num-list';
-import { type BaseAttrs, UiBase } from '../web-component-base';
+import { Ele as NumListEle, type EventMap as NumListEvent } from '../num-list';
+import {
+    type BaseAttrs,
+    type Emit2EventMap,
+    UiBase
+} from '../web-component-base';
 NumListEle.define();
 // import styleStr from './index.scss?inline';
 const styleStr = css`
@@ -66,7 +70,7 @@ input::placeholder {
 }
 `;
 
-export interface HhMmSsMsListGrpAttrs extends BaseAttrs {
+export interface Attrs extends BaseAttrs {
     millisecond: number;
     // 'max-millisecond'?: number;
     // 'min-millisecond'?: number;
@@ -83,21 +87,19 @@ export interface HhMmSsMsListGrpAttrs extends BaseAttrs {
     'col-order'?: 'hms' | 'hsm' | 'mhs' | 'msh' | 'shm' | 'smh';
 }
 
-export interface HhMmSsMsListGrpEmit {
+export interface Emits {
     change: {
         oldMs: number;
         newMs: number;
     };
 }
+export type EventMap = Emit2EventMap<Emits>;
 
 /**
  * 时分秒毫秒选择器
  */
-export default class HhMmSsMsListGrp extends UiBase<
-    HhMmSsMsListGrpAttrs,
-    HhMmSsMsListGrpEmit
-> {
-    protected static tagName = 'dt-hhmmss-ms-list-grp';
+export class Ele extends UiBase<Attrs, Emits> {
+    public static readonly tagName = 'dt-hhmmss-ms-list-grp' as const;
 
     static get observedAttributes(): string[] {
         return [
@@ -106,7 +108,7 @@ export default class HhMmSsMsListGrp extends UiBase<
             'max-granularity',
             'min-granularity',
             'col-order'
-        ] satisfies (keyof HhMmSsMsListGrpAttrs)[];
+        ] satisfies (keyof Attrs)[];
     }
 
     protected _style = styleStr;
@@ -365,7 +367,7 @@ export default class HhMmSsMsListGrp extends UiBase<
     private _onColsSelect = ({
         target,
         detail: { newNum }
-    }: CustomEvent<NumListEmit['select-num']>) => {
+    }: NumListEvent['select-num']) => {
         if (!(target instanceof NumListEle)) return;
         target.currentNum = newNum;
         const oldMs = this.millisecond;
@@ -382,4 +384,4 @@ export default class HhMmSsMsListGrp extends UiBase<
     };
 }
 
-HhMmSsMsListGrp.define();
+Ele.define();

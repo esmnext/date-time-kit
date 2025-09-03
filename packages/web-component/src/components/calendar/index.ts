@@ -1,7 +1,11 @@
 import { closestByEvent, css, debounce, html } from '../../utils';
-import I18nEle from '../i18n';
-import { type BaseAttrs, UiBase } from '../web-component-base';
+import { Ele as I18nEle } from '../i18n';
 I18nEle.define();
+import {
+    type BaseAttrs,
+    type Emit2EventMap,
+    UiBase
+} from '../web-component-base';
 // import styleStr from './index.scss?inline';
 const styleStr = css`
 :host {
@@ -132,7 +136,7 @@ export const getWeekInOrder = (startAt?: Weeks | null) => {
     return [...weekKey.slice(index), ...weekKey.slice(0, index)];
 };
 
-export interface CalendarBaseAttrs extends BaseAttrs {
+export interface Attrs extends BaseAttrs {
     /**
      * The showing time, used to determine the month to show on calendar.
      * @type {`string | number`} A value that can be passed to the Date constructor.
@@ -175,19 +179,18 @@ export interface CalendarBaseAttrs extends BaseAttrs {
     'show-other-month'?: boolean;
 }
 
-export interface CalendarBaseEmit {
+export interface Emits {
     'select-time': Date;
     'hover-item': Date;
 }
+export type EventMap = Emit2EventMap<Emits>;
 
 /**
  * 基础的日历显示组件。仅显示星期和数字。
  */
-export default class CalendarBase extends UiBase<
-    CalendarBaseAttrs,
-    CalendarBaseEmit
-> {
-    protected static tagName = 'dt-calendar-base';
+export class Ele extends UiBase<Attrs, Emits> {
+    public static tagName = 'dt-calendar-base' as const;
+
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
@@ -197,7 +200,7 @@ export default class CalendarBase extends UiBase<
             'min-time',
             'max-time',
             'week-start-at'
-        ] satisfies (keyof CalendarBaseAttrs)[];
+        ] satisfies (keyof Attrs)[];
     }
 
     public get showingTime() {
@@ -222,7 +225,7 @@ export default class CalendarBase extends UiBase<
     }
     private _setTimeAttr(
         name: keyof Omit<
-            CalendarBaseAttrs,
+            Attrs,
             'week-start-at' | 'show-other-month' | keyof BaseAttrs
         >,
         value: number | string | Date
@@ -447,4 +450,4 @@ export default class CalendarBase extends UiBase<
     public formatter = (i: number) => '' + i;
 }
 
-CalendarBase.define();
+Ele.define();
