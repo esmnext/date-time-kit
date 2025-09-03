@@ -1,5 +1,5 @@
 {
-    "name": "@gez/date-time-kit_web-component-demo",
+    "name": "@gez/date-time-kit-demo",
     "version": "1.1.10",
     "description": "Vue Server-Side Rendering framework",
     "type": "module",
@@ -14,7 +14,7 @@
     },
     "dependencies": {
         "@esmx/core": "3.0.0-rc.58",
-        "@gez/date-time-kit_web-component": "workspace:*"
+        "@gez/date-time-kit": "workspace:*"
     },
     "devDependencies": {
         "tsc-alias": "^1.8.16",
