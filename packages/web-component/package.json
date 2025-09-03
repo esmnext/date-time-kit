@@ -1,5 +1,5 @@
 {
-    "name": "@gez/date-time-kit_web-component",
+    "name": "@gez/date-time-kit",
     "template": "library",
     "scripts": {
         "lint:css": "pnpm run lint:js",
@@ -36,5 +36,5 @@
         "template",
         "public"
     ],
-    "gitHead": "8978e29ac36a41972473487aba23a5ac1321c32b"
+    "gitHead": "9b14b27b8e671c5aac8bb6b44e3ddbab04cbf5fd"
 }
