@@ -32,7 +32,7 @@ export type DefineCustomElement<
     $emit: VueEmit<Events>;
 };
 
-import { DtPopover, DtQuickSelector } from '@date-time-kit/web-component';
+import { DtPopover, DtQuickSelector } from '@gez/date-time-kit_web-component';
 
 export type DtPopoverEvent = DtPopover.EventMap;
 export type DtQuickSelectorEvent = DtQuickSelector.EventMap;

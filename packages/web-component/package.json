@@ -1,5 +1,5 @@
 {
-    "name": "@date-time-kit/web-component",
+    "name": "@gez/date-time-kit_web-component",
     "template": "library",
     "scripts": {
         "lint:css": "pnpm run lint:js",
@@ -17,7 +17,7 @@
         "unbuild": "3.6.0",
         "vitest": "3.2.4"
     },
-    "version": "1.2.0-alpha.1",
+    "version": "1.2.0-alpha.2",
     "type": "module",
     "private": false,
     "exports": {
@@ -36,5 +36,5 @@
         "template",
         "public"
     ],
-    "gitHead": "67eec5878f4420a8fb2a9ef9042862705e9a8e4e"
+    "gitHead": "fa8ea9805062455e56b9e23a4861f5a9107e98fd"
 }

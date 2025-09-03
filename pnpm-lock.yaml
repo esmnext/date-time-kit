@@ -20,12 +20,12 @@ importers:
 
   examples/legacy-demo:
     dependencies:
-      '@date-time-kit/legacy':
-        specifier: workspace:*
-        version: link:../../packages/legacy
       '@esmx/core':
         specifier: 3.0.0-rc.58
         version: 3.0.0-rc.58
+      '@gez/date-time-kit_legacy':
+        specifier: workspace:*
+        version: link:../../packages/legacy
     devDependencies:
       '@esmx/rspack-vue':
         specifier: 3.0.0-rc.58
@@ -51,12 +51,12 @@ importers:
 
   examples/web-component-demo:
     dependencies:
-      '@date-time-kit/web-component':
-        specifier: workspace:*
-        version: link:../../packages/web-component
       '@esmx/core':
         specifier: 3.0.0-rc.58
         version: 3.0.0-rc.58
+      '@gez/date-time-kit_web-component':
+        specifier: workspace:*
+        version: link:../../packages/web-component
     devDependencies:
       '@esmx/rspack-vue':
         specifier: 3.0.0-rc.58
