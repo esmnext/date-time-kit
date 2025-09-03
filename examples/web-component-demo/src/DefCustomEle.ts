@@ -36,6 +36,7 @@ import { DtPopover, DtQuickSelector } from '@gez/date-time-kit';
 
 export type DtPopoverEvent = DtPopover.EventMap;
 export type DtQuickSelectorEvent = DtQuickSelector.EventMap;
+export type DtQuickSelectorQuickKey = DtQuickSelector.QuickKey;
 
 // 将新元素类型添加到 Vue 的 GlobalComponents 类型中
 declare module 'vue' {

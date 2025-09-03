@@ -210,11 +210,11 @@ export interface Attrs extends BaseAttrs {
     /**
      * Start time of the quick selection. Only works in custom mode.
      */
-    'start-time'?: Date | null | 'null';
+    'start-time'?: string | number | '';
     /**
      * End time of the quick selection. Only works in custom mode.
      */
-    'end-time'?: Date | null | 'null';
+    'end-time'?: string | number | '';
 }
 
 export interface Emits {
@@ -256,57 +256,52 @@ const genStartDate = (fn?: (_t: Date) => void, t?: Date) =>
     genDateWithHours(true, fn, t);
 const genEndDate = (fn?: (_t: Date) => void, t?: Date) =>
     genDateWithHours(false, fn, t);
-const quickPeriodTimes = (weekOffset = 0) =>
+export const genPeriodTimes = (
+    startFn?: (_t: Date, weekOffset: number) => void,
+    endFn?: (_t: Date, weekOffset: number) => void,
+    t: Date = new Date(),
+    weekStartAt: Weeks = 'sun'
+) => {
+    const weekOffset = weekKey.indexOf(weekStartAt);
+    return {
+        start: genStartDate((t) => startFn?.(t, weekOffset), new Date(t)),
+        end: genEndDate((t) => endFn?.(t, weekOffset), new Date(t))
+    };
+};
+const quickPeriodTimes = (weekStartAt: Weeks = 'sun') =>
     ({
         all: null,
-        today: {
-            start: genStartDate(),
-            end: genEndDate()
-        },
-        yesterday: {
-            start: genStartDate((t) => t.setDate(t.getDate() - 1)),
-            end: genEndDate((t) => t.setDate(t.getDate() - 1))
-        },
-        week: {
-            start: genStartDate((t) =>
-                t.setDate(t.getDate() - t.getDay() + weekOffset)
-            ),
-            end: genEndDate((t) =>
+        today: genPeriodTimes(),
+        yesterday: genPeriodTimes(
+            (t) => t.setDate(t.getDate() - 1),
+            (t) => t.setDate(t.getDate() - 1)
+        ),
+        week: genPeriodTimes(
+            (t, weekOffset) => t.setDate(t.getDate() - t.getDay() + weekOffset),
+            (t, weekOffset) =>
                 t.setDate(t.getDate() - t.getDay() + weekOffset + 6)
-            )
-        },
-        lastWeek: {
-            start: genStartDate((t) =>
-                t.setDate(t.getDate() - t.getDay() + weekOffset - 7)
-            ),
-            end: genEndDate((t) =>
+        ),
+        lastWeek: genPeriodTimes(
+            (t, weekOffset) =>
+                t.setDate(t.getDate() - t.getDay() + weekOffset - 7),
+            (t, weekOffset) =>
                 t.setDate(t.getDate() - t.getDay() + weekOffset - 1)
-            )
-        },
-        last7Days: {
-            start: genStartDate((t) => t.setDate(t.getDate() - 6)),
-            end: genEndDate()
-        },
-        month: {
-            start: genStartDate((t) => t.setDate(1)),
-            end: genEndDate((t) => t.setMonth(t.getMonth() + 1, 0))
-        },
-        last30Days: {
-            start: genStartDate((t) => t.setDate(t.getDate() - 29)),
-            end: genEndDate()
-        },
-        last180Days: {
-            start: genStartDate((t) => t.setDate(t.getDate() - 179)),
-            end: genEndDate()
-        },
-        last6Month: {
-            start: genStartDate((t) => t.setMonth(t.getMonth() - 5, 1)),
-            end: genEndDate((t) => t.setMonth(t.getMonth() + 1, 0))
-        },
-        year: {
-            start: genStartDate((t) => t.setMonth(0, 1)),
-            end: genEndDate((t) => t.setFullYear(t.getFullYear() + 1, 0, 0))
-        }
+        ),
+        last7Days: genPeriodTimes((t) => t.setDate(t.getDate() - 6)),
+        month: genPeriodTimes(
+            (t) => t.setDate(1),
+            (t) => t.setMonth(t.getMonth() + 1, 0)
+        ),
+        last30Days: genPeriodTimes((t) => t.setDate(t.getDate() - 29)),
+        last180Days: genPeriodTimes((t) => t.setDate(t.getDate() - 179)),
+        last6Month: genPeriodTimes(
+            (t) => t.setMonth(t.getMonth() - 5, 1),
+            (t) => t.setMonth(t.getMonth() + 1, 0)
+        ),
+        year: genPeriodTimes(
+            (t) => t.setMonth(0, 1),
+            (t) => t.setFullYear(t.getFullYear() + 1, 0, 0)
+        )
     }) as const;
 
 /**
@@ -362,6 +357,34 @@ export class Ele extends UiBase<Attrs, Emits> {
     public set weekStartAt(val: Weeks) {
         if (!weekKey.includes(val)) return;
         this.setAttribute('week-start-at', val);
+    }
+    public get startTime() {
+        const v = this._getAttr('start-time', '');
+        if (v === '') return '';
+        return new Date(Number.isNaN(+v) ? v : +v);
+    }
+    public set startTime(val: number | string | Date) {
+        if (val === '') {
+            this.removeAttribute('start-time');
+            return;
+        }
+        const v = new Date(val);
+        if (Number.isNaN(+v)) return;
+        this.setAttribute('time-start', +v + '');
+    }
+    public get endTime() {
+        const v = this._getAttr('end-time', '' + this.startTime);
+        if (v === '') return '';
+        return new Date(Number.isNaN(+v) ? v : +v);
+    }
+    public set endTime(val: number | string | Date) {
+        if (val === '') {
+            this.removeAttribute('end-time');
+            return;
+        }
+        const v = new Date(val);
+        if (Number.isNaN(+v)) return;
+        this.setAttribute('time-end', +v + '');
     }
 
     protected _style = styleStr;
@@ -517,6 +540,10 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (name === 'week-start-at') {
             this._updatePeriodSelector();
         }
+        if (name === 'start-time' || name === 'end-time') {
+            if (this.quickKey !== 'custom') return;
+            this._updatePeriodSelector();
+        }
     }
 
     private _updatePeriodSelector = debounce(() => {
@@ -527,10 +554,17 @@ export class Ele extends UiBase<Attrs, Emits> {
         ) {
             return;
         }
-        const defaultPeriod = quickPeriodTimes().last30Days;
         const ele = this._periodSelector;
-        ele.timeStart = defaultPeriod.start;
-        ele.timeEnd = defaultPeriod.end;
+        const startTime = this.startTime;
+        const endTime = this.endTime;
+        if (startTime !== '' && endTime !== '') {
+            ele.timeStart = startTime;
+            ele.timeEnd = endTime;
+        } else {
+            const defaultPeriod = quickPeriodTimes(this.weekStartAt).last30Days;
+            ele.timeStart = defaultPeriod.start;
+            ele.timeEnd = defaultPeriod.end;
+        }
         ele.showCalendarDatePoint();
     }, 0);
 
@@ -580,7 +614,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (name === 'radio') {
             const v = value as QuickKey;
             if (v === 'custom') return;
-            const t = quickPeriodTimes()[v];
+            const t = quickPeriodTimes(this.weekStartAt)[v];
             this.dispatchEvent(
                 'time-changed',
                 !t
@@ -598,9 +632,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     private _onDoneBtnClick = (_e: Event) => {
         const selector = this._periodSelector;
         this._showMenu('top');
-        this.shadowRoot!.querySelector<HTMLInputElement>(
-            'input[name="radio"][value="custom"]'
-        )!.checked = true;
+        this.quickKey = 'custom';
         this.dispatchEvent(
             'time-changed',
             {
@@ -610,6 +642,14 @@ export class Ele extends UiBase<Attrs, Emits> {
             },
             true
         );
+    };
+
+    public readonly genPeriodTimes = (
+        startFn?: (_t: Date, weekOffset: number) => void,
+        endFn?: (_t: Date, weekOffset: number) => void,
+        t: Date = new Date()
+    ) => {
+        return genPeriodTimes(startFn, endFn, t, this.weekStartAt);
     };
 }
 
