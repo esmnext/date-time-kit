@@ -17,7 +17,7 @@
         "unbuild": "3.6.0",
         "vitest": "3.2.4"
     },
-    "version": "1.2.0-alpha.4",
+    "version": "1.2.0-alpha.5",
     "type": "module",
     "private": false,
     "exports": {
@@ -36,5 +36,5 @@
         "template",
         "public"
     ],
-    "gitHead": "70eb5d227ec81f5815cd1c2490aea74e732a353f"
+    "gitHead": "8978e29ac36a41972473487aba23a5ac1321c32b"
 }
