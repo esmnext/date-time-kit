@@ -48,7 +48,7 @@ const styleStr = css`
   background-color: #eee;
 }
 
-dt-date-nav::part(list-grp) {
+dt-yyyymm-nav::part(list-grp) {
   height: 254px;
   margin-top: 15px;
 }
@@ -88,6 +88,7 @@ dt-popover {
   border: 1px solid rgba(0, 0, 0, 0.0666666667);
   box-sizing: border-box;
   align-items: center;
+  cursor: pointer;
 }
 
 .time-selector {
@@ -155,8 +156,11 @@ dt-calendar-base::part(item) {
   font-size: 14px;
 }
 `;
-import { Ele as DateNavEle, type EventMap as DateNavEvent } from './date-nav';
-DateNavEle.define();
+import {
+    Ele as YyyyMmNavEle,
+    type EventMap as YyyyMmNavEvent
+} from '../yyyymm-nav';
+YyyyMmNavEle.define();
 import {
     Ele as CalendarBaseEle,
     type EventMap as CalendarBaseEvent,
@@ -273,10 +277,10 @@ export class Ele extends UiBase<Attrs, Emits> {
         .map(
             (s) => html`
 <div class="wrapper ${s}">
-    <dt-date-nav
+    <dt-yyyymm-nav
         show-ctrl-btn-month-add
         show-ctrl-btn-month-sub
-    ></dt-date-nav>
+    ></dt-yyyymm-nav>
     <dt-calendar-base data-type="${s}"></dt-calendar-base>
     <dt-popover>
         <div slot="trigger" class="time-echo-wrapper">
@@ -300,11 +304,13 @@ export class Ele extends UiBase<Attrs, Emits> {
 
     private get _startNavEle() {
         return this.shadowRoot?.querySelector(
-            '.start dt-date-nav'
-        ) as DateNavEle;
+            '.start dt-yyyymm-nav'
+        ) as YyyyMmNavEle;
     }
     private get _endNavEle() {
-        return this.shadowRoot?.querySelector('.end dt-date-nav') as DateNavEle;
+        return this.shadowRoot?.querySelector(
+            '.end dt-yyyymm-nav'
+        ) as YyyyMmNavEle;
     }
     private get _startCalendar() {
         return this.shadowRoot?.querySelector(
@@ -508,7 +514,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (!this._selectedDate) return;
         this.timeEnd = +e.detail + this._endTimeSelector.millisecond;
     };
-    private _onNavChange = (e: DateNavEvent['change']) => {
+    private _onNavChange = (e: YyyyMmNavEvent['change']) => {
         const wrapper = closestByEvent(e, '.wrapper');
         if (!wrapper) return;
         const { newStartTime, newEndTime } = e.detail;
@@ -519,8 +525,8 @@ export class Ele extends UiBase<Attrs, Emits> {
         }
         this._updateNavCtrlBtn();
     };
-    private _onNavOpenToggle = (e: DateNavEvent['popover-open-change']) => {
-        if (!(e.target instanceof DateNavEle)) return;
+    private _onNavOpenToggle = (e: YyyyMmNavEvent['popover-open-change']) => {
+        if (!(e.target instanceof YyyyMmNavEle)) return;
         e.target.nextElementSibling?.classList.toggle('hide', e.detail);
     };
     private _onTimePopoverOpenChange = (e: PopoverEvent['open-change']) => {

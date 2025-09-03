@@ -1,10 +1,10 @@
+import { css, debounce, html } from '../../utils';
 import {
     type BaseAttrs,
     type Emit2EventMap,
     UiBase
-} from '../../components/web-component-base';
-import { css, debounce, html } from '../../utils';
-// import styleStr from './date-nav.scss?inline';
+} from '../web-component-base';
+// import styleStr from './index.scss?inline';
 const styleStr = css`
 .wrapper {
   display: block;
@@ -148,7 +148,7 @@ export type EventMap = Emit2EventMap<Emits>;
  * 存在一个 titleFormatter 方法，可以重写该方法以自定义年月标题的回显格式。
  */
 export class Ele extends UiBase<Attrs, Emits> {
-    public static readonly tagName = 'dt-date-nav' as const;
+    public static readonly tagName = 'dt-yyyymm-nav' as const;
 
     static get observedAttributes(): string[] {
         return [
