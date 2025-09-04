@@ -47,6 +47,9 @@ const quickKeyProxy = computed({
         }
     }
 });
+
+const currentTime = ref<string | number | undefined>(void 0);
+const dateTimeSelectorState = ref<'open' | 'close'>('close');
 </script>
 
 <template>
@@ -93,8 +96,18 @@ const quickKeyProxy = computed({
         </select>
         result: <pre id="quick-result">{{ quickResult }}</pre>
 
+        <hr />
+
         <div>
-            <dt-date-time-selector></dt-date-time-selector>
+            <p>selected time: {{ currentTime && new Date(currentTime).toISOString() }}</p>
+            <p>state: {{ dateTimeSelectorState }}</p>
+            <dt-date-time-selector
+                :current-time="currentTime"
+                @select-time="currentTime = +$event.detail"
+                @open-change="dateTimeSelectorState = $event.detail ? 'open' : 'close'"
+            >
+                <button slot="trigger">date time selector</button>
+            </dt-date-time-selector>
         </div>
     </div>
 </template>

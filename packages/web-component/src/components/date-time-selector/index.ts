@@ -45,6 +45,7 @@ export interface Attrs extends BaseAttrs {
 
 export interface Emits {
     'select-time': Date;
+    'open-change': boolean;
 }
 export type EventMap = Emit2EventMap<Emits>;
 
@@ -86,24 +87,27 @@ export class Ele extends UiBase<Attrs, Emits> {
 
     protected _style = styleStr;
     protected _template = html`
-<div class="wrapper">
-    <dt-yyyymm-nav
-        show-ctrl-btn-month-add
-        show-ctrl-btn-month-sub
-    ></dt-yyyymm-nav>
-    <dt-calendar-base></dt-calendar-base>
-    <dt-popover>
-        <div slot="trigger" class="time-echo-wrapper">
-            <i class="time-icon"></i>
-            <span class="time-echo">hh:mm:ss.sss</span>
-        </div>
-        <div slot="pop" class="time-selector">
-            <h3 class="title">Select Time</h3>
-            <dt-hhmmss-ms-list-grp></dt-hhmmss-ms-list-grp>
-            <button id="time-selector-done-btn">Done</button>
-        </div>
-    </dt-popover>
-</div>
+<dt-popover>
+    <slot slot="trigger" name="trigger"><button>select date and time</button></slot>
+    <div slot="pop" class="wrapper menu">
+        <dt-yyyymm-nav
+            show-ctrl-btn-month-add
+            show-ctrl-btn-month-sub
+        ></dt-yyyymm-nav>
+        <dt-calendar-base></dt-calendar-base>
+        <dt-popover id="time-popover">
+            <div slot="trigger" class="time-echo-wrapper">
+                <i class="time-icon"></i>
+                <span class="time-echo">hh:mm:ss.sss</span>
+            </div>
+            <div slot="pop" class="time-selector">
+                <h3 class="title">Select Time</h3>
+                <dt-hhmmss-ms-list-grp></dt-hhmmss-ms-list-grp>
+                <button id="time-selector-done-btn">Done</button>
+            </div>
+        </dt-popover>
+    </div>
+</dt-popover>
 `;
 
     private get _navEle() {
@@ -120,7 +124,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         ) as HhMmSsMsListGrpEle;
     }
     private get _timePopover() {
-        return this.shadowRoot?.querySelector('dt-popover') as PopoverEle;
+        return this.shadowRoot?.querySelector('#time-popover') as PopoverEle;
     }
 
     constructor() {
@@ -172,6 +176,9 @@ export class Ele extends UiBase<Attrs, Emits> {
     protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
         super._onAttrChanged(name, oldValue, newValue);
         this._render();
+        if (name === 'current-time') {
+            this.dispatchEvent('select-time', this.currentTime as Date);
+        }
     }
 
     private _render = debounce(() => {
@@ -217,7 +224,6 @@ export class Ele extends UiBase<Attrs, Emits> {
     private _onTimeSelectorDoneClick = (e: Event) => {
         const btn = closestByEvent(e, '#time-selector-done-btn');
         if (!btn) return;
-        const type = btn.dataset.type;
         const calcTime = (time: Date, ms: number) => {
             time.setHours(0, 0, 0, 0);
             time.setMilliseconds(ms);
