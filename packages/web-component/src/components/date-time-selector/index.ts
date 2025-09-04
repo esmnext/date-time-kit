@@ -213,14 +213,12 @@ export class Ele extends UiBase<Attrs, Emits> {
                 +currentTime;
         this._calendar.showingTime = this.showingTime;
 
-        const selectorWrapper =
-            this.shadowRoot!.querySelector<HTMLElement>('.time-selector')!;
         if (this.minGranularity === 'day') {
             this._timeSelector.millisecond = 0;
-            selectorWrapper.style.display = 'none';
+            this._timePopover.style.display = 'none';
             return;
         }
-        selectorWrapper.style.display = '';
+        this._timePopover.style.display = '';
         this._timeSelector.minGranularity = this.minGranularity;
 
         this._timeSelector.millisecond =
