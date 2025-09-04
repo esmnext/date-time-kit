@@ -101,27 +101,22 @@ export class Ele extends UiBase<Attrs, Emits> {
     public get minGranularity() {
         return this._getAttr('min-granularity', 'millisecond');
     }
-    public set minGranularity(val:
-        | 'day'
-        | 'hour'
-        | 'minute'
-        | 'second'
-        | 'millisecond') {
+    public set minGranularity(val: NonNullable<Attrs['min-granularity']>) {
         if (!granularityList.includes(val)) return;
         this.setAttribute('min-granularity', val);
     }
 
     protected _style = styleStr;
     protected _template = html`
-<dt-popover>
+<dt-popover part="popover">
     <slot slot="trigger" name="trigger"><button>select date and time</button></slot>
-    <div slot="pop" class="wrapper menu">
+    <div slot="pop" class="wrapper menu" part="pop">
         <dt-yyyymm-nav
             show-ctrl-btn-month-add
             show-ctrl-btn-month-sub
         ></dt-yyyymm-nav>
         <dt-calendar-base></dt-calendar-base>
-        <dt-popover id="time-popover">
+        <dt-popover id="time-popover" part="popover time">
             <div slot="trigger" class="time-echo-wrapper">
                 <i class="time-icon"></i>
                 <span class="time-echo">hh:mm:ss.sss</span>
