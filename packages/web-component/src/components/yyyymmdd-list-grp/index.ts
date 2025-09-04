@@ -126,33 +126,21 @@ export class Ele extends UiBase<Attrs, Emits> {
         this.setAttribute('millisecond', '' + Math.floor(v));
     }
     public get maxGranularity() {
-        return this._getAttr('max-granularity', 'year') as
-            | 'year'
-            | 'month'
-            | 'day';
+        return this._getAttr('max-granularity', 'year');
     }
     public set maxGranularity(v: 'year' | 'month' | 'day') {
         if (!['year', 'month', 'day'].includes(v)) return;
         this.setAttribute('max-granularity', v);
     }
     public get minGranularity() {
-        return this._getAttr('min-granularity', 'day') as
-            | 'year'
-            | 'month'
-            | 'day';
+        return this._getAttr('min-granularity', 'day');
     }
     public set minGranularity(v: 'year' | 'month' | 'day') {
         if (!['year', 'month', 'day'].includes(v)) return;
         this.setAttribute('min-granularity', v);
     }
     public get colOrder() {
-        return this._getAttr('col-order', 'dmy') as
-            | 'ymd'
-            | 'ydm'
-            | 'myd'
-            | 'mdy'
-            | 'dym'
-            | 'dmy';
+        return this._getAttr('col-order', 'dmy');
     }
     public set colOrder(v: 'ymd' | 'ydm' | 'myd' | 'mdy' | 'dym' | 'dmy') {
         if (!['ymd', 'ydm', 'myd', 'mdy', 'dym', 'dmy'].includes(v)) return;

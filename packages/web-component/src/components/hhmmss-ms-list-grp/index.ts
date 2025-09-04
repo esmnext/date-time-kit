@@ -114,7 +114,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     protected _style = styleStr;
     protected _template = html`
         <div class="cols" part="cols">
-            <div class="col" part="col hour">
+            <div class="col hour" part="col hour">
                 <span>Hour</span>
                 <dt-num-list
                     exportparts="container:list-container, item, item-current"
@@ -124,7 +124,7 @@ export class Ele extends UiBase<Attrs, Emits> {
                     max-num="23"
                 ></dt-num-list>
             </div>
-            <div class="col" part="col minute">
+            <div class="col minute" part="col minute">
                 <span>Minute</span>
                 <dt-num-list
                     exportparts="container:list-container, item, item-current"
@@ -134,7 +134,7 @@ export class Ele extends UiBase<Attrs, Emits> {
                     max-num="59"
                 ></dt-num-list>
             </div>
-            <div class="col" part="col second">
+            <div class="col second" part="col second">
                 <span>Second</span>
                 <dt-num-list
                     exportparts="container:list-container, item, item-current"
@@ -156,14 +156,18 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._applyTemplate();
     }
 
-    private get _colsHourEle() {
-        return this.shadowRoot?.querySelector('.cols .hour') as NumListEle;
+    private get _listEleHour() {
+        return this.shadowRoot?.querySelector('dt-num-list.hour') as NumListEle;
     }
-    private get _colsMinuteEle() {
-        return this.shadowRoot?.querySelector('.cols .minute') as NumListEle;
+    private get _listEleMinute() {
+        return this.shadowRoot?.querySelector(
+            'dt-num-list.minute'
+        ) as NumListEle;
     }
-    private get _colsSecondEle() {
-        return this.shadowRoot?.querySelector('.cols .second') as NumListEle;
+    private get _listEleSecond() {
+        return this.shadowRoot?.querySelector(
+            'dt-num-list.second'
+        ) as NumListEle;
     }
     private get _msInputEle() {
         return this.shadowRoot?.querySelector('input#ms') as HTMLInputElement;
@@ -178,35 +182,21 @@ export class Ele extends UiBase<Attrs, Emits> {
         this.setAttribute('millisecond', '' + v);
     }
     public get maxGranularity() {
-        return this._getAttr('max-granularity', 'hour') as
-            | 'hour'
-            | 'minute'
-            | 'second'
-            | 'millisecond';
+        return this._getAttr('max-granularity', 'hour');
     }
     public set maxGranularity(v: 'hour' | 'minute' | 'second' | 'millisecond') {
         if (!['hour', 'minute', 'second', 'millisecond'].includes(v)) return;
         this.setAttribute('max-granularity', v);
     }
     public get minGranularity() {
-        return this._getAttr('min-granularity', 'millisecond') as
-            | 'hour'
-            | 'minute'
-            | 'second'
-            | 'millisecond';
+        return this._getAttr('min-granularity', 'millisecond');
     }
     public set minGranularity(v: 'hour' | 'minute' | 'second' | 'millisecond') {
         if (!['hour', 'minute', 'second', 'millisecond'].includes(v)) return;
         this.setAttribute('min-granularity', v);
     }
     public get colOrder() {
-        return this._getAttr('col-order', 'smh') as
-            | 'hms'
-            | 'hsm'
-            | 'mhs'
-            | 'msh'
-            | 'shm'
-            | 'smh';
+        return this._getAttr('col-order', 'smh');
     }
     public set colOrder(v: 'hms' | 'hsm' | 'mhs' | 'msh' | 'shm' | 'smh') {
         if (!['hms', 'hsm', 'mhs', 'msh', 'shm', 'smh'].includes(v)) return;
@@ -221,28 +211,28 @@ export class Ele extends UiBase<Attrs, Emits> {
 
     public connectedCallback() {
         if (!super.connectedCallback()) return;
-        this._colsHourEle.formatter =
-            this._colsMinuteEle.formatter =
-            this._colsSecondEle.formatter =
+        this._listEleHour.formatter =
+            this._listEleMinute.formatter =
+            this._listEleSecond.formatter =
                 (num) => ('0' + num).slice(-2);
 
         this._renderCols();
         this._updateGranularity();
         this._updateColsValue();
 
-        this._colsHourEle.addEventListener('select-num', this._onColsSelect);
-        this._colsMinuteEle.addEventListener('select-num', this._onColsSelect);
-        this._colsSecondEle.addEventListener('select-num', this._onColsSelect);
+        this._listEleHour.addEventListener('select-num', this._onColsSelect);
+        this._listEleMinute.addEventListener('select-num', this._onColsSelect);
+        this._listEleSecond.addEventListener('select-num', this._onColsSelect);
         this._msInputEle.addEventListener('input', this._onMsInput);
     }
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
-        this._colsHourEle.removeEventListener('select-num', this._onColsSelect);
-        this._colsMinuteEle.removeEventListener(
+        this._listEleHour.removeEventListener('select-num', this._onColsSelect);
+        this._listEleMinute.removeEventListener(
             'select-num',
             this._onColsSelect
         );
-        this._colsSecondEle.removeEventListener(
+        this._listEleSecond.removeEventListener(
             'select-num',
             this._onColsSelect
         );
@@ -261,9 +251,9 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (!this.isConnected) return;
         const {
             colOrder,
-            _colsHourEle: hEle,
-            _colsMinuteEle: mEle,
-            _colsSecondEle: sEle
+            _listEleHour: hEle,
+            _listEleMinute: mEle,
+            _listEleSecond: sEle
         } = this;
         // columns order
         const orderedCols: HTMLElement[] = [];
@@ -283,13 +273,15 @@ export class Ele extends UiBase<Attrs, Emits> {
 
     private _updateGranularity = debounce(() => {
         if (!this.isConnected) return;
-        const {
-            _colsHourEle: hEle,
-            _colsMinuteEle: mEle,
-            _colsSecondEle: sEle,
-            maxGranularity,
-            minGranularity
-        } = this;
+        const { maxGranularity, minGranularity } = this;
+        const hEle = this.shadowRoot!.querySelector<HTMLElement>('.col.hour')!;
+        const mEle =
+            this.shadowRoot!.querySelector<HTMLElement>('.col.minute')!;
+        const sEle =
+            this.shadowRoot!.querySelector<HTMLElement>('.col.second')!;
+        const msEle = this.shadowRoot!.querySelector<HTMLElement>(
+            '[part="ms-wrapper"]'
+        )!;
         const colsContainer =
             this.shadowRoot!.querySelector<HTMLElement>('.cols')!;
 
@@ -311,17 +303,15 @@ export class Ele extends UiBase<Attrs, Emits> {
         ).length
             ? ''
             : 'none';
-        this.shadowRoot!.querySelector<HTMLElement>(
-            '[part="ms-wrapper"]'
-        )!.style.display = maxG >= 0 && minG <= 0 ? '' : 'none';
+        msEle.style.display = maxG >= 0 && minG <= 0 ? '' : 'none';
     }, 0);
 
     private _updateColsValue = debounce(() => {
         if (!this.isConnected) return;
         const {
-            _colsHourEle: hEle,
-            _colsMinuteEle: mEle,
-            _colsSecondEle: sEle,
+            _listEleHour: hEle,
+            _listEleMinute: mEle,
+            _listEleSecond: sEle,
             millisecond
         } = this;
 
@@ -339,9 +329,9 @@ export class Ele extends UiBase<Attrs, Emits> {
     }, 0);
 
     private _getMsFromEle() {
-        const hour = this._colsHourEle.currentNum;
-        const minute = this._colsMinuteEle.currentNum;
-        const second = this._colsSecondEle.currentNum;
+        const hour = this._listEleHour.currentNum;
+        const minute = this._listEleMinute.currentNum;
+        const second = this._listEleSecond.currentNum;
         const ms = Math.min(Math.max(0, +this._msInputEle.value || 0), 999);
         return ((hour * 60 + minute) * 60 + second) * 1000 + ms;
     }
