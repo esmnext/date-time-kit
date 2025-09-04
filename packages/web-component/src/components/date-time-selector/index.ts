@@ -22,6 +22,14 @@ HhMmSsMsListGrpEle.define();
 import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
 PopoverEle.define();
 
+const granularityList = [
+    'day',
+    'hour',
+    'minute',
+    'second',
+    'millisecond'
+] as const;
+
 export interface Attrs extends BaseAttrs {
     /**
      * Set which day of the week is the first day.
@@ -41,6 +49,11 @@ export interface Attrs extends BaseAttrs {
      * @default 'current-time'
      */
     'showing-time'?: string | number;
+    /**
+     * 选择器的粒度，表示最小可选的时间单位。默认为 millisecond。
+     * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。
+     */
+    'min-granularity'?: 'day' | 'hour' | 'minute' | 'second' | 'millisecond';
 }
 
 export interface Emits {
@@ -56,7 +69,8 @@ export class Ele extends UiBase<Attrs, Emits> {
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
             'week-start-at',
             'current-time',
-            'showing-time'
+            'showing-time',
+            'min-granularity'
         ] satisfies (keyof Attrs)[];
     }
     public get currentTime() {
@@ -83,6 +97,18 @@ export class Ele extends UiBase<Attrs, Emits> {
     public set weekStartAt(val: Weeks) {
         if (!weekKey.includes(val)) return;
         this.setAttribute('week-start-at', val);
+    }
+    public get minGranularity() {
+        return this._getAttr('min-granularity', 'millisecond');
+    }
+    public set minGranularity(val:
+        | 'day'
+        | 'hour'
+        | 'minute'
+        | 'second'
+        | 'millisecond') {
+        if (!granularityList.includes(val)) return;
+        this.setAttribute('min-granularity', val);
     }
 
     protected _style = styleStr;
@@ -191,10 +217,21 @@ export class Ele extends UiBase<Attrs, Emits> {
             this._calendar.timeEnd =
                 +currentTime;
         this._calendar.showingTime = this.showingTime;
+
+        const selectorWrapper =
+            this.shadowRoot!.querySelector<HTMLElement>('.time-selector')!;
+        if (this.minGranularity === 'day') {
+            this._timeSelector.millisecond = 0;
+            selectorWrapper.style.display = 'none';
+            return;
+        }
+        selectorWrapper.style.display = '';
+        this._timeSelector.minGranularity = this.minGranularity;
+
         this._timeSelector.millisecond =
             (+currentTime - tz) % (24 * 60 * 60 * 1000);
         this.shadowRoot!.querySelector('.wrapper .time-echo')!.textContent =
-            this.timeFormatter(currentTime as Date);
+            this.timeFormatter(currentTime as Date, this.minGranularity);
     }, 0);
 
     private _onCalendarSelect = (e: CalendarBaseEvent['select-time']) => {
@@ -236,10 +273,19 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._timePopover.open = false;
     };
 
-    public timeFormatter = (time: Date) =>
-        new Date(+time - new Date().getTimezoneOffset() * 60 * 1000)
+    public timeFormatter = (
+        time: Date,
+        minGranularity: 'day' | 'hour' | 'minute' | 'second' | 'millisecond'
+    ) => {
+        const t = new Date(+time - new Date().getTimezoneOffset() * 60 * 1000)
             .toISOString()
             .slice(11, 23);
+        if (minGranularity === 'day') return '';
+        if (minGranularity === 'hour') return t.slice(0, 2);
+        if (minGranularity === 'minute') return t.slice(0, 5);
+        if (minGranularity === 'second') return t.slice(0, 8);
+        return t;
+    };
 }
 
 Ele.define();

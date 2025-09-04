@@ -102,6 +102,7 @@ const dateTimeSelectorState = ref<'open' | 'close'>('close');
             <p>selected time: {{ currentTime && new Date(currentTime).toISOString() }}</p>
             <p>state: {{ dateTimeSelectorState }}</p>
             <dt-date-time-selector
+                min-granularity="minute"
                 :current-time="currentTime"
                 @select-time="currentTime = +$event.detail"
                 @open-change="dateTimeSelectorState = $event.detail ? 'open' : 'close'"
