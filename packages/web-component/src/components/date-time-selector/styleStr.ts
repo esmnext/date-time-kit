@@ -2,13 +2,15 @@ import { svg2cssUrl, timeSvg } from '../../assets';
 import { css } from '../../utils';
 
 export const styleStr = css`
+:host {
+  display: inline-block;
+}
+
 .wrapper {
   display: flex;
   flex-direction: column;
   gap: 15px;
-}
-dt-popover {
-  position: relative;
+  position: fixed;
 }
 
 [open] > .time-echo-wrapper {
@@ -29,7 +31,7 @@ dt-popover {
 }
 
 .time-selector {
-  position: absolute;
+  position: fixed;
   width: 100%;
   height: 461px;
   box-sizing: border-box;
