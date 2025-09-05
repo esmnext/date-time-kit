@@ -1,4 +1,4 @@
-import { css, debounce, html } from '../../utils';
+import { debounce } from '../../utils';
 import { Ele as NumListEle, type EventMap as NumListEvent } from '../num-list';
 NumListEle.define();
 import {
@@ -6,41 +6,8 @@ import {
     type Emit2EventMap,
     UiBase
 } from '../web-component-base';
-// import styleStr from './index.scss?inline';
-const styleStr = css`
-:host {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  gap: 15px;
-}
-
-.cols {
-  flex: 1;
-  display: flex;
-  flex-direction: row;
-  height: 0;
-  justify-content: space-between;
-  gap: 2px;
-}
-
-.col {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.col > span {
-  text-align: center;
-  display: inline-block;
-  line-height: 27px;
-}
-
-dt-num-list {
-  flex: 1;
-}
-`;
+import styleStr from './index.css';
+import html from './index.html';
 
 export interface Attrs extends BaseAttrs {
     millisecond: number;
@@ -84,22 +51,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
 
     protected _style = styleStr;
-    protected _template = html`
-        <div class="cols" part="cols">
-            <div class="col year" part="col year">
-                <span part="col label year">Year</span>
-                <dt-num-list part="list year" class="year"></dt-num-list>
-            </div>
-            <div class="col month" part="col month">
-                <span part="col label month">Month</span>
-                <dt-num-list part="list month" class="month" min-num="1" max-num="12"></dt-num-list>
-            </div>
-            <div class="col day" part="col day">
-                <span part="col label day">Day</span>
-                <dt-num-list part="list day" class="day" min-num="1" max-num="31"></dt-num-list>
-            </div>
-        </div>
-    `;
+    protected _template = html;
 
     constructor() {
         super();

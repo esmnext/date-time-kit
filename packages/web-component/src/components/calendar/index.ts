@@ -1,140 +1,13 @@
-import { closestByEvent, css, debounce, html } from '../../utils';
-import { Ele as I18nEle } from '../i18n';
-I18nEle.define();
+import { closestByEvent, debounce } from '../../utils';
 import {
     type BaseAttrs,
     type Emit2EventMap,
     UiBase
 } from '../web-component-base';
-// import styleStr from './index.scss?inline';
-const styleStr = css`
-:host {
-  --gap: var(--calendar-item-gap, 10px 0);
-  --item-size: var(--calendar-item-size, 30px);
-  --color-disabled-text: var(--calendar-item-disabled-text, #aaa);
-  --color-active-bg: var(--calendar-item-active-bg, #002BE7);
-  --color-active-text: var(--calendar-item-active-text, #fff);
-  --color-in-range-bg: var(--calendar-item-in-range-bg, #002BE726);
-  --color-in-range-text: var(--calendar-item-in-range-text, #002BE7);
-  --color-hover-bg: var(--calendar-item-hover-bg, #0000000D);
-  --color-hover-text: var(--calendar-item-hover-text, #000);
-}
-
-.wrapper {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: var(--gap);
-  width: 100%;
-  height: 100%;
-  justify-content: space-between;
-  text-align: center;
-}
-
-.week {
-  min-width: var(--item-size);
-}
-
-.item {
-  min-width: var(--item-size);
-  line-height: var(--item-size);
-  height: var(--item-size);
-  position: relative;
-  --half-period-bg-w: calc(50% + var(--item-size) / 2);
-}
-.item span {
-  position: relative;
-  z-index: 2;
-}
-.item:not(.disabled) {
-  cursor: pointer;
-}
-:host([show-other-month]) .item.prev.disabled, :host([show-other-month]) .item.next.disabled, .item.disabled:not(.prev, .next) {
-  cursor: not-allowed;
-  color: var(--color-disabled-text);
-}
-.item:hover {
-  color: var(--color-hover-text);
-}
-.item.in-range {
-  color: var(--color-in-range-text);
-}
-.item:not(.disabled) .highlight {
-  display: block;
-  border-radius: 50%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: var(--item-size);
-  height: var(--item-size);
-  transform: translate(-50%, -50%);
-}
-.item.start, .item.end {
-  color: var(--color-active-text);
-}
-.item.start .highlight, .item.end .highlight {
-  background-color: var(--color-active-bg);
-}
-.item:hover .highlight {
-  background-color: var(--color-hover-bg);
-}
-.item.in-range .bg {
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 43, 231, 0.1490196078);
-}
-.item:nth-of-type(7n + 1) .bg {
-  border-radius: var(--item-size) 0 0 var(--item-size);
-  width: var(--half-period-bg-w);
-  left: calc(50% - var(--item-size) / 2);
-}
-.item:nth-of-type(7n) .bg {
-  border-radius: 0 var(--item-size) var(--item-size) 0;
-  width: var(--half-period-bg-w);
-}
-.item:nth-of-type(7n).range-start .bg {
-  width: var(--item-size);
-  left: calc(50% - var(--item-size) / 2);
-}
-.item.range-start .bg {
-  border-top-left-radius: var(--item-size);
-  border-bottom-left-radius: var(--item-size);
-  width: var(--half-period-bg-w);
-  left: calc(50% - var(--item-size) / 2);
-}
-.item.range-end .bg {
-  border-top-right-radius: var(--item-size);
-  border-bottom-right-radius: var(--item-size);
-  width: var(--half-period-bg-w);
-}
-.item.range-start.range-end .bg {
-  width: var(--item-size);
-}
-.item:nth-of-type(7n).range-start .bg, .item:nth-of-type(7n + 1).range-end .bg {
-  width: var(--item-size);
-}
-`;
-
-export type Weeks = 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
-
-export const weekKey: Weeks[] = [
-    'sun',
-    'mon',
-    'tue',
-    'wed',
-    'thu',
-    'fri',
-    'sat'
-];
-export const getWeekInOrder = (startAt?: Weeks | null) => {
-    if (!startAt) startAt = 'sun';
-    const index = weekKey.indexOf(startAt);
-    if (index === -1) return weekKey;
-    return [...weekKey.slice(index), ...weekKey.slice(0, index)];
-};
+import styleStr from './index.css';
+import html from './index.html';
+import { type Weeks, getWeekInOrder, weekKey } from './weeks';
+export { type Weeks, weekKey, getWeekInOrder } from './weeks';
 
 export interface Attrs extends BaseAttrs {
     /**
@@ -264,21 +137,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
 
     protected _style = styleStr;
-    protected _template = html`
-<div class="wrapper">${
-        weekKey
-            .map(
-                (key) =>
-                    html`<dt-i18n class="week" i18n-key="date.${key}" part="week"></dt-i18n>`
-            )
-            .join('') +
-        [...Array(7 * 6)]
-            .map(
-                (_, i) =>
-                    html`<div class="item" part="item"><i class="bg"></i><i class="highlight"></i><span>${(i % 31) + 1}</span></div>`
-            )
-            .join('')
-    }</div>`;
+    protected _template = html;
 
     constructor() {
         super();

@@ -1,4 +1,7 @@
+import { svg2cssUrl, timeSvg } from '../../assets';
+import { css } from '../../utils';
 
+export default css`
 :host {
   display: flex;
   flex-direction: column;
@@ -21,10 +24,10 @@
   border-radius: 6px;
   border: 1px solid #00000026;
   padding: 4px;
-
-  &.active {
-    border-color: #333;
-  }
+}
+.start-date-echo-wrapper.active,
+.end-date-echo-wrapper.active {
+  border-color: #333;
 }
 
 .date-echo .label {
@@ -94,7 +97,6 @@ dt-popover {
   height: 461px;
   box-sizing: border-box;
   background-color: #fff;
-
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -102,25 +104,22 @@ dt-popover {
   border-radius: 6px;
   border: 1px solid #eee;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-
-  .title {
-    font-size: 16px;
-    margin: 0;
-    line-height: 1;
-  }
+}
+.time-selector .title {
+  font-size: 16px;
+  margin: 0;
+  line-height: 1;
 }
 
-dt-hhmmss-ms-list-grp {
-  &::part(list-container) {
-    gap: 2px;
-  }
-  &::part(list) {
-    scroll-behavior: smooth;
-  }
-  &::part(item) {
-    font-size: 14px;
-    line-height: 17px;
-  }
+dt-hhmmss-ms-list-grp::part(list-container) {
+  gap: 2px;
+}
+dt-hhmmss-ms-list-grp::part(list) {
+  scroll-behavior: smooth;
+}
+dt-hhmmss-ms-list-grp::part(item) {
+  font-size: 14px;
+  line-height: 17px;
 }
 
 #time-selector-done-btn {
@@ -137,7 +136,7 @@ dt-hhmmss-ms-list-grp {
   display: inline-block;
   width: 20px;
   height: 20px;
-  background: url('@/assets/time.svg') 50% / 20px 20px no-repeat;
+  background: ${svg2cssUrl(timeSvg)} 50% / 20px 20px no-repeat;
 }
 
 .time-echo {
@@ -147,15 +146,13 @@ dt-hhmmss-ms-list-grp {
 }
 
 dt-calendar-base {
-  // 254 = item height 6 * 30 + week 14 + gap 10 * 6
   height: 254px;
-
-  &::part(week) {
-    font-size: 12px;
-    line-height: 14px;
-  }
-
-  &::part(item) {
-    font-size: 14px;
-  }
 }
+dt-calendar-base::part(week) {
+  font-size: 12px;
+  line-height: 14px;
+}
+dt-calendar-base::part(item) {
+  font-size: 14px;
+}
+`;

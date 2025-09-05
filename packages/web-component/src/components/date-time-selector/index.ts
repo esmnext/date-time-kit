@@ -1,4 +1,12 @@
-import { closestByEvent, debounce, html } from '../../utils';
+import { closestByEvent, debounce } from '../../utils';
+import {
+    type Ele as CalendarBaseEle,
+    type EventMap as CalendarBaseEvent,
+    type Weeks,
+    weekKey
+} from '../calendar';
+import type { Ele as HhMmSsMsListGrpEle } from '../hhmmss-ms-list-grp';
+import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
 import {
     type BaseAttrs,
     type Emit2EventMap,
@@ -8,19 +16,8 @@ import {
     Ele as YyyyMmNavEle,
     type EventMap as YyyyMmNavEvent
 } from '../yyyymm-nav';
+import html from './index.html';
 import { styleStr } from './styleStr';
-YyyyMmNavEle.define();
-import {
-    Ele as CalendarBaseEle,
-    type EventMap as CalendarBaseEvent,
-    type Weeks,
-    weekKey
-} from '../calendar';
-CalendarBaseEle.define();
-import { Ele as HhMmSsMsListGrpEle } from '../hhmmss-ms-list-grp';
-HhMmSsMsListGrpEle.define();
-import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
-PopoverEle.define();
 
 const granularityList = [
     'day',
@@ -107,29 +104,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
 
     protected _style = styleStr;
-    protected _template = html`
-<dt-popover part="popover">
-    <slot slot="trigger" name="trigger"><button>select date and time</button></slot>
-    <div slot="pop" class="wrapper menu" part="pop">
-        <dt-yyyymm-nav
-            show-ctrl-btn-month-add
-            show-ctrl-btn-month-sub
-        ></dt-yyyymm-nav>
-        <dt-calendar-base></dt-calendar-base>
-        <dt-popover id="time-popover" part="popover time">
-            <div slot="trigger" class="time-echo-wrapper">
-                <i class="time-icon"></i>
-                <span class="time-echo">hh:mm:ss.sss</span>
-            </div>
-            <div slot="pop" class="time-selector">
-                <h3 class="title">Select Time</h3>
-                <dt-hhmmss-ms-list-grp></dt-hhmmss-ms-list-grp>
-                <button id="time-selector-done-btn">Done</button>
-            </div>
-        </dt-popover>
-    </div>
-</dt-popover>
-`;
+    protected _template = html;
 
     private get _navEle() {
         return this.shadowRoot?.querySelector('dt-yyyymm-nav') as YyyyMmNavEle;

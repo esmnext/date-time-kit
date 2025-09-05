@@ -1,74 +1,12 @@
-import { css, debounce, html } from '../../utils';
+import { debounce } from '../../utils';
 import { Ele as NumListEle, type EventMap as NumListEvent } from '../num-list';
 import {
     type BaseAttrs,
     type Emit2EventMap,
     UiBase
 } from '../web-component-base';
-NumListEle.define();
-// import styleStr from './index.scss?inline';
-const styleStr = css`
-:host {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  gap: 15px;
-}
-
-.cols {
-  flex: 1;
-  display: flex;
-  flex-direction: row;
-  height: 0;
-  justify-content: space-between;
-  gap: 2px;
-}
-
-.col {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.col > span {
-  text-align: center;
-  display: inline-block;
-  line-height: 27px;
-}
-
-dt-num-list {
-  flex: 1;
-}
-
-.ms-input {
-  width: 100%;
-  box-sizing: border-box;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
-  padding: 4px;
-  cursor: text;
-}
-
-label > span {
-  display: inline-block;
-  line-height: 1;
-  font-size: 14px;
-  margin-bottom: 2px;
-}
-
-input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 0;
-  border: none;
-  outline: none;
-}
-
-input::placeholder {
-  color: #999;
-}
-`;
+import styleStr from './index.css';
+import html from './index.html';
 
 export interface Attrs extends BaseAttrs {
     millisecond: number;
@@ -112,44 +50,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
 
     protected _style = styleStr;
-    protected _template = html`
-        <div class="cols" part="cols">
-            <div class="col hour" part="col hour">
-                <span>Hour</span>
-                <dt-num-list
-                    exportparts="container:list-container, item, item-current"
-                    part="list hour"
-                    class="hour"
-                    min-num="0"
-                    max-num="23"
-                ></dt-num-list>
-            </div>
-            <div class="col minute" part="col minute">
-                <span>Minute</span>
-                <dt-num-list
-                    exportparts="container:list-container, item, item-current"
-                    part="list minute"
-                    class="minute"
-                    min-num="0"
-                    max-num="59"
-                ></dt-num-list>
-            </div>
-            <div class="col second" part="col second">
-                <span>Second</span>
-                <dt-num-list
-                    exportparts="container:list-container, item, item-current"
-                    part="list second"
-                    class="second"
-                    min-num="0"
-                    max-num="59"
-                ></dt-num-list>
-            </div>
-        </div>
-        <label class="ms-input" part="ms-wrapper">
-            <span part="ms-label">Millisecond</span>
-            <input part="ms-input" id="ms" type="number" class="millisecond" min="0" max="999" step="1" placeholder="000" />
-        </label>
-    `;
+    protected _template = html;
 
     constructor() {
         super();
