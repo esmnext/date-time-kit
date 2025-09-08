@@ -1,0 +1,131 @@
+import { debounce, getCurrentTzMs } from '../../utils';
+import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
+import type { Emit2EventMap } from '../web-component-base';
+import {
+    type Attrs as BaseAttrs,
+    BaseEle,
+    type BaseEmits,
+    type Granularity
+} from './base';
+import { selectorCss } from './css';
+import { selectorHtml } from './html';
+
+export type { Granularity, ColOrder } from './base';
+export { granularityList, colOrderList } from './base';
+
+export interface Attrs extends BaseAttrs {
+    /** 当前的时间戳 */
+    'current-time'?: number | string;
+}
+
+export interface Emits extends BaseEmits {
+    'select-time': Date;
+    'open-change': boolean;
+}
+export type EventMap = Emit2EventMap<Emits>;
+
+/**
+ * 时分秒毫秒下拉选择器。
+ * 这个选择器以 current-time 属性作为当前时间的依据。
+ * 而 millisecond 属性则表示现在选中的毫秒数（点击Done按钮后才生效的），理论上外部不应该使用。
+ */
+export class Ele extends BaseEle<Attrs, Emits> {
+    public static readonly tagName = 'dt-hhmmss-ms-selector' as const;
+    static get observedAttributes(): string[] {
+        return [
+            ...(super.observedAttributes as (keyof BaseAttrs)[]),
+            'current-time'
+        ] satisfies (keyof Attrs)[];
+    }
+
+    protected _style = selectorCss;
+    protected _template = selectorHtml;
+    constructor() {
+        super();
+        this._applyTemplate();
+    }
+
+    private get _popoverEle() {
+        return this.shadowRoot?.querySelector('dt-popover') as PopoverEle;
+    }
+    public set open(v: boolean) {
+        this._popoverEle.open = v;
+    }
+    public get open() {
+        return this._popoverEle.open;
+    }
+
+    public connectedCallback() {
+        if (!super.connectedCallback()) return;
+        this._render();
+        this._popoverEle.addEventListener('open-change', this._onPopoverChange);
+        this.shadowRoot
+            ?.querySelector('button')
+            ?.addEventListener('click', this._onDoneBtnClick);
+    }
+    public disconnectedCallback() {
+        if (!super.disconnectedCallback()) return;
+        this._popoverEle.removeEventListener(
+            'open-change',
+            this._onPopoverChange
+        );
+        this.shadowRoot
+            ?.querySelector('button')
+            ?.removeEventListener('click', this._onDoneBtnClick);
+    }
+    protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
+        super._onAttrChanged(name, oldValue, newValue);
+        if (name === 'millisecond') return;
+        this._render();
+        if (name === 'current-time') {
+            this.dispatchEvent('select-time', this.currentTime as Date);
+        }
+    }
+
+    public get currentTime() {
+        const v = this._getAttr('current-time', '' + Date.now());
+        return new Date(Number.isNaN(+v) ? v : +v);
+    }
+    public set currentTime(val: number | string | Date) {
+        const v = new Date(val);
+        if (Number.isNaN(+v)) return;
+        this.setAttribute('current-time', +v + '');
+    }
+
+    private _render = debounce(() => {
+        if (!this.isConnected) return;
+        const tz = getCurrentTzMs();
+        this.millisecond = (+this.currentTime + tz) % (24 * 60 * 60 * 1000);
+        this.shadowRoot!.querySelector('.time-echo')!.textContent =
+            this.timeFormatter(this.currentTime as Date, this.minGranularity);
+    }, 0);
+
+    private _onPopoverChange = (e: PopoverEvent['open-change']) => {
+        if (!(e.target instanceof PopoverEle)) return;
+        if (!e.detail) return this._render();
+        this.scrollToCurrentItem();
+    };
+
+    private _onDoneBtnClick = (_e: Event) => {
+        const calcTime = (time: Date, ms: number) => {
+            time.setHours(0, 0, 0, 0);
+            time.setMilliseconds(ms);
+            return time;
+        };
+        this.currentTime = calcTime(this.currentTime as Date, this.millisecond);
+        this._render();
+        this._popoverEle.open = false;
+    };
+
+    public timeFormatter = (time: Date, minGranularity: Granularity) => {
+        const t = new Date(+time + getCurrentTzMs())
+            .toISOString()
+            .slice(11, 23);
+        if (minGranularity === 'hour') return t.slice(0, 2);
+        if (minGranularity === 'minute') return t.slice(0, 5);
+        if (minGranularity === 'second') return t.slice(0, 8);
+        return t;
+    };
+}
+
+Ele.define();

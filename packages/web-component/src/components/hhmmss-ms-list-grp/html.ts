@@ -2,7 +2,7 @@ import { html } from '../../utils';
 import { Ele as NumListEle } from '../num-list';
 NumListEle.define();
 
-export default html`
+export const baseHtml = html`
 <div class="cols" part="cols">
     <div class="col hour" part="col hour">
         <span>Hour</span>
@@ -39,4 +39,21 @@ export default html`
     <span part="ms-label">Millisecond</span>
     <input part="ms-input" id="ms" type="number" class="millisecond" min="0" max="999" step="1" placeholder="000" />
 </label>
+`;
+
+import { Ele as PopoverEle } from '../popover';
+PopoverEle.define();
+
+export const selectorHtml = html`
+<dt-popover part="popover">
+  <div slot="trigger">
+    <i class="time-icon"></i>
+    <span class="time-echo">hh:mm:ss.sss</span>
+  </div>
+  <div slot="pop">
+    <h3>Select Time</h3>
+    <div class="list-grp">${baseHtml}</div>
+    <button>Done</button>
+  </div>
+</dt-popover>
 `;

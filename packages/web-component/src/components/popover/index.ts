@@ -1,4 +1,4 @@
-import { html } from '../../utils';
+import { css, html } from '../../utils';
 import {
     type BaseAttrs,
     type Emit2EventMap,
@@ -29,6 +29,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         ] satisfies (keyof Attrs)[];
     }
 
+    protected _style = css``;
     protected _template =
         html`<slot name="trigger"></slot><slot name="pop" style="display:none"></slot>`;
 

@@ -34,3 +34,6 @@ export function debounce(fn: Function, delay = 0) {
         }, delay);
     };
 }
+
+export const getCurrentTz = () => -new Date().getTimezoneOffset();
+export const getCurrentTzMs = () => getCurrentTz() * 60 * 1000;

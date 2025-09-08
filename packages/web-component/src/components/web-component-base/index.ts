@@ -105,19 +105,21 @@ export class UiBase<
         this.attachShadow({ mode: 'open' });
     }
 
-    protected _getAttr<
-        K extends keyof Attr,
-        D extends undefined | getAttrType<Attr, K> = undefined
-    >(
+    protected _getAttr<K extends keyof Attr>(
+        qualifiedName: K
+    ): getAttrType<Attr, K> | null;
+    protected _getAttr<K extends keyof Attr>(
         qualifiedName: K,
-        defaultValue?: D
-    ): undefined extends D
-        ? getAttrType<Attr, K> | null
-        : getAttrType<Attr, K> {
+        defaultValue: getAttrType<Attr, K> | string
+    ): getAttrType<Attr, K>;
+    protected _getAttr<K extends keyof Attr>(
+        qualifiedName: K,
+        defaultValue?: getAttrType<Attr, K> | string
+    ): getAttrType<Attr, K> | null {
         const attr = this.getAttribute(qualifiedName as string);
         return (
             attr === null && defaultValue !== void 0 ? defaultValue : attr
-        ) as getAttrType<Attr, K>;
+        ) as getAttrType<Attr, K> | null;
     }
 
     protected _onAttrChanged(_name: string, _oldVal: string, _newVal: string) {}
