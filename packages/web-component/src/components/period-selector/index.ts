@@ -1,4 +1,17 @@
 import { closestByEvent, debounce, getCurrentTzMs } from '../../utils';
+import {
+    type Ele as CalendarBaseEle,
+    type EventMap as CalendarBaseEvent,
+    type Weeks,
+    weekKey
+} from '../calendar';
+import {
+    Ele as HhMmSsMsSelectorEle,
+    type EventMap as HhMmSsMsSelectorEvent,
+    type Granularity as TimeGranularity,
+    granularityList as timeGranularityList
+} from '../hhmmss-ms-list-grp/selector';
+import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
 import { type BaseAttrs, UiBase } from '../web-component-base';
 import {
     Ele as YyyyMmNavEle,
@@ -6,18 +19,9 @@ import {
 } from '../yyyymm-nav';
 import styleStr from './index.css';
 import html from './index.html';
-YyyyMmNavEle.define();
-import {
-    Ele as CalendarBaseEle,
-    type EventMap as CalendarBaseEvent,
-    type Weeks,
-    weekKey
-} from '../calendar';
-CalendarBaseEle.define();
-import { Ele as HhMmSsMsListGrpEle } from '../hhmmss-ms-list-grp';
-HhMmSsMsListGrpEle.define();
-import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
-PopoverEle.define();
+
+export const granularityList = ['day', ...timeGranularityList] as const;
+export type Granularity = (typeof granularityList)[number];
 
 export interface Attrs extends BaseAttrs {
     /**
@@ -36,7 +40,7 @@ export interface Attrs extends BaseAttrs {
      * 选择器的粒度，表示最小可选的时间单位。默认为 millisecond。
      * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。
      */
-    'min-granularity'?: 'day' | 'hour' | 'minute' | 'second' | 'millisecond';
+    'min-granularity'?: Granularity;
     /**
      * Set which day of the week is the first day.
      * @type `'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'`
@@ -106,6 +110,13 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (!weekKey.includes(val)) return;
         this.setAttribute('week-start-at', val);
     }
+    public get minGranularity() {
+        return this._getAttr('min-granularity', 'millisecond');
+    }
+    public set minGranularity(val: Granularity) {
+        if (!granularityList.includes(val)) return;
+        this.setAttribute('min-granularity', val);
+    }
 
     protected _style = styleStr;
     protected _template = html;
@@ -137,21 +148,13 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
     private get _startTimeSelector() {
         return this.shadowRoot?.querySelector(
-            '.start dt-hhmmss-ms-list-grp'
-        ) as HhMmSsMsListGrpEle;
+            '.start dt-hhmmss-ms-selector'
+        ) as HhMmSsMsSelectorEle;
     }
     private get _endTimeSelector() {
         return this.shadowRoot?.querySelector(
-            '.end dt-hhmmss-ms-list-grp'
-        ) as HhMmSsMsListGrpEle;
-    }
-    private get _startTimePopover() {
-        return this.shadowRoot?.querySelector(
-            '.start dt-popover'
-        ) as PopoverEle;
-    }
-    private get _endTimePopover() {
-        return this.shadowRoot?.querySelector('.end dt-popover') as PopoverEle;
+            '.end dt-hhmmss-ms-selector'
+        ) as HhMmSsMsSelectorEle;
     }
 
     // 存放的是结束时间点
@@ -174,14 +177,6 @@ export class Ele extends UiBase<Attrs, Emits> {
         );
         this._startNavEle.addEventListener('change', this._onNavChange);
         this._endNavEle.addEventListener('change', this._onNavChange);
-        this._startTimePopover.addEventListener(
-            'open-change',
-            this._onTimePopoverOpenChange
-        );
-        this._endTimePopover.addEventListener(
-            'open-change',
-            this._onTimePopoverOpenChange
-        );
         this._startCalendar.addEventListener(
             'hover-item',
             this._onCalendarItemHover
@@ -198,11 +193,19 @@ export class Ele extends UiBase<Attrs, Emits> {
             'popover-open-change',
             this._onNavOpenToggle
         );
-        this.shadowRoot
-            ?.querySelectorAll('#time-selector-done-btn')
-            .forEach((btn) => {
-                btn.addEventListener('click', this._onTimeSelectorDoneClick);
-            });
+        this._startTimeSelector.addEventListener(
+            'open-change',
+            this._stopEvent
+        );
+        this._endTimeSelector.addEventListener('open-change', this._stopEvent);
+        this._startTimeSelector.addEventListener(
+            'select-time',
+            this._onTimeSelectorChange
+        );
+        this._endTimeSelector.addEventListener(
+            'select-time',
+            this._onTimeSelectorChange
+        );
     }
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
@@ -216,14 +219,6 @@ export class Ele extends UiBase<Attrs, Emits> {
         );
         this._startNavEle.removeEventListener('change', this._onNavChange);
         this._endNavEle.removeEventListener('change', this._onNavChange);
-        this._startTimePopover.removeEventListener(
-            'open-change',
-            this._onTimePopoverOpenChange
-        );
-        this._endTimePopover.removeEventListener(
-            'open-change',
-            this._onTimePopoverOpenChange
-        );
         this._startCalendar.removeEventListener(
             'hover-item',
             this._onCalendarItemHover
@@ -240,11 +235,22 @@ export class Ele extends UiBase<Attrs, Emits> {
             'popover-open-change',
             this._onNavOpenToggle
         );
-        this.shadowRoot
-            ?.querySelectorAll('#time-selector-done-btn')
-            .forEach((btn) => {
-                btn.removeEventListener('click', this._onTimeSelectorDoneClick);
-            });
+        this._startTimeSelector.removeEventListener(
+            'open-change',
+            this._stopEvent
+        );
+        this._endTimeSelector.removeEventListener(
+            'open-change',
+            this._stopEvent
+        );
+        this._startTimeSelector.removeEventListener(
+            'select-time',
+            this._onTimeSelectorChange
+        );
+        this._endTimeSelector.removeEventListener(
+            'select-time',
+            this._onTimeSelectorChange
+        );
     }
 
     protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
@@ -267,14 +273,11 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (timeStart > timeEnd) [timeStart, timeEnd] = [timeEnd, timeStart];
         this._startCalendar.weekStartAt = this._endCalendar.weekStartAt =
             this.weekStartAt;
-        const tz = getCurrentTzMs();
         this._startNavEle.millisecond =
             this._startCalendar.showingTime =
             this._startCalendar.timeStart =
             this._endCalendar.timeStart =
                 +timeStart;
-        this._startTimeSelector.millisecond =
-            (+timeStart + tz) % (24 * 60 * 60 * 1000);
         this._endCalendar.timeEnd = this._startCalendar.timeEnd = +timeEnd;
         if (diffInMonth(timeStart, timeEnd) <= 1) {
             const nextMonth = new Date(
@@ -287,13 +290,17 @@ export class Ele extends UiBase<Attrs, Emits> {
             this._endCalendar.showingTime = timeEnd;
             this._endNavEle.millisecond = +timeEnd;
         }
-        this._endTimeSelector.millisecond =
-            (+timeEnd + tz) % (24 * 60 * 60 * 1000);
-        this.shadowRoot!.querySelector(
-            '.wrapper.start .time-echo'
-        )!.textContent = this.timeFormatter(timeStart as Date);
-        this.shadowRoot!.querySelector('.wrapper.end .time-echo')!.textContent =
-            this.timeFormatter(timeEnd as Date);
+        if (this.minGranularity === 'day') {
+            this._startTimeSelector.style.display = 'none';
+            this._endTimeSelector.style.display = 'none';
+        } else {
+            this._startTimeSelector.style.display = '';
+            this._endTimeSelector.style.display = '';
+            this._startTimeSelector.currentTime = timeStart;
+            this._endTimeSelector.currentTime = timeEnd;
+            this._startTimeSelector.minGranularity = this.minGranularity;
+            this._endTimeSelector.minGranularity = this.minGranularity;
+        }
         this._updateDateEcho();
         this._updateNavCtrlBtn();
     }, 0);
@@ -346,37 +353,16 @@ export class Ele extends UiBase<Attrs, Emits> {
         e.stopPropagation();
         e.target.nextElementSibling?.classList.toggle('hide', e.detail);
     };
-    private _onTimePopoverOpenChange = (e: PopoverEvent['open-change']) => {
-        if (!(e.target instanceof PopoverEle)) return;
+    private _onTimeSelectorChange = (
+        e: HhMmSsMsSelectorEvent['select-time']
+    ) => {
+        if (!(e.target instanceof HhMmSsMsSelectorEle)) return;
         e.stopPropagation();
-        if (!e.detail) return this._render(); // for reset time selector value
-        e.target
-            .querySelectorAll<HhMmSsMsListGrpEle>('dt-hhmmss-ms-list-grp')
-            .forEach((ele) => {
-                ele.scrollToCurrentItem();
-            });
-    };
-    private _onTimeSelectorDoneClick = (e: Event) => {
-        const btn = closestByEvent(e, '#time-selector-done-btn');
-        if (!btn) return;
-        const type = btn.dataset.type;
-        const calcTime = (time: Date, ms: number) => {
-            time.setHours(0, 0, 0, 0);
-            time.setMilliseconds(ms);
-            return time;
-        };
+        const type = e.target.dataset.type;
         if (type === 'start') {
-            this.timeStart = calcTime(
-                this.timeStart as Date,
-                this._startTimeSelector.millisecond
-            );
-            this._startTimePopover.open = false;
+            this.timeStart = e.detail;
         } else if (type === 'end') {
-            this.timeEnd = calcTime(
-                this.timeEnd as Date,
-                this._endTimeSelector.millisecond
-            );
-            this._endTimePopover.open = false;
+            this.timeEnd = e.detail;
         }
     };
 
@@ -384,9 +370,19 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._render();
     }
 
-    public timeFormatter = (time: Date) =>
-        new Date(+time + getCurrentTzMs()).toISOString().slice(11, 23);
     public dateFormatter = (time: Date) => time.toLocaleDateString('en-GB');
+
+    public get timeFormatter() {
+        return this._startTimeSelector.timeFormatter;
+    }
+    public set timeFormatter(fn: (
+        time: Date,
+        minGranularity: TimeGranularity
+    ) => string) {
+        if (typeof fn !== 'function') return;
+        this._startTimeSelector.timeFormatter = fn;
+        this._endTimeSelector.timeFormatter = fn;
+    }
 }
 
 Ele.define();

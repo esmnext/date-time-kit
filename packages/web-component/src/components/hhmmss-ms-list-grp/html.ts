@@ -51,7 +51,7 @@ export const selectorHtml = html`
     <span class="time-echo">hh:mm:ss.sss</span>
   </div>
   <div slot="pop">
-    <h3>Select Time</h3>
+    <h3><slot name="title">Select Time</slot></h3>
     <div class="list-grp">${baseHtml}</div>
     <button>Done</button>
   </div>

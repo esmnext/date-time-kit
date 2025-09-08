@@ -5,8 +5,8 @@ import { Ele as CalendarBaseEle } from '../calendar';
 CalendarBaseEle.define();
 import { Ele as PopoverEle } from '../popover';
 PopoverEle.define();
-import { Ele as HhMmSsMsListGrpEle } from '../hhmmss-ms-list-grp';
-HhMmSsMsListGrpEle.define();
+import { Ele as HhMmSsMsSelector } from '../hhmmss-ms-list-grp/selector';
+HhMmSsMsSelector.define();
 
 export default html`
 <div class="date-echo">
@@ -28,17 +28,9 @@ export default html`
         show-ctrl-btn-month-sub
     ></dt-yyyymm-nav>
     <dt-calendar-base data-type="${s}"></dt-calendar-base>
-    <dt-popover>
-        <div slot="trigger" class="time-echo-wrapper">
-            <i class="time-icon"></i>
-            <span class="time-echo">hh:mm:ss.sss</span>
-        </div>
-        <div slot="pop" class="time-selector">
-            <h3 class="title">${s === 'start' ? 'Start Time' : 'End Time'}</h3>
-            <dt-hhmmss-ms-list-grp></dt-hhmmss-ms-list-grp>
-            <button id="time-selector-done-btn" data-type="${s}">Done</button>
-        </div>
-    </dt-popover>
+    <dt-hhmmss-ms-selector data-type="${s}">
+        <span slot="title">${s === 'start' ? 'Start Time' : 'End Time'}</span>
+    </dt-hhmmss-ms-selector>
 </div>`
     )
     .join('')}</div>`;

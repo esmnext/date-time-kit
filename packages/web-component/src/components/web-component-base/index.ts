@@ -168,6 +168,7 @@ export class UiBase<
                   })
               );
     }
+    protected _stopEvent = (e: Event) => e.stopPropagation();
 
     public addEventListener<K extends keyof Emit | keyof HTMLElementEventMap>(
         type: K | string,

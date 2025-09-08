@@ -6,7 +6,7 @@ import {
     weekKey
 } from '../calendar';
 import {
-    type Ele as HhMmSsMsSelector,
+    type Ele as HhMmSsMsSelectorEle,
     type EventMap as HhMmSsMsSelectorEvent,
     type Granularity as TimeGranularity,
     granularityList as timeGranularityList
@@ -123,7 +123,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     private get _timeSelector() {
         return this.shadowRoot?.querySelector(
             'dt-hhmmss-ms-selector'
-        ) as HhMmSsMsSelector;
+        ) as HhMmSsMsSelectorEle;
     }
 
     constructor() {
@@ -212,7 +212,6 @@ export class Ele extends UiBase<Attrs, Emits> {
     ) => {
         this.currentTime = e.detail;
     };
-    private _stopEvent = (e: Event) => e.stopPropagation();
 
     public get timeFormatter() {
         return this._timeSelector.timeFormatter;
