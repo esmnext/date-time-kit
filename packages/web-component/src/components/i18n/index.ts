@@ -30,8 +30,9 @@ export class Ele extends UiBase<Attrs> {
 
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
         super.attributeChangedCallback(name, oldValue, newValue);
-        if (oldValue === newValue || name !== 'lang') return;
-        this.updateText();
+        if (oldValue === newValue) return;
+        if (name === 'lang' || name === 'i18n-key')
+            this.updateText();
     }
 
     connectedCallback() {
