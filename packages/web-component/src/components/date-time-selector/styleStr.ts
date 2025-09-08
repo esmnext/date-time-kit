@@ -43,11 +43,11 @@ export const styleStr = css`
   border: 1px solid #eee;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 
-  .title {
-    font-size: 16px;
-    margin: 0;
-    line-height: 1;
-  }
+}
+.time-selector .title {
+  font-size: 16px;
+  margin: 0;
+  line-height: 1;
 }
 
 dt-hhmmss-ms-list-grp::part(list-container) {
@@ -97,24 +97,23 @@ dt-hhmmss-ms-list-grp::part(item) {
   background-color: #fff;
   width: 285px;
 
-  & > * {
-    width: 100%;
-  }
+}
+.menu > * {
+  width: 100%;
 }
 
 dt-calendar-base {
   // 254 = item height 6 * 30 + week 14 + gap 10 * 6
   height: 254px;
-
-  &::part(week) {
-    font-size: 12px;
-    line-height: 14px;
-  }
-
-  &::part(item) {
-    font-size: 14px;
-  }
 }
+dt-calendar-base::part(week) {
+  font-size: 12px;
+  line-height: 14px;
+}
+dt-calendar-base::part(item) {
+  font-size: 14px;
+}
+
 dt-yyyymm-nav::part(list-grp) {
   height: 254px;
   margin-top: 10px;
