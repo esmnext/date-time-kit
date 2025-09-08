@@ -21,12 +21,12 @@ export default css`
   flex-direction: column;
   gap: 2px;
   border-radius: 6px;
-  border: 1px solid #00000026;
+  border: 1px solid var(--dt-border-input, #00000026);
   padding: 4px;
 }
 .start-date-echo-wrapper.active,
 .end-date-echo-wrapper.active {
-  border-color: #333;
+  border-color: var(--dt-accent, #333);
 }
 
 .date-echo .label {
@@ -44,7 +44,7 @@ export default css`
   display: block;
   height: 1px;
   width: 20px;
-  background-color: #eee;
+  background-color: var(--dt-border-input, #eee);
 }
 
 dt-yyyymm-nav::part(list-grp) {

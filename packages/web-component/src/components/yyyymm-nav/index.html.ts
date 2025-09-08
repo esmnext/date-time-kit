@@ -15,7 +15,7 @@ export default html`
             <span class="title">title</span>
             <i class="title-arrow"></i>
         </div>
-        <dt-yyyymmdd-list-grp slot="pop" min-granularity="month" part="list-grp"></dt-yyyymmdd-list-grp>
+        <dt-yyyymmdd-list-grp slot="pop" class="not-pop-bg" min-granularity="month" part="list-grp"></dt-yyyymmdd-list-grp>
     </dt-popover>
     <div class="btns add">
         <i class="btn add month bidirectional-flip"></i>

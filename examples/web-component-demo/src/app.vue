@@ -10,6 +10,8 @@ import {
 
 init();
 
+const theme = ref<'light' | 'dark'>('dark');
+
 const lang = ref<Lang>('en-US');
 
 const startTime = ref<string | number | ''>('');
@@ -56,7 +58,11 @@ const dateTimeSelectorState = ref<'open' | 'close'>('close');
 </script>
 
 <template>
-    <div :dir="lang === 'ar-AE' ? 'rtl' : 'ltr'">
+    <div class="wrapper" :data-theme="theme" :dir="lang === 'ar-AE' ? 'rtl' : 'ltr'">
+        <select v-model="theme" name="theme">
+            <option value="light">light</option>
+            <option value="dark">dark</option>
+        </select>
         <select v-model="lang" name="lang">
             <option value="en-US">en-US</option>
             <option value="zh-CN">zh-CN</option>
@@ -142,6 +148,87 @@ const dateTimeSelectorState = ref<'open' | 'close'>('close');
 </template>
 
 <style>
+div.wrapper {
+    min-width: 100vw;
+    min-height: 100vh;
+    padding: 1rem;
+}
+[data-theme="light"] {
+    --color-bg-block-light: #fff;
+    --color-border-dark: #0000001A;
+    --color-bg-hover: #0000000D;
+    --color-text-main: #111;
+    --color-text-reverse: #fff;
+    --color-text-secondary: #999;
+    --color-text-auxiliary: #666;
+    --color-text-disabled: #ccc;
+    --color-accent: #333;
+    --color-accent-hover: #262626;
+    --color-bg-secondary: #e3e6e8;
+    --color-bg-secondary-hover: #D6D8DB;
+    --border-color-dark: #0000001a;
+    --border-color-input: #00000033;
+    --color-brand: #002BE7;
+    --color-brand-hover: #0025C4;
+    --color-brand-bg: #002BE726;
+    color: var(--color-text-main);
+    background-color: var(--color-bg-block-light);
+}
+[data-theme="dark"] {
+    --color-bg-block-light: #333;
+    --color-border-dark: #ffffff1a;
+    --color-bg-hover: #FFFFFF0D;
+    --color-text-main: #eee;
+    --color-text-reverse: #1f1f1f;
+    --color-text-secondary: #ffffff80;
+    --color-text-auxiliary: #ffffffb2;
+    --color-text-disabled: #ffffff4d;
+    --color-accent: #FFFFFFE5;
+    --color-accent-hover: #FFFFFFF2;
+    --color-bg-secondary: #3D3D3D;
+    --color-bg-secondary-hover: #4D4D4D;
+    --border-color-dark: #ffffff1a;
+    --border-color-input: #696969;
+    --color-brand: #2962FF;
+    --color-brand-hover: #214ECC;
+    --color-brand-bg: #2962FF26;
+    color: var(--color-text-main);
+    background-color: var(--color-bg-block-light);
+}
+
+[dt] {
+    --dt-text-main: var(--color-text-main);
+    color: var(--color-text-main);
+    --dt-bg-block-light: var(--color-bg-block-light);
+    --dt-border-dark: var(--color-border-dark);
+    --dt-bg-hover: var(--color-bg-hover);
+    --dt-accent: var(--color-accent);
+    --dt-accent-hover: var(--color-accent-hover);
+    --dt-bg-secondary: var(--color-bg-secondary);
+    --dt-bg-secondary-hover: var(--color-bg-secondary-hover);
+    --dt-text-reverse: var(--color-text-reverse);
+    --dt-text-auxiliary: var(--color-text-auxiliary);
+    --dt-text-secondary: var(--color-text-secondary);
+    --dt-border-input: var(--border-color-input);
+
+    --scrollbar-thumb-color: var(--border-color-dark);
+    --scrollbar-thumb-color-hover: var(--border-color-input);
+    --scrollbar-thumb-color-active: var(--border-color-input);
+
+    --calendar-item-disabled-text: var(--color-text-disabled);
+    --calendar-item-active-bg: var(--color-brand);
+    --calendar-item-active-text: #fff;
+    --calendar-item-in-range-bg: var(--color-brand-bg);
+    --calendar-item-in-range-text: var(--color-brand);
+    --calendar-item-hover-bg: var(--color-bg-hover);
+    --calendar-item-hover-text: var(--color-text-main);
+    --calendar-item-active-hover-bg: var(--color-brand-hover);
+    --calendar-item-active-hover-text: #fff;
+}
+[data-theme="dark"] [dt] {
+    --dt-pop-box-shadow: 0 6px 16px #0009;
+}
+
 dt-quick-selector {
     display: inline-block;
     margin: 0 200px;

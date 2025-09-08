@@ -33,7 +33,7 @@ export default css`
   padding: 5px;
 }
 .radio-grp > label:hover {
-  background-color: #f5f5f5;
+  background-color: var(--dt-bg-hover, #f5f5f5);
 }
 .radio-grp dt-i18n {
   flex: 1;
@@ -57,7 +57,7 @@ export default css`
   display: block;
   height: 1px;
   width: 100%;
-  background-color: #eee;
+  background-color: var(--dt-border-dark, #eee);
 }
 
 .tz-trigger {
@@ -70,7 +70,7 @@ export default css`
   white-space: nowrap;
 }
 .tz-trigger:hover {
-  background-color: #f5f5f5;
+  background-color: var(--dt-bg-hover, #f5f5f5);
 }
 .tz-trigger bdo {
   direction: ltr;
@@ -90,10 +90,11 @@ export default css`
   margin: -5px;
   cursor: pointer;
   box-sizing: content-box;
+  background-clip: padding-box;
 }
 .title svg:hover {
-  background-color: #eee;
-  border-color: #eee;
+  background-color: var(--dt-bg-hover, #eee);
+  border-color: var(--dt-bg-hover, #eee);
 }
 
 .menu.tz {
@@ -104,7 +105,7 @@ export default css`
 .menu.tz fieldset {
   width: 100%;
   border: none;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--dt-border-dark, #eee);
   margin: 0;
   padding: 0;
   display: flex;
@@ -116,7 +117,7 @@ export default css`
   margin-bottom: 5px;
   font-size: 12px;
   line-height: 24px;
-  color: #666;
+  color: var(--dt-text-auxiliary, #666);
 }
 .menu.tz label {
   display: flex;
@@ -126,7 +127,7 @@ export default css`
   padding: 5px;
 }
 .menu.tz label:hover {
-  background-color: #f5f5f5;
+  background-color: var(--dt-bg-hover, #f5f5f5);
 }
 .menu.tz input {
   margin: 0;
@@ -142,10 +143,12 @@ button {
   padding: 5px 15px;
   font-size: 16px;
   line-height: 1;
-  background-color: #18181B;
-  color: #fff;
+  background-color: var(--dt-accent, #18181B);
   font-weight: 500;
   cursor: pointer;
+}
+button:hover {
+  background-color: var(--color-accent-hover, #000);
 }
 
 .menu.custom {
@@ -160,8 +163,14 @@ button {
   justify-content: flex-end;
   gap: 10px;
 }
+button#done {
+  color: var(--dt-text-reverse, #fff);
+}
 .menu.custom #reset {
-  background-color: #E5E7E8;
-  color: #333;
+  background-color: var(--dt-bg-secondary, #E5E7E8);
+  color: inherit;
+}
+.menu.custom #reset:hover {
+  background-color: var(--dt-bg-secondary-hover, #D6D8DB);
 }
 `;

@@ -33,6 +33,6 @@ dt-calendar-base.hide {
 
 dt-yyyymm-nav::part(list-grp) {
   height: 254px;
-  margin-top: 10px;
+  margin-top: 15px;
 }
 `;

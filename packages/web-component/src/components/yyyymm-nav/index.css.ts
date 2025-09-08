@@ -35,11 +35,27 @@ export default css`
   --icon-arrow-left-double: ${svg2cssUrl(arrowLeftDoubleSvg)};
   --icon-arrow-right: ${svg2cssUrl(arrowRightSvg)};
   --icon-arrow-right-double: ${svg2cssUrl(arrowRightDoubleSvg)};
-  background-image: var(--bg-img);
   border-radius: 50%;
+  position: relative;
+}
+.btn::before {
+  content: '';
+  background-color: var(--dt-text-main, #333);
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-image: var(--bg-img);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-image: var(--bg-img);
 }
 .btn:hover {
-  background-color: #eee;
+  background-color: var(--dt-bg-hover, #eee);
 }
 :host(:not([show-ctrl-btn-year-add])) .btn.add.year, :host(:not([show-ctrl-btn-year-sub])) .btn.sub.year, :host(:not([show-ctrl-btn-month-add])) .btn.add.month, :host(:not([show-ctrl-btn-month-sub])) .btn.sub.month {
   display: none;
@@ -87,14 +103,30 @@ dt-popover {
   user-select: none;
 }
 .title-wrapper:hover {
-  background-color: #eee;
+  background-color: var(--dt-bg-hover, #eee);
 }
 
 .title-arrow {
   display: inline-block;
   width: 16px;
   height: 16px;
-  background: ${svg2cssUrl(arrowDownSvg)} no-repeat center center;
+  position: relative;
+}
+.title-arrow::before {
+  content: '';
+  background-color: var(--dt-text-main, #333);
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-image: ${svg2cssUrl(arrowDownSvg)};
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-image: ${svg2cssUrl(arrowDownSvg)};
 }
 
 dt-popover[open] .title-arrow {

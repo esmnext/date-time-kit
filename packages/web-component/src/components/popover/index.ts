@@ -30,12 +30,12 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
 
     protected _style = css`
-::slotted([slot='pop']) {
-  background-color: #fff;
+::slotted([slot='pop']:not(.not-pop-bg)) {
+  background-color: var(--dt-bg-block-light, #fff);
   padding: 10px 5px;
   border-radius: 6px;
-  border: 1px solid #eee;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--dt-border-dark, #0000001A);
+  box-shadow: var(--dt-pop-box-shadow, 0 6px 16px #0003);
 }
 `;
     protected _template =

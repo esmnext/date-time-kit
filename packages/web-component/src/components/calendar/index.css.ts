@@ -19,6 +19,8 @@ export default css`
   --color-in-range-text: var(--calendar-item-in-range-text, #002BE7);
   --color-hover-bg: var(--calendar-item-hover-bg, #0000000D);
   --color-hover-text: var(--calendar-item-hover-text, #000);
+  --color-active-hover-bg: var(--calendar-item-active-hover-bg, var(--color-active-bg));
+  --color-active-hover-text: var(--calendar-item-active-hover-text, var(--color-active-text));
 }
 
 .wrapper {
@@ -78,6 +80,12 @@ export default css`
 }
 .item:hover .highlight {
   background-color: var(--color-hover-bg);
+}
+.item.start:hover .highlight, .item.end:hover .highlight {
+  background-color: var(--color-active-hover-bg);
+}
+.item.start:hover, .item.end:hover {
+  color: var(--color-active-hover-text);
 }
 .item.in-range .bg {
   display: block;

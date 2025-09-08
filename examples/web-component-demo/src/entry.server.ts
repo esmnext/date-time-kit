@@ -17,6 +17,9 @@ export default async (rc: RenderContext) => {
     <link rel="icon" href="https://www.esmnext.com/logo.svg" type="image/svg+xml">
     ${rc.preload()}
     <title>Vue SSR Demo | Powered by Esmx</title>
+    <style>
+        body { margin: 0; }
+    </style>
     ${rc.css()}
 </head>
 <body>

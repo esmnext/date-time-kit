@@ -29,10 +29,14 @@ dt-num-list {
 
 .ms-input {
   width: 100%;
-  border: 1px solid #0003;
+  border: 1px solid var(--dt-border-input, #0003);
   border-radius: 6px;
   padding: 4px;
   cursor: text;
+}
+.ms-input input {
+  background-color: transparent;
+  color: inherit;
 }
 
 label > span {
@@ -50,13 +54,11 @@ input {
 }
 
 input::placeholder {
-  color: #999;
+  color: var(--dt-text-secondary, #999);
 }
 `;
 
-export const listGrpCss =
-    baseCss +
-    css`
+export const listGrpCss = css`${baseCss}
 :host {
   display: flex;
   flex-direction: column;
@@ -87,25 +89,43 @@ dt-popover {
   gap: 5px;
   border-radius: 4px;
   min-height: 30px;
-  border: 1px solid #0001;
+  border: 1px solid var(--dt-border-input, #0001);
   align-items: center;
   cursor: pointer;
 }
 
 [open] > [slot="trigger"] {
-  border-color: #18181B;
+  border-color: var(--dt-accent, #18181B);
 }
 
 .time-icon {
   display: inline-block;
   width: 20px;
   height: 20px;
-  background: ${svg2cssUrl(timeSvg)} 50%/20px 20px no-repeat;
+  position: relative;
+}
+.time-icon::before {
+  content: '';
+  background-color: var(--dt-text-main, #333);
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  mask-image: ${svg2cssUrl(timeSvg)};
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-image: ${svg2cssUrl(timeSvg)};
 }
 
 .time-echo {
   font-size: 14px;
-  color: #999;
+  color: var(--dt-text-secondary, #999);
   line-height: 1;
 }
 
@@ -132,8 +152,11 @@ button {
   border-radius: 6px;
   padding: 5px 10px;
   font-size: 14px;
-  background-color: #18181B;
-  color: #fff;
+  background-color: var(--dt-accent, #18181B);
+  color: var(--dt-text-reverse, #fff);
+}
+button:hover {
+  background-color: var(--color-accent-hover, #000);
 }
 
 dt-num-list {
