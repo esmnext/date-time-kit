@@ -33,6 +33,7 @@ export type I18nCfg = {
     quick: {
         [k in DataLimit]: string;
     } & {
+        custom: string;
         timezone: string;
         recommend: string;
         timezoneList: string;
@@ -77,6 +78,7 @@ export const i18n: I18n = {
             last180Days: 'Last 180 Days',
             last6Month: 'Last 6 Month',
             year: 'This Year',
+            custom: 'Custom',
             timezone: 'Time Zone',
             recommend: 'Recommend',
             timezoneList: 'Time Zone',
@@ -117,6 +119,7 @@ export const i18n: I18n = {
             last180Days: '最近180天',
             last6Month: '最近6个月',
             year: '今年',
+            custom: '自定义',
             timezone: '时区',
             recommend: '推荐',
             timezoneList: '时区',
@@ -157,6 +160,7 @@ export const i18n: I18n = {
             last180Days: '最近180天',
             last6Month: '最近6個月',
             year: '今年',
+            custom: '自定義',
             timezone: '時區',
             recommend: '推薦',
             timezoneList: '時區',
@@ -192,6 +196,7 @@ export const i18n: I18n = {
             last180Days: '180 hari terakhir',
             last6Month: '6 bulan terakhir',
             year: 'Tahun ini',
+            custom: 'Kustom',
             timezone: 'Zona waktu',
             recommend: 'Rekomendasi',
             timezoneList: 'Zona waktu',
@@ -232,6 +237,7 @@ export const i18n: I18n = {
             last180Days: 'Trong 180 ngày trước',
             last6Month: 'Trong 6 tháng trước',
             year: 'Năm nay',
+            custom: 'Tùy chỉnh',
             timezone: 'Múi giờ',
             recommend: 'Gợi ý',
             timezoneList: 'Múi giờ',
@@ -272,6 +278,7 @@ export const i18n: I18n = {
             last180Days: '180 วันที่ผ่านมา',
             last6Month: '6 เดือนที่ผ่านมา',
             year: 'ปีนี้',
+            custom: 'กำหนดเอง',
             timezone: 'เขตเวลา',
             recommend: 'แนะนำ',
             timezoneList: 'เขตเวลา',
@@ -312,6 +319,7 @@ export const i18n: I18n = {
             last180Days: '180 hari lepas',
             last6Month: '6 bulan lepas',
             year: 'Tahun ini',
+            custom: 'Tersuai',
             timezone: 'Zon masa',
             recommend: 'Cadangan',
             timezoneList: 'Zon masa',
@@ -353,6 +361,7 @@ export const i18n: I18n = {
             last180Days: '지난 180일',
             last6Month: '지난 6개월',
             year: '올해',
+            custom: '사용자 정의',
             timezone: '시간대',
             recommend: '추천',
             timezoneList: '시간대',
@@ -398,6 +407,7 @@ export const i18n: I18n = {
             last180Days: 'آخر 180 يومًا',
             last6Month: 'آخر 6 أشهر', // 注意：阿拉伯语复数形式
             year: 'هذه السنة',
+            custom: 'مخصص',
             timezone: 'المنطقة الزمنية',
             recommend: 'مُوصى به',
             timezoneList: 'قائمة المناطق الزمنية',
