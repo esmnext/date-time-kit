@@ -51,7 +51,7 @@ export default html`
     ><i class="dividing-line"></i
     ><div class="tz-trigger"
         ><span
-            ><dt-i18n i18n-key="quick.timezone"></dt-i18n
+            ><dt-i18n i18n-key="quick.timezoneWithColon"></dt-i18n
             ><bdo>${utcText()}</bdo
         ></span
         >${arrowRightSvg}</div

@@ -36,6 +36,7 @@ export type I18nCfg = {
         timezone: string;
         recommend: string;
         timezoneList: string;
+        timezoneWithColon: string;
     };
     date: {
         sun: string;
@@ -78,7 +79,8 @@ export const i18n: I18n = {
             year: 'This Year',
             timezone: 'Time Zone',
             recommend: 'Recommend',
-            timezoneList: 'Time Zone'
+            timezoneList: 'Time Zone',
+            timezoneWithColon: 'Time Zone: '
         },
         date: {
             sun: 'Sun',
@@ -117,7 +119,8 @@ export const i18n: I18n = {
             year: '今年',
             timezone: '时区',
             recommend: '推荐',
-            timezoneList: '时区'
+            timezoneList: '时区',
+            timezoneWithColon: '时区：'
         },
         date: {
             sun: '日',
@@ -156,7 +159,8 @@ export const i18n: I18n = {
             year: '今年',
             timezone: '時區',
             recommend: '推薦',
-            timezoneList: '時區'
+            timezoneList: '時區',
+            timezoneWithColon: '時區：'
         },
         date: {
             sun: '日',
@@ -190,7 +194,8 @@ export const i18n: I18n = {
             year: 'Tahun ini',
             timezone: 'Zona waktu',
             recommend: 'Rekomendasi',
-            timezoneList: 'Zona waktu'
+            timezoneList: 'Zona waktu',
+            timezoneWithColon: 'Zona waktu: '
         },
         date: {
             sun: 'Sun',
@@ -229,7 +234,8 @@ export const i18n: I18n = {
             year: 'Năm nay',
             timezone: 'Múi giờ',
             recommend: 'Gợi ý',
-            timezoneList: 'Múi giờ'
+            timezoneList: 'Múi giờ',
+            timezoneWithColon: 'Múi giờ: '
         },
         date: {
             sun: 'CN',
@@ -268,7 +274,8 @@ export const i18n: I18n = {
             year: 'ปีนี้',
             timezone: 'เขตเวลา',
             recommend: 'แนะนำ',
-            timezoneList: 'เขตเวลา'
+            timezoneList: 'เขตเวลา',
+            timezoneWithColon: 'เขตเวลา: '
         },
         date: {
             sun: 'อา.',
@@ -307,7 +314,8 @@ export const i18n: I18n = {
             year: 'Tahun ini',
             timezone: 'Zon masa',
             recommend: 'Cadangan',
-            timezoneList: 'Zon masa'
+            timezoneList: 'Zon masa',
+            timezoneWithColon: 'Zon masa: '
         },
 
         date: {
@@ -347,7 +355,8 @@ export const i18n: I18n = {
             year: '올해',
             timezone: '시간대',
             recommend: '추천',
-            timezoneList: '시간대'
+            timezoneList: '시간대',
+            timezoneWithColon: '시간대: '
         },
         date: {
             sun: '일',
@@ -391,7 +400,8 @@ export const i18n: I18n = {
             year: 'هذه السنة',
             timezone: 'المنطقة الزمنية',
             recommend: 'مُوصى به',
-            timezoneList: 'قائمة المناطق الزمنية'
+            timezoneList: 'قائمة المناطق الزمنية',
+            timezoneWithColon: 'المنطقة الزمنية: '
         },
         date: {
             sun: 'الأحد', // 缩写原则：使用完整单词首字母（阿拉伯语无单字缩写）
