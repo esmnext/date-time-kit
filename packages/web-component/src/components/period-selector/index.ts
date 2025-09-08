@@ -1,4 +1,4 @@
-import { closestByEvent, debounce } from '../../utils';
+import { closestByEvent, debounce, getCurrentTzMs } from '../../utils';
 import { type BaseAttrs, UiBase } from '../web-component-base';
 import {
     Ele as YyyyMmNavEle,
@@ -267,14 +267,14 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (timeStart > timeEnd) [timeStart, timeEnd] = [timeEnd, timeStart];
         this._startCalendar.weekStartAt = this._endCalendar.weekStartAt =
             this.weekStartAt;
-        const tz = new Date().getTimezoneOffset() * 60 * 1000;
+        const tz = getCurrentTzMs();
         this._startNavEle.millisecond =
             this._startCalendar.showingTime =
             this._startCalendar.timeStart =
             this._endCalendar.timeStart =
                 +timeStart;
         this._startTimeSelector.millisecond =
-            (+timeStart - tz) % (24 * 60 * 60 * 1000);
+            (+timeStart + tz) % (24 * 60 * 60 * 1000);
         this._endCalendar.timeEnd = this._startCalendar.timeEnd = +timeEnd;
         if (diffInMonth(timeStart, timeEnd) <= 1) {
             const nextMonth = new Date(
@@ -288,7 +288,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             this._endNavEle.millisecond = +timeEnd;
         }
         this._endTimeSelector.millisecond =
-            (+timeEnd - tz) % (24 * 60 * 60 * 1000);
+            (+timeEnd + tz) % (24 * 60 * 60 * 1000);
         this.shadowRoot!.querySelector(
             '.wrapper.start .time-echo'
         )!.textContent = this.timeFormatter(timeStart as Date);
@@ -385,9 +385,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
 
     public timeFormatter = (time: Date) =>
-        new Date(+time - new Date().getTimezoneOffset() * 60 * 1000)
-            .toISOString()
-            .slice(11, 23);
+        new Date(+time + getCurrentTzMs()).toISOString().slice(11, 23);
     public dateFormatter = (time: Date) => time.toLocaleDateString('en-GB');
 }
 

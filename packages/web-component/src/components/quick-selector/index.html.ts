@@ -1,4 +1,4 @@
-import { html } from '../../utils';
+import { getCurrentTz, html } from '../../utils';
 import { Ele as PeriodSelectorEle } from '../period-selector';
 import type { QuickKey } from './quick-key';
 PeriodSelectorEle.define();
@@ -7,7 +7,7 @@ I18nEle.define();
 
 import { arrowRightSvg, backArrowSvg } from '../../assets';
 
-export const getCurrentTz = () => -new Date().getTimezoneOffset();
+export { getCurrentTz };
 
 export const utcText = (tz: number = getCurrentTz()) =>
     tz >= 0
