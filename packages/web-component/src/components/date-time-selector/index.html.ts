@@ -11,7 +11,7 @@ HhMmSsMsSelector.define();
 export default html`
 <dt-popover part="popover">
     <slot slot="trigger" name="trigger"><button>select date and time</button></slot>
-    <div slot="pop" class="wrapper menu" part="pop">
+    <div slot="pop" class="wrapper" part="pop">
         <dt-yyyymm-nav
             show-ctrl-btn-month-add
             show-ctrl-btn-month-sub

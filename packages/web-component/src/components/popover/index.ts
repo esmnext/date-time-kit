@@ -29,7 +29,15 @@ export class Ele extends UiBase<Attrs, Emits> {
         ] satisfies (keyof Attrs)[];
     }
 
-    protected _style = css``;
+    protected _style = css`
+::slotted([slot='pop']) {
+  background-color: #fff;
+  padding: 10px 5px;
+  border-radius: 6px;
+  border: 1px solid #eee;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+`;
     protected _template =
         html`<slot name="trigger"></slot><slot name="pop" style="display:none"></slot>`;
 

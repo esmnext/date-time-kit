@@ -67,9 +67,7 @@ export const listGrpCss =
 
 import { svg2cssUrl, timeSvg } from '../../assets';
 
-export const selectorCss =
-    baseCss +
-    css`
+export const selectorCss = css`${baseCss}
 .list-grp {
   display: flex;
   flex-direction: column;
@@ -115,15 +113,11 @@ dt-popover {
   position: absolute;
   width: 100%;
   height: 461px;
-  background-color: #fff;
 
   display: flex;
   flex-direction: column;
   gap: 15px;
   padding: 15px;
-  border-radius: 6px;
-  border: 1px solid #eee;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
 h3 {
