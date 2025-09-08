@@ -23,12 +23,14 @@ export class Ele extends UiBase<Attrs> {
         this._applyTemplate();
     }
 
-    protected _onAttrChanged(_: string, oldValue: string, newValue: string) {
-        super._onAttrChanged(_, oldValue, newValue);
+    attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+        super.attributeChangedCallback(name, oldValue, newValue);
+        if (oldValue === newValue || name !== 'lang') return;
         this.updateText();
     }
 
     connectedCallback() {
+        if (!super.connectedCallback()) return;
         this.updateText();
     }
 

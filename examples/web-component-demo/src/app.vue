@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { DtQuickSelector as DtQuickSelectorPkg } from '@gez/date-time-kit';
+import { Lang } from '@gez/date-time-kit/dist/i18n';
 import { computed, ref } from 'vue';
 import {
     DtQuickSelectorEvent,
@@ -8,6 +9,8 @@ import {
 } from './DefCustomEle';
 
 init();
+
+const lang = ref<Lang>('en-US');
 
 const startTime = ref<string | number | ''>('');
 const endTime = ref<string | number | ''>('');
@@ -54,8 +57,20 @@ const dateTimeSelectorState = ref<'open' | 'close'>('close');
 
 <template>
     <div>
+        <select v-model="lang" name="lang">
+            <option value="en-US">en-US</option>
+            <option value="zh-CN">zh-CN</option>
+            <option value="zh-TW">zh-TW</option>
+            <option value="id-ID">id-ID</option>
+            <option value="vi-VN">vi-VN</option>
+            <option value="th-TH">th-TH</option>
+            <option value="ms-MY">ms-MY</option>
+            <option value="ko-KR">ko-KR</option>
+            <option value="ar-AE">ar-AE</option>
+        </select>
         <p
             >quick select: <dt-quick-selector
+                :lang="lang"
                 ref="el"
                 slot="pop"
                 @time-changed="onChange"
@@ -99,6 +114,7 @@ const dateTimeSelectorState = ref<'open' | 'close'>('close');
             <p>selected time: {{ currentTime && new Date(currentTime).toISOString() }}</p>
             <p>state: {{ dateTimeSelectorState }}</p>
             <dt-date-time-selector
+                :lang="lang"
                 min-granularity="minute"
                 :current-time="currentTime"
                 @select-time="currentTime = +$event.detail"
