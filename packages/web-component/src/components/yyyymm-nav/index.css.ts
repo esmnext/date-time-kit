@@ -76,7 +76,6 @@ dt-popover {
 }
 
 .title-wrapper {
-  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 2px;

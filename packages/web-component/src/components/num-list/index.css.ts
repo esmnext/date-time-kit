@@ -26,7 +26,6 @@ export default css`
   text-align: center;
   border-radius: 2px;
   padding: 5px 2px;
-  box-sizing: border-box;
 }
 .item.item-current {
   color: var(--color-current-text);

@@ -1,46 +1,5 @@
 import type { Lang } from '../../i18n';
-import { css } from '../../utils';
-// import styleStr from './index.scss?inline';
-const styleStr = css`
-/* firefox only: */
-@-moz-document url-prefix() {
-  :host, * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb-color, #4444) transparent;
-  }
-  :host:hover, *:hover {
-    scrollbar-color: var(--scrollbar-thumb-color-hover, var(--scrollbar-thumb-color, #8888)) transparent;
-  }
-}
-`;
-// import scrollbarStyleStr from './scrollbar.scss?inline';
-const scrollbarStyleStr = css`
-[dt]::-webkit-scrollbar, :host *::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-[dt]::-webkit-scrollbar-button, :host *::-webkit-scrollbar-button {
-  display: none;
-}
-[dt]::-webkit-scrollbar-corner, :host *::-webkit-scrollbar-corner {
-  display: none;
-}
-[dt]::-webkit-scrollbar-thumb, :host *::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-thumb-color, #4444);
-  border-radius: 4px;
-  cursor: grab;
-}
-[dt]::-webkit-scrollbar-thumb:hover, :host *::-webkit-scrollbar-thumb:hover {
-  background-color: var(--scrollbar-thumb-color-hover, var(--scrollbar-thumb-color, #8888));
-}
-[dt]::-webkit-scrollbar-thumb:active, :host *::-webkit-scrollbar-thumb:active {
-  background-color: var(--scrollbar-thumb-color-active, var(--scrollbar-thumb-color, #2222));
-  cursor: grabbing;
-}
-[dt]::-webkit-scrollbar-track, :host *::-webkit-scrollbar-track {
-  background: transparent;
-}
-`;
+import { scrollbarStyleStr, styleStr } from './css';
 
 type EmitType = Record<string, any>;
 export type Emit2EventMap<Emit extends EmitType> = {

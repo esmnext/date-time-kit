@@ -86,7 +86,6 @@ dt-popover {
   border-radius: 4px;
   min-height: 30px;
   border: 1px solid #0001;
-  box-sizing: border-box;
   align-items: center;
   cursor: pointer;
 }
@@ -95,7 +94,6 @@ dt-popover {
   position: absolute;
   width: 100%;
   height: 461px;
-  box-sizing: border-box;
   background-color: #fff;
   display: flex;
   flex-direction: column;

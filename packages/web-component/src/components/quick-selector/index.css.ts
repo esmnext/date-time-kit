@@ -21,7 +21,6 @@ export default css`
 }
 .menu > * {
   width: 100%;
-  box-sizing: border-box;
 }
 
 .radio-grp {
@@ -88,7 +87,6 @@ export default css`
   gap: 10px;
   font-weight: 700;
   font-size: 18px;
-  box-sizing: border-box;
 }
 .title svg {
   border: 5px solid transparent;

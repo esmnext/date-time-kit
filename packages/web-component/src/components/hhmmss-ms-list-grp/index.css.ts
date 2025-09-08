@@ -36,7 +36,6 @@ dt-num-list {
 
 .ms-input {
   width: 100%;
-  box-sizing: border-box;
   border: 1px solid #0003;
   border-radius: 6px;
   padding: 4px;
@@ -52,7 +51,6 @@ label > span {
 
 input {
   width: 100%;
-  box-sizing: border-box;
   padding: 0;
   border: none;
   outline: none;
