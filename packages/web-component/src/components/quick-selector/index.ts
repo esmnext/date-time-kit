@@ -10,6 +10,7 @@ import {
 import styleStr from './index.css';
 import html, { getCurrentTz, utcText } from './index.html';
 import type { QuickKey } from './quick-key';
+export type { QuickKey } from './quick-key';
 
 export interface Attrs extends BaseAttrs {
     /**
