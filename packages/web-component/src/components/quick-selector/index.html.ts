@@ -15,7 +15,7 @@ export const utcText = (tz: number = getCurrentTz()) =>
         : (`UTC-${(~~-(tz / 60) + '').padStart(2, '0')}:${((-tz % 60) + '').padStart(2, '0')}` as const);
 
 const genTzRadio = (tz: number) =>
-    html`<label><input type="radio" name="tz" value="${tz}"/><span>${utcText(tz)}</span></label>`;
+    html`<label><input type="radio" name="tz" value="${tz}" hidden/><i class="radio"></i><span>${utcText(tz)}</span></label>`;
 
 export default html`
 <dt-popover>
@@ -39,13 +39,13 @@ export default html`
         .map(
             (k) =>
                 html`<label
-                    ><input type="radio" name="radio" value="${k}"
-                    /><dt-i18n i18n-key="quick.${k}">${k}</dt-i18n
+                    ><input type="radio" name="radio" value="${k}" hidden
+                    /><i class="radio"></i><dt-i18n i18n-key="quick.${k}">${k}</dt-i18n
                 ></label>`
         )
         .join('')}<label class="custom-trigger"
-            ><input type="radio" name="radio" value="custom"
-            /><dt-i18n i18n-key="quick.custom" style="display:inline-block">Custom</dt-i18n
+            ><input type="radio" name="radio" value="custom" hidden
+            /><i class="radio"></i><dt-i18n i18n-key="quick.custom" style="display:inline-block">Custom</dt-i18n
             >${arrowRightSvg}</label
     ></div
     ><i class="dividing-line"></i

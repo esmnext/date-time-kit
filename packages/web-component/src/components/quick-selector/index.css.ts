@@ -38,11 +38,16 @@ export default css`
 .radio-grp dt-i18n {
   flex: 1;
 }
-.radio-grp input {
-  margin: 0;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
+.radio {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--dt-accent, #18181B);
+  padding: 4px;
+}
+input[type='radio']:checked + .radio {
+  background: var(--dt-accent, #18181B) content-box;
 }
 
 .arrow-right-icon {
@@ -128,12 +133,6 @@ export default css`
 }
 .menu.tz label:hover {
   background-color: var(--dt-bg-hover, #f5f5f5);
-}
-.menu.tz input {
-  margin: 0;
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
 }
 
 button {
