@@ -29,6 +29,7 @@ export type I18nCfg = {
         confirm: string;
         cancel: string;
         select: string;
+        reset: string;
     };
     quick: {
         [k in DataLimit]: string;
@@ -48,12 +49,23 @@ export type I18nCfg = {
         fri: string;
         sat: string;
     };
+    timeUnit: {
+        year: string;
+        month: string;
+        day: string;
+        hour: string;
+        minute: string;
+        second: string;
+        millisecond: string;
+    };
     time: {
         startTime: string;
         endTime: string;
         startMillisecond: string;
         endMillisecond: string;
         singleTitle: string;
+        startDate: string;
+        endDate: string;
     };
 };
 
@@ -64,7 +76,8 @@ export const i18n: I18n = {
         box: {
             confirm: 'Done',
             cancel: 'Cancel',
-            select: 'Select'
+            select: 'Select',
+            reset: 'Reset'
         },
         quick: {
             all: 'All',
@@ -93,19 +106,31 @@ export const i18n: I18n = {
             fri: 'Fri',
             sat: 'Sat'
         },
+        timeUnit: {
+            year: 'Year',
+            month: 'Month',
+            day: 'Day',
+            hour: 'Hour',
+            minute: 'Minute',
+            second: 'Second',
+            millisecond: 'Millisecond'
+        },
         time: {
             startTime: 'Start Time',
             endTime: 'End Time',
             startMillisecond: 'Start Millisecond',
             endMillisecond: 'End Millisecond',
-            singleTitle: 'Time Select'
+            singleTitle: 'Time Select',
+            startDate: 'Start Date',
+            endDate: 'End Date'
         }
     },
     'zh-CN': {
         box: {
             confirm: '完成',
             cancel: '取消',
-            select: 'Select'
+            select: 'Select',
+            reset: '重置'
         },
         quick: {
             all: '全部',
@@ -134,19 +159,31 @@ export const i18n: I18n = {
             fri: '五',
             sat: '六'
         },
+        timeUnit: {
+            year: '年',
+            month: '月',
+            day: '日',
+            hour: '时',
+            minute: '分',
+            second: '秒',
+            millisecond: '毫秒'
+        },
         time: {
             startTime: '开始时间',
             endTime: '结束时间',
             startMillisecond: '毫秒',
             endMillisecond: '毫秒',
-            singleTitle: '时间选择'
+            singleTitle: '时间选择',
+            startDate: '开始日期',
+            endDate: '结束日期'
         }
     },
     'zh-TW': {
         box: {
             confirm: '完成',
             cancel: '取消',
-            select: 'Select'
+            select: 'Select',
+            reset: '重置'
         },
         quick: {
             all: '全部',
@@ -175,12 +212,23 @@ export const i18n: I18n = {
             fri: '五',
             sat: '六'
         },
+        timeUnit: {
+            year: '年',
+            month: '月',
+            day: '日',
+            hour: '時',
+            minute: '分',
+            second: '秒',
+            millisecond: '毫秒'
+        },
         time: {
             startTime: '開始時間',
             endTime: '結束時間',
             startMillisecond: '毫秒',
             endMillisecond: '毫秒',
-            singleTitle: '时间选择'
+            singleTitle: '时间选择',
+            startDate: '開始日期',
+            endDate: '結束日期'
         }
     },
     'id-ID': {
@@ -211,17 +259,29 @@ export const i18n: I18n = {
             fri: 'Fri',
             sat: 'Sat'
         },
+        timeUnit: {
+            year: 'Tahun',
+            month: 'Bulan',
+            day: 'Hari',
+            hour: 'Jam',
+            minute: 'Menit',
+            second: 'Detik',
+            millisecond: 'Milidetik'
+        },
         time: {
             startTime: 'Waktu Mulai',
             endTime: 'Waktu Selesai',
             startMillisecond: 'Milidetik Mulai',
             endMillisecond: 'Milidetik Selesai',
-            singleTitle: '时间选择'
+            singleTitle: '时间选择',
+            startDate: 'Tanggal Mulai',
+            endDate: 'Tanggal Selesai'
         },
         box: {
             confirm: 'Selesai',
             cancel: 'Batal',
-            select: 'Select'
+            select: 'Select',
+            reset: 'Reset'
         }
     },
     'vi-VN': {
@@ -252,17 +312,29 @@ export const i18n: I18n = {
             fri: 'T6',
             sat: 'T7'
         },
+        timeUnit: {
+            year: 'Năm',
+            month: 'Tháng',
+            day: 'Ngày',
+            hour: 'Giờ',
+            minute: 'Phút',
+            second: 'Giây',
+            millisecond: 'Mili giây'
+        },
         time: {
             startTime: 'Thời gian bắt đầu',
             endTime: 'Thời gian kết thúc',
             startMillisecond: 'Mili giây bắt đầu',
             endMillisecond: 'Mili giây kết thúc',
-            singleTitle: '时间选择'
+            singleTitle: '时间选择',
+            startDate: 'Ngày bắt đầu',
+            endDate: 'Ngày kết thúc'
         },
         box: {
             confirm: 'Hoàn tất',
             cancel: 'Hủy',
-            select: 'Select'
+            select: 'Select',
+            reset: 'Đặt lại'
         }
     },
     'th-TH': {
@@ -293,17 +365,29 @@ export const i18n: I18n = {
             fri: 'ศ.',
             sat: 'ส.'
         },
+        timeUnit: {
+            year: 'ปี',
+            month: 'เดือน',
+            day: 'วัน',
+            hour: 'ชั่วโมง',
+            minute: 'นาที',
+            second: 'วินาที',
+            millisecond: 'มิลลิวินาที'
+        },
         time: {
             startTime: 'เวลาเริ่มต้น',
             endTime: 'เวลาสิ้นสุด',
             startMillisecond: 'มิลลิวินาทีเริ่มต้น',
             endMillisecond: 'มิลลิวินาทีสิ้นสุด',
-            singleTitle: '时间选择'
+            singleTitle: '时间选择',
+            startDate: 'วันที่เริ่มต้น',
+            endDate: 'วันที่สิ้นสุด'
         },
         box: {
             confirm: 'เสร็จสิ้น',
             cancel: 'ยกเลิก',
-            select: 'Select'
+            select: 'Select',
+            reset: 'รีเซ็ต'
         }
     },
     'ms-MY': {
@@ -335,17 +419,29 @@ export const i18n: I18n = {
             fri: 'Fri',
             sat: 'Sat'
         },
+        timeUnit: {
+            year: 'Tahun',
+            month: 'Bulan',
+            day: 'Hari',
+            hour: 'Jam',
+            minute: 'Minit',
+            second: 'Saat',
+            millisecond: 'Milisaat'
+        },
         time: {
             startTime: 'Waktu Mula',
             endTime: 'Waktu Tamat',
             startMillisecond: 'Milisaat Mula',
             endMillisecond: 'Milisaat Tamat',
-            singleTitle: '时间选择'
+            singleTitle: '时间选择',
+            startDate: 'Tarikh Mula',
+            endDate: 'Tarikh Tamat'
         },
         box: {
             confirm: 'Selesai',
             cancel: 'Batal',
-            select: 'Select'
+            select: 'Select',
+            reset: 'Set semula'
         }
     },
     'ko-KR': {
@@ -376,24 +472,37 @@ export const i18n: I18n = {
             fri: '금',
             sat: '토'
         },
+        timeUnit: {
+            year: '년',
+            month: '월',
+            day: '일',
+            hour: '시간',
+            minute: '분',
+            second: '초',
+            millisecond: '밀리초'
+        },
         time: {
             startTime: '시작 시간',
             endTime: '종료 시간',
             startMillisecond: '시작 밀리초',
             endMillisecond: '종료 밀리초',
-            singleTitle: '时间选择'
+            singleTitle: '时间选择',
+            startDate: '시작 날짜',
+            endDate: '종료 날짜'
         },
         box: {
             confirm: '완료',
             cancel: '취소',
-            select: 'Select'
+            select: 'Select',
+            reset: '재설정'
         }
     },
     'ar-AE': {
         box: {
             confirm: 'تم',
             cancel: 'إلغاء',
-            select: 'Select'
+            select: 'Select',
+            reset: 'إعادة تعيين'
         },
         quick: {
             all: 'الكل',
@@ -422,12 +531,23 @@ export const i18n: I18n = {
             fri: 'الجمعة',
             sat: 'السبت'
         },
+        timeUnit: {
+            year: 'سنة',
+            month: 'شهر',
+            day: 'يوم',
+            hour: 'ساعة',
+            minute: 'دقيقة',
+            second: 'ثانية',
+            millisecond: 'ميلي ثانية'
+        },
         time: {
             startTime: 'وقت البدء',
             endTime: 'وقت الانتهاء',
             startMillisecond: 'ميلي ثانية (بدء)', // 技术术语补充说明
             endMillisecond: 'ميلي ثانية (انتهاء)',
-            singleTitle: 'تحديد الوقت'
+            singleTitle: 'تحديد الوقت',
+            startDate: 'تاريخ البدء',
+            endDate: 'تاريخ الانتهاء'
         }
     }
 };

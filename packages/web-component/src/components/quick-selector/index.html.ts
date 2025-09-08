@@ -58,7 +58,7 @@ export default html`
 ></div
 ><div class="menu tz" part="menu tz"
     ><div class="title"
-        >${backArrowSvg}<span>Time Zone</span
+        >${backArrowSvg}<span><dt-i18n i18n-key="quick.timezone"></dt-i18n></span
     ></div
     ><fieldset class="subtitle"
         ><legend><dt-i18n i18n-key="quick.recommend"></dt-i18n></legend
@@ -79,12 +79,12 @@ export default html`
     ></div
 ><div class="menu custom" part="menu custom"
     ><div class="title"
-        >${backArrowSvg}<span>Custom</span
+        >${backArrowSvg}<span><dt-i18n i18n-key="quick.custom" style="display:inline-block">Custom</dt-i18n></span
     ></div
     ><dt-period-selector></dt-period-selector
     ><div class="btns"
-        ><button id="reset">Reset</button
-        ><button id="done">Done</button
+        ><button id="reset"><dt-i18n i18n-key="box.reset"></dt-i18n></button
+        ><button id="done"><dt-i18n i18n-key="box.confirm"></dt-i18n></button
     ></div
 ></div>
 </dt-popover>`;

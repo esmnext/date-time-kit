@@ -11,12 +11,12 @@ HhMmSsMsSelector.define();
 export default html`
 <div class="date-echo">
     <div class="start-date-echo-wrapper active">
-        <span class="label">Start Date</span>
+        <span class="label"><dt-i18n i18n-key="time.startDate"></dt-i18n></span>
         <span class="start-date-echo">dd/mm/yyyy</span>
     </div>
     <i class="dividing-line"></i>
     <div class="end-date-echo-wrapper">
-        <span class="label">End Date</span>
+        <span class="label"><dt-i18n i18n-key="time.endDate"></dt-i18n></span>
         <span class="end-date-echo">dd/mm/yyyy</span>
     </div>
 </div><div class="calendars">${['start', 'end']
@@ -29,7 +29,9 @@ export default html`
     ></dt-yyyymm-nav>
     <dt-calendar-base data-type="${s}"></dt-calendar-base>
     <dt-hhmmss-ms-selector data-type="${s}">
-        <span slot="title">${s === 'start' ? 'Start Time' : 'End Time'}</span>
+        <span slot="title"><dt-i18n i18n-key="time.${
+            s === 'start' ? 'startTime' : 'endTime'
+        }"></dt-i18n></span>
     </dt-hhmmss-ms-selector>
 </div>`
     )

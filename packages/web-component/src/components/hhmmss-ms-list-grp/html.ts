@@ -5,7 +5,7 @@ NumListEle.define();
 export const baseHtml = html`
 <div class="cols" part="cols">
     <div class="col hour" part="col hour">
-        <span>Hour</span>
+        <span><dt-i18n i18n-key="timeUnit.hour"></dt-i18n></span>
         <dt-num-list
             exportparts="container:list-container, item, item-current"
             part="list hour"
@@ -15,7 +15,7 @@ export const baseHtml = html`
         ></dt-num-list>
     </div>
     <div class="col minute" part="col minute">
-        <span>Minute</span>
+        <span><dt-i18n i18n-key="timeUnit.minute"></dt-i18n></span>
         <dt-num-list
             exportparts="container:list-container, item, item-current"
             part="list minute"
@@ -25,7 +25,7 @@ export const baseHtml = html`
         ></dt-num-list>
     </div>
     <div class="col second" part="col second">
-        <span>Second</span>
+        <span><dt-i18n i18n-key="timeUnit.second"></dt-i18n></span>
         <dt-num-list
             exportparts="container:list-container, item, item-current"
             part="list second"
@@ -36,7 +36,7 @@ export const baseHtml = html`
     </div>
 </div>
 <label class="ms-input" part="ms-wrapper">
-    <span part="ms-label">Millisecond</span>
+    <span part="ms-label"><dt-i18n i18n-key="timeUnit.millisecond"></dt-i18n></span>
     <input part="ms-input" id="ms" type="number" class="millisecond" min="0" max="999" step="1" placeholder="000" />
 </label>
 `;
@@ -51,9 +51,9 @@ export const selectorHtml = html`
     <span class="time-echo">hh:mm:ss.sss</span>
   </div>
   <div slot="pop">
-    <h3><slot name="title">Select Time</slot></h3>
+    <h3><slot name="title"><dt-i18n i18n-key="time.singleTitle"></dt-i18n></slot></h3>
     <div class="list-grp">${baseHtml}</div>
-    <button>Done</button>
+    <button><dt-i18n i18n-key="box.confirm"></dt-i18n></button>
   </div>
 </dt-popover>
 `;
