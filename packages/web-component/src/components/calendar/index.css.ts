@@ -25,6 +25,7 @@ export default css`
 
 .week {
   min-width: var(--item-size);
+  display: inline-block;
 }
 
 .item {

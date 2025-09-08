@@ -1,6 +1,6 @@
 import i18n, { langs } from "../../i18n";
 import { BaseAttrs, UiBase } from "../web-component-base";
-import { html } from "../../utils";
+import { css, html } from "../../utils";
 
 export interface Attrs extends BaseAttrs {
     'i18n-key'?: string;
@@ -16,6 +16,11 @@ export class Ele extends UiBase<Attrs> {
         ] satisfies (keyof Attrs)[];
     }
 
+    protected _style = css`
+:host {
+  display: contents;
+}
+`
     protected _template = html`<slot></slot>`;
 
     constructor() {

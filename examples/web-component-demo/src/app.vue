@@ -56,7 +56,7 @@ const dateTimeSelectorState = ref<'open' | 'close'>('close');
 </script>
 
 <template>
-    <div>
+    <div :dir="lang === 'ar-AE' ? 'rtl' : 'ltr'">
         <select v-model="lang" name="lang">
             <option value="en-US">en-US</option>
             <option value="zh-CN">zh-CN</option>
@@ -144,9 +144,9 @@ const dateTimeSelectorState = ref<'open' | 'close'>('close');
 <style>
 dt-quick-selector {
     display: inline-block;
-    margin-left: 200px;
+    margin: 0 200px;
 }
 dt-date-time-selector {
-    margin-left: 200px;
+    margin: 0 200px;
 }
 </style>

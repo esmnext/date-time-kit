@@ -45,7 +45,7 @@ export default html`
         )
         .join('')}<label class="custom-trigger"
             ><input type="radio" name="radio" value="custom"
-            /><dt-i18n i18n-key="quick.custom">Custom</dt-i18n
+            /><dt-i18n i18n-key="quick.custom" style="display:inline-block">Custom</dt-i18n
             >${arrowRightSvg}</label
     ></div
     ><i class="dividing-line"></i

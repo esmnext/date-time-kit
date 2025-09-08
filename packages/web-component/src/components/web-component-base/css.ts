@@ -7,6 +7,9 @@ export const styleStr = css`
 * {
   box-sizing: border-box;
 }
+.bidirectional-flip:is(:lang(ae),:lang(ar),:lang(arc),:lang(bcc),:lang(bqi),:lang(ckb),:lang(dv),:lang(fa),:lang(glk),:lang(he),:lang(ku),:lang(mzn),:lang(nqo),:lang(pnb),:lang(ps),:lang(sd),:lang(ug),:lang(ur),:lang(yi)) {
+  transform: scaleX(-1);
+}
 /* firefox only: */
 @-moz-document url-prefix() {
   :host, * {
