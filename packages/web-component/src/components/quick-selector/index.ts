@@ -1,6 +1,7 @@
 import { debounce } from '../../utils';
 import { type Weeks, weekKey } from '../calendar';
 import type { Ele as PeriodSelectorEle } from '../period-selector';
+import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
 import {
     type BaseAttrs,
     type Emit2EventMap,
@@ -52,6 +53,7 @@ export interface Emits {
               start: Date;
               end: Date;
           };
+    'open-change': boolean;
 }
 export type EventMap = Emit2EventMap<Emits>;
 
@@ -219,6 +221,9 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._renderTz();
         this._updateRadio();
         this._updatePeriodSelector();
+        this.shadowRoot!.querySelector<PopoverEle>(
+            'dt-popover'
+        )?.addEventListener('open-change', this._onPopoverChange);
         this.shadowRoot!.querySelector('.tz-trigger')?.addEventListener(
             'click',
             this._onTzTriggerClick
@@ -248,6 +253,9 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
+        this.shadowRoot!.querySelector<PopoverEle>(
+            'dt-popover'
+        )?.removeEventListener('open-change', this._onPopoverChange);
         this.shadowRoot!.querySelector('.tz-trigger')?.removeEventListener(
             'click',
             this._onTzTriggerClick
@@ -334,13 +342,18 @@ export class Ele extends UiBase<Attrs, Emits> {
         radio!.checked = true;
     }, 0);
 
+    private _onPopoverChange = (e: PopoverEvent['open-change']) => {
+        if (!(e.target instanceof PopoverEle)) return;
+        if (e.detail === false) {
+            this._showMenu('top');
+        }
+    };
     private _showMenu(type: 'top' | 'tz' | 'custom') {
         const menus = this.shadowRoot?.querySelectorAll<HTMLElement>('.menu');
-        menus?.forEach(
-            (menu) =>
-                (menu.style.display = menu.classList.contains(type)
-                    ? ''
-                    : 'none')
+        menus?.forEach((menu) =>
+            menu.classList.contains(type)
+                ? (menu.slot = 'pop')
+                : menu.removeAttribute('slot')
         );
         if (type === 'custom') {
             this._updatePeriodSelector();

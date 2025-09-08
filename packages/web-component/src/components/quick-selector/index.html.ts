@@ -18,7 +18,9 @@ const genTzRadio = (tz: number) =>
     html`<label><input type="radio" name="tz" value="${tz}"/><span>${utcText(tz)}</span></label>`;
 
 export default html`
-<div class="menu top" part="menu top"
+<dt-popover>
+<slot name="trigger" slot="trigger"><input type="button" value="quick selector"/></slot>
+<div class="menu top" part="menu top" slot="pop"
     ><div class="radio-grp">${(
         [
             'all',
@@ -54,7 +56,7 @@ export default html`
         ></span
         >${arrowRightSvg}</div
 ></div
-><div class="menu tz" part="menu tz" style="display:none"
+><div class="menu tz" part="menu tz"
     ><div class="title"
         >${backArrowSvg}<span>Time Zone</span
     ></div
@@ -75,7 +77,7 @@ export default html`
             )
             .join('')}</fieldset
     ></div
-><div class="menu custom" part="menu custom" style="display:none"
+><div class="menu custom" part="menu custom"
     ><div class="title"
         >${backArrowSvg}<span>Custom</span
     ></div
@@ -84,4 +86,5 @@ export default html`
         ><button id="reset">Reset</button
         ><button id="done">Done</button
     ></div
-></div>`;
+></div>
+</dt-popover>`;

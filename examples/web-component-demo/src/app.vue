@@ -55,21 +55,18 @@ const dateTimeSelectorState = ref<'open' | 'close'>('close');
 <template>
     <div>
         <p
-            >quick select: <dt-popover id="quick-popover"
-                    @open-change="$event.detail
-                        ? quickResult = 'Selecting...'
-                        : quickResult += '\nDone'"
-                ><button slot="trigger">quick selector</button
-                ><dt-quick-selector
-                    ref="el"
-                    slot="pop"
-                    @time-changed="onChange"
-                    :week-start-at="weekStartAt"
-                    :quick-key="quickKey"
-                    :start-time="startTime"
-                    :end-time="endTime"
-                ></dt-quick-selector
-            ></dt-popover
+            >quick select: <dt-quick-selector
+                ref="el"
+                slot="pop"
+                @time-changed="onChange"
+                @open-change="$event.detail
+                    ? quickResult = 'Selecting...'
+                    : quickResult += '\nDone'"
+                :week-start-at="weekStartAt"
+                :quick-key="quickKey"
+                :start-time="startTime"
+                :end-time="endTime"
+            ></dt-quick-selector
         ></p>
         <select v-model="weekStartAt" name="week-start-at">
             <option value="sun">week start at Sunday</option>
@@ -129,13 +126,9 @@ const dateTimeSelectorState = ref<'open' | 'close'>('close');
 </template>
 
 <style>
-#quick-popover {
+dt-quick-selector {
     display: inline-block;
     margin-left: 200px;
-}
-#quick-popover [slot="pop"] {
-    position: fixed;
-    z-index: 999;
 }
 dt-date-time-selector {
     margin-left: 200px;

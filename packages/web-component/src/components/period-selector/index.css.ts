@@ -1,4 +1,3 @@
-import { svg2cssUrl, timeSvg } from '../../assets';
 import { css } from '../../utils';
 
 export default css`

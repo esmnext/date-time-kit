@@ -11,13 +11,9 @@ export default css`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px 5px;
   font-size: 14px;
   gap: 10px;
-  border-radius: 6px;
-  border: 1px solid #eee;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-  background-color: #fff;
+  position: fixed;
 }
 .menu > * {
   width: 100%;
@@ -93,6 +89,7 @@ export default css`
   border-radius: 50%;
   margin: -5px;
   cursor: pointer;
+  box-sizing: content-box;
 }
 .title svg:hover {
   background-color: #eee;
