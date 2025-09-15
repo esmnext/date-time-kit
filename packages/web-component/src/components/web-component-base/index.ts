@@ -45,12 +45,15 @@ export interface BaseAttrs {
 }
 
 if (typeof document === 'object') {
-    // const styleEle = document.createElement('style');
-    // styleEle.innerHTML = scrollbarStyleStr;
-    // document.head.prepend(styleEle);
-    const styleSheet = new CSSStyleSheet();
-    styleSheet.replaceSync(scrollbarStyleStr);
-    document.adoptedStyleSheets.unshift(styleSheet);
+    try {
+        const styleSheet = new CSSStyleSheet();
+        styleSheet.replaceSync(scrollbarStyleStr);
+        document.adoptedStyleSheets.unshift(styleSheet);
+    } catch {
+        const styleEle = document.createElement('style');
+        styleEle.innerHTML = scrollbarStyleStr;
+        document.head.prepend(styleEle);
+    }
 }
 
 const HTMLElementBase = (() => {
