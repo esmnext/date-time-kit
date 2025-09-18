@@ -9,8 +9,23 @@ import {
 } from '../web-component-base';
 import styleStr from './index.css';
 import html, { getCurrentTz, utcText } from './index.html';
-import type { QuickKey } from './quick-key';
-export type { QuickKey } from './quick-key';
+import {
+    type DataLimit,
+    type GenPeriodTimesOptions,
+    type QuickKey,
+    genPeriodTimes,
+    quickPeriodTime,
+    quickPeriodTimes
+} from './quick-key';
+
+export {
+    type QuickKey,
+    type DataLimit,
+    type GenPeriodTimesOptions,
+    genPeriodTimes,
+    quickPeriodTime,
+    quickPeriodTimes
+};
 
 export interface Attrs extends BaseAttrs {
     /**
@@ -57,68 +72,6 @@ export interface Emits {
     'open-change': boolean;
 }
 export type EventMap = Emit2EventMap<Emits>;
-
-const genDateWithHours = (
-    isStart: boolean,
-    fn = (_t: Date) => {},
-    t = new Date()
-) => {
-    if (isStart) t.setHours(0, 0, 0, 0);
-    else t.setHours(23, 59, 59, 999);
-    fn(t);
-    return t;
-};
-const genStartDate = (fn?: (_t: Date) => void, t?: Date) =>
-    genDateWithHours(true, fn, t);
-const genEndDate = (fn?: (_t: Date) => void, t?: Date) =>
-    genDateWithHours(false, fn, t);
-export const genPeriodTimes = (
-    startFn?: (_t: Date, weekOffset: number) => void,
-    endFn?: (_t: Date, weekOffset: number) => void,
-    t: Date = new Date(),
-    weekStartAt: Weeks = 'sun'
-) => {
-    const weekOffset = weekKey.indexOf(weekStartAt);
-    return {
-        start: genStartDate((t) => startFn?.(t, weekOffset), new Date(t)),
-        end: genEndDate((t) => endFn?.(t, weekOffset), new Date(t))
-    };
-};
-const quickPeriodTimes = (weekStartAt: Weeks = 'sun') =>
-    ({
-        all: null,
-        today: genPeriodTimes(),
-        yesterday: genPeriodTimes(
-            (t) => t.setDate(t.getDate() - 1),
-            (t) => t.setDate(t.getDate() - 1)
-        ),
-        week: genPeriodTimes(
-            (t, weekOffset) => t.setDate(t.getDate() - t.getDay() + weekOffset),
-            (t, weekOffset) =>
-                t.setDate(t.getDate() - t.getDay() + weekOffset + 6)
-        ),
-        lastWeek: genPeriodTimes(
-            (t, weekOffset) =>
-                t.setDate(t.getDate() - t.getDay() + weekOffset - 7),
-            (t, weekOffset) =>
-                t.setDate(t.getDate() - t.getDay() + weekOffset - 1)
-        ),
-        last7Days: genPeriodTimes((t) => t.setDate(t.getDate() - 6)),
-        month: genPeriodTimes(
-            (t) => t.setDate(1),
-            (t) => t.setMonth(t.getMonth() + 1, 0)
-        ),
-        last30Days: genPeriodTimes((t) => t.setDate(t.getDate() - 29)),
-        last180Days: genPeriodTimes((t) => t.setDate(t.getDate() - 179)),
-        last6Month: genPeriodTimes(
-            (t) => t.setMonth(t.getMonth() - 5, 1),
-            (t) => t.setMonth(t.getMonth() + 1, 0)
-        ),
-        year: genPeriodTimes(
-            (t) => t.setMonth(0, 1),
-            (t) => t.setFullYear(t.getFullYear() + 1, 0, 0)
-        )
-    }) as const;
 
 /**
  * 快速选择下拉选项
@@ -316,7 +269,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             ele.timeStart = startTime;
             ele.timeEnd = endTime;
         } else {
-            const defaultPeriod = quickPeriodTimes(this.weekStartAt).last30Days;
+            const defaultPeriod = this.quickPeriodTime('last30Days');
             ele.timeStart = defaultPeriod.start;
             ele.timeEnd = defaultPeriod.end;
         }
@@ -374,7 +327,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (name === 'radio') {
             const v = value as QuickKey;
             if (v === 'custom') return;
-            const t = quickPeriodTimes(this.weekStartAt)[v];
+            const t = this.quickPeriodTime(v);
             this.dispatchEvent(
                 'time-changed',
                 !t
@@ -404,13 +357,14 @@ export class Ele extends UiBase<Attrs, Emits> {
         );
     };
 
-    public readonly genPeriodTimes = (
-        startFn?: (_t: Date, weekOffset: number) => void,
-        endFn?: (_t: Date, weekOffset: number) => void,
-        t: Date = new Date()
-    ) => {
-        return genPeriodTimes(startFn, endFn, t, this.weekStartAt);
-    };
+    public readonly genPeriodTimes = (options: GenPeriodTimesOptions) =>
+        genPeriodTimes({ weekStartAt: this.weekStartAt, ...options });
+    public readonly quickPeriodTimes = <T extends DataLimit = DataLimit>(
+        periods: T[]
+    ) => quickPeriodTimes({ weekStartAt: this.weekStartAt, periods });
+    public readonly quickPeriodTime = <T extends DataLimit = DataLimit>(
+        period: T
+    ) => quickPeriodTime({ weekStartAt: this.weekStartAt, period });
 }
 
 Ele.define();
