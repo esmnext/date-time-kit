@@ -136,16 +136,19 @@ export const quickGenPeriodTime = <T extends DataLimit = DataLimit>(
         ? null
         : { start: Date; end: Date };
 
-export type PeriodTimeInfo<T extends QuickKey = QuickKey> =
-    | {
+export type PeriodTimeInfo<
+    T extends QuickKey = QuickKey,
+    RT = Date
+> = T extends 'all'
+    ? {
           type: 'all';
           start?: null;
           end?: null;
       }
-    | {
+    : {
           type: Exclude<T, 'all'>;
-          start: Date;
-          end: Date;
+          start: RT;
+          end: RT;
       };
 
 export const quickGenPeriodTimeInfo = <T extends DataLimit = DataLimit>(
