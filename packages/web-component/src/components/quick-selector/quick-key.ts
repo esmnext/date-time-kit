@@ -35,12 +35,14 @@ const genStartDate = (fn?: (_t: Date) => void, t?: Date) =>
 const genEndDate = (fn?: (_t: Date) => void, t?: Date) =>
     genDateWithHours(false, fn, t);
 
-export type GenPeriodTimesOptions = {
-    start?: (time: Date, weekOffset: number) => void;
-    end?: (time: Date, weekOffset: number) => void;
+export interface QuickGenPeriodTimesOptions {
     initTime?: Date;
     weekStartAt?: Weeks;
-};
+}
+export interface GenPeriodTimesOptions extends QuickGenPeriodTimesOptions {
+    start?: (time: Date, weekOffset: number) => void;
+    end?: (time: Date, weekOffset: number) => void;
+}
 
 export const genPeriodTimes = ({
     start,
@@ -115,38 +117,41 @@ const presetPeriods = {
         })
 };
 
-export const quickPeriodTimes = <T extends DataLimit = DataLimit>({
-    weekStartAt = 'sun',
+export const quickGenPeriodTimes = <T extends DataLimit = DataLimit>({
     periods = limitKeys as T[],
-    initTime = new Date()
-}: {
-    weekStartAt?: Weeks;
-    periods?: T[];
-    initTime?: Date;
-} = {}) => {
+    ...options
+}: { periods?: T[] } & QuickGenPeriodTimesOptions = {}) => {
     periods = [...new Set(periods)].filter((k) => k in presetPeriods);
     return Object.fromEntries(
-        periods.map((k) => [
-            k,
-            presetPeriods[k]({
-                weekStartAt,
-                initTime
-            })
-        ])
+        periods.map((k) => [k, presetPeriods[k](options)])
     ) as Record<Exclude<T, 'all'>, { start: Date; end: Date }> &
         ('all' extends T ? { all: null } : {});
 };
 
-export const quickPeriodTime = <T extends DataLimit = DataLimit>({
-    period,
-    weekStartAt = 'sun',
-    initTime = new Date()
-}: {
-    period: T;
-    weekStartAt?: Weeks;
-    initTime?: Date;
-}) =>
-    presetPeriods[period]({
-        weekStartAt,
-        initTime
-    }) as T extends 'all' ? null : { start: Date; end: Date };
+export const quickGenPeriodTime = <T extends DataLimit = DataLimit>(
+    period: T,
+    options: QuickGenPeriodTimesOptions = {}
+) =>
+    presetPeriods[period](options) as T extends 'all'
+        ? null
+        : { start: Date; end: Date };
+
+export type PeriodTimeInfo<T extends QuickKey = QuickKey> =
+    | {
+          type: 'all';
+          start?: null;
+          end?: null;
+      }
+    | {
+          type: Exclude<T, 'all'>;
+          start: Date;
+          end: Date;
+      };
+
+export const quickGenPeriodTimeInfo = <T extends DataLimit = DataLimit>(
+    type: T,
+    options: QuickGenPeriodTimesOptions = {}
+) => {
+    const t = quickGenPeriodTime(type, options);
+    return (!t ? { type } : { type, ...t }) as PeriodTimeInfo<T>;
+};

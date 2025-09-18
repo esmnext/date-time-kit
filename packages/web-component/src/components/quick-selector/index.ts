@@ -12,19 +12,24 @@ import html, { getCurrentTz, utcText } from './index.html';
 import {
     type DataLimit,
     type GenPeriodTimesOptions,
+    type PeriodTimeInfo,
     type QuickKey,
     genPeriodTimes,
-    quickPeriodTime,
-    quickPeriodTimes
+    quickGenPeriodTime,
+    quickGenPeriodTimeInfo,
+    quickGenPeriodTimes
 } from './quick-key';
 
 export {
     type QuickKey,
     type DataLimit,
     type GenPeriodTimesOptions,
+    type PeriodTimeInfo,
+    type Weeks,
     genPeriodTimes,
-    quickPeriodTime,
-    quickPeriodTimes
+    quickGenPeriodTime,
+    quickGenPeriodTimes,
+    quickGenPeriodTimeInfo
 };
 
 export interface Attrs extends BaseAttrs {
@@ -58,17 +63,7 @@ export interface Attrs extends BaseAttrs {
 }
 
 export interface Emits {
-    'time-changed':
-        | {
-              type: 'all';
-              start?: null;
-              end?: null;
-          }
-        | {
-              type: QuickKey;
-              start: Date;
-              end: Date;
-          };
+    'time-changed': PeriodTimeInfo;
     'open-change': boolean;
 }
 export type EventMap = Emit2EventMap<Emits>;
@@ -269,7 +264,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             ele.timeStart = startTime;
             ele.timeEnd = endTime;
         } else {
-            const defaultPeriod = this.quickPeriodTime('last30Days');
+            const defaultPeriod = this.quickGenPeriodTime('last30Days');
             ele.timeStart = defaultPeriod.start;
             ele.timeEnd = defaultPeriod.end;
         }
@@ -327,17 +322,8 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (name === 'radio') {
             const v = value as QuickKey;
             if (v === 'custom') return;
-            const t = this.quickPeriodTime(v);
-            this.dispatchEvent(
-                'time-changed',
-                !t
-                    ? { type: 'all' }
-                    : {
-                          ...t,
-                          type: v
-                      },
-                true
-            );
+            const t = this.quickGenPeriodTimeInfo(v);
+            this.dispatchEvent('time-changed', t, true);
         } else if (name === 'tz') {
             this.timezone = +value;
         }
@@ -359,12 +345,15 @@ export class Ele extends UiBase<Attrs, Emits> {
 
     public readonly genPeriodTimes = (options: GenPeriodTimesOptions) =>
         genPeriodTimes({ weekStartAt: this.weekStartAt, ...options });
-    public readonly quickPeriodTimes = <T extends DataLimit = DataLimit>(
+    public readonly quickGenPeriodTimes = <T extends DataLimit = DataLimit>(
         periods: T[]
-    ) => quickPeriodTimes({ weekStartAt: this.weekStartAt, periods });
-    public readonly quickPeriodTime = <T extends DataLimit = DataLimit>(
+    ) => quickGenPeriodTimes({ weekStartAt: this.weekStartAt, periods });
+    public readonly quickGenPeriodTime = <T extends DataLimit = DataLimit>(
         period: T
-    ) => quickPeriodTime({ weekStartAt: this.weekStartAt, period });
+    ) => quickGenPeriodTime(period, { weekStartAt: this.weekStartAt });
+    public readonly quickGenPeriodTimeInfo = <T extends DataLimit = DataLimit>(
+        type: T
+    ) => quickGenPeriodTimeInfo(type, { weekStartAt: this.weekStartAt });
 }
 
 Ele.define();
