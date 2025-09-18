@@ -4,6 +4,9 @@ export const styleStr = css`
 :host {
   font-size: 14px;
 }
+dt-popover {
+  width: 100%;
+}
 .wrapper {
   display: flex;
   flex-direction: column;

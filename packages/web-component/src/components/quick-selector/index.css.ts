@@ -6,7 +6,9 @@ export default css`
   width: fit-content;
   display: block;
 }
-
+dt-popover {
+  width: 100%;
+}
 .menu {
   display: flex;
   flex-direction: column;

@@ -18,7 +18,7 @@ const genTzRadio = (tz: number) =>
     html`<label><input type="radio" name="tz" value="${tz}" hidden/><i class="radio"></i><span>${utcText(tz)}</span></label>`;
 
 export default html`
-<dt-popover>
+<dt-popover part="popover">
 <slot name="trigger" slot="trigger"><input type="button" value="quick selector"/></slot>
 <div class="menu top" part="menu top" slot="pop"
     ><div class="radio-grp">${(
