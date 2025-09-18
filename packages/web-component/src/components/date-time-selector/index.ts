@@ -110,13 +110,13 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._setTimeAttr('showing-time', val);
     }
     public get minTime() {
-        return this._getTimeAttr('min-time', '');
+        return this._getTimeAttr('min-time', 'null');
     }
     public set minTime(val: number | string | Date) {
         this._setTimeAttr('min-time', val);
     }
     public get maxTime() {
-        return this._getTimeAttr('max-time', '');
+        return this._getTimeAttr('max-time', 'null');
     }
     public set maxTime(val: number | string | Date) {
         this._setTimeAttr('max-time', val);

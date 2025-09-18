@@ -89,11 +89,11 @@ export class Ele extends UiBase<Attrs, Emits> {
         return new Date(Number.isNaN(+v) ? v : +v);
     }
     public get minTime() {
-        const v = this._getAttr('min-time', '');
+        const v = this._getAttr('min-time', 'null');
         return new Date(Number.isNaN(+v) ? v : +v);
     }
     public get maxTime() {
-        const v = this._getAttr('max-time', '');
+        const v = this._getAttr('max-time', 'null');
         return new Date(Number.isNaN(+v) ? v : +v);
     }
     private _setTimeAttr(
