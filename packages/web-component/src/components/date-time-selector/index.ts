@@ -51,6 +51,16 @@ export interface Attrs extends BaseAttrs {
      * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。
      */
     'min-granularity'?: Granularity;
+    /**
+     * The minimum time of the calendar display range.
+     * @type {`string | number`} A value that can be passed to the Date constructor.
+     */
+    'min-time'?: string | number;
+    /**
+     * The maximum time of the calendar display range.
+     * @type {`string | number`} A value that can be passed to the Date constructor.
+     */
+    'max-time'?: string | number;
 }
 
 export interface Emits {
@@ -73,26 +83,43 @@ export class Ele extends UiBase<Attrs, Emits> {
             'week-start-at',
             'current-time',
             'showing-time',
+            'min-time',
+            'max-time',
             'min-granularity'
         ] satisfies (keyof Attrs)[];
     }
-    public get currentTime() {
-        const v = this._getAttr('current-time', '' + Date.now());
+    private _getTimeAttr(name: keyof Attrs, defaultValue: string) {
+        const v = this._getAttr(name, defaultValue);
         return new Date(Number.isNaN(+v) ? v : +v);
+    }
+    private _setTimeAttr(name: keyof Attrs, value: number | string | Date) {
+        const v = new Date(value);
+        if (Number.isNaN(+v)) return;
+        this.setAttribute(name, +v + '');
+    }
+    public get currentTime() {
+        return this._getTimeAttr('current-time', '' + Date.now());
     }
     public set currentTime(val: number | string | Date) {
-        const v = new Date(val);
-        if (Number.isNaN(+v)) return;
-        this.setAttribute('current-time', +v + '');
+        this._setTimeAttr('current-time', val);
     }
     public get showingTime() {
-        const v = this._getAttr('showing-time', '' + this.currentTime);
-        return new Date(Number.isNaN(+v) ? v : +v);
+        return this._getTimeAttr('showing-time', '' + +this.currentTime);
     }
     public set showingTime(val: number | string | Date) {
-        const v = new Date(val);
-        if (Number.isNaN(+v)) return;
-        this.setAttribute('showing-time', +v + '');
+        this._setTimeAttr('showing-time', val);
+    }
+    public get minTime() {
+        return this._getTimeAttr('min-time', '');
+    }
+    public set minTime(val: number | string | Date) {
+        this._setTimeAttr('min-time', val);
+    }
+    public get maxTime() {
+        return this._getTimeAttr('max-time', '');
+    }
+    public set maxTime(val: number | string | Date) {
+        this._setTimeAttr('max-time', val);
     }
     public get weekStartAt() {
         return this._getAttr('week-start-at', 'sun');
@@ -175,20 +202,23 @@ export class Ele extends UiBase<Attrs, Emits> {
     private _render = debounce(() => {
         if (!this.isConnected) return;
         const currentTime = this.currentTime as Date;
-        this._calendar.weekStartAt = this.weekStartAt;
+        const { _calendar, _timeSelector } = this;
+        _calendar.weekStartAt = this.weekStartAt;
         this._navEle.millisecond =
-            this._calendar.timeStart =
-            this._calendar.timeEnd =
+            _calendar.timeStart =
+            _calendar.timeEnd =
                 +currentTime;
-        this._calendar.showingTime = this.showingTime;
+        _calendar.showingTime = this.showingTime;
+        _calendar.minTime = this.minTime;
+        _calendar.maxTime = this.maxTime;
 
         if (this.minGranularity === 'day') {
-            this._timeSelector.style.display = 'none';
+            _timeSelector.style.display = 'none';
             return;
         }
-        this._timeSelector.style.display = '';
-        this._timeSelector.minGranularity = this.minGranularity;
-        this._timeSelector.currentTime = currentTime;
+        _timeSelector.style.display = '';
+        _timeSelector.minGranularity = this.minGranularity;
+        _timeSelector.currentTime = currentTime;
     }, 0);
 
     private _onCalendarSelect = (e: CalendarBaseEvent['select-time']) => {

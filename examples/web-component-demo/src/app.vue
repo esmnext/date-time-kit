@@ -55,6 +55,8 @@ const quickKeyProxy = computed({
 
 const currentTime = ref<string | number | undefined>(void 0);
 const dateTimeSelectorState = ref<'open' | 'close'>('close');
+
+const dateNow = Date.now();
 </script>
 
 <template>
@@ -127,6 +129,17 @@ const dateTimeSelectorState = ref<'open' | 'close'>('close');
                 @open-change="dateTimeSelectorState = $event.detail ? 'open' : 'close'"
             >
                 <button slot="trigger">date time selector</button>
+            </dt-date-time-selector>
+            <dt-date-time-selector
+                :lang="lang"
+                min-granularity="minute"
+                :current-time="currentTime"
+                :min-time="dateNow - 30 * 24 * 3600 * 1000"
+                :max-time="dateNow + 30 * 24 * 3600 * 1000"
+                @select-time="currentTime = +$event.detail"
+                @open-change="dateTimeSelectorState = $event.detail ? 'open' : 'close'"
+            >
+                <button slot="trigger">date time selector with max-min time</button>
             </dt-date-time-selector>
             <ul>
                 <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil, mollitia?</li>

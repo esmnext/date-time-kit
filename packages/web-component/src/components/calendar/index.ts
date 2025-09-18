@@ -212,8 +212,8 @@ export class Ele extends UiBase<Attrs, Emits> {
             [timeStart, timeEnd] = [timeEnd, timeStart];
         }
 
-        const minTime = new Date(this._getAttr('min-time') || '');
-        const maxTime = new Date(this._getAttr('max-time') || '');
+        const minTime = this.minTime as Date;
+        const maxTime = this.maxTime as Date;
         minTime.setHours(0, 0, 0, 0);
         maxTime.setHours(0, 0, 0, 0);
         if (maxTime < timeEnd) timeEnd = maxTime;
