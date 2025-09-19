@@ -8,6 +8,7 @@ export * as DtDataTimeSelector from './components/date-time-selector';
 
 export {
     i18n as dtI18n,
+    langs as dtLangsList,
     type Lang as DtLang,
     type I18n as DtI18n
 } from './i18n';

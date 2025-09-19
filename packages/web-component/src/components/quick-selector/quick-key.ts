@@ -57,16 +57,23 @@ export const genPeriodTimes = ({
     };
 };
 
+const noop = () => {};
+
 const presetPeriods = {
     all: () => null,
-    today: (ops: GenPeriodTimesOptions) => genPeriodTimes(ops),
-    yesterday: (ops: GenPeriodTimesOptions) =>
+    today: (ops: QuickGenPeriodTimesOptions) =>
+        genPeriodTimes({
+            ...ops,
+            start: noop,
+            end: noop
+        }),
+    yesterday: (ops: QuickGenPeriodTimesOptions) =>
         genPeriodTimes({
             ...ops,
             start: (t) => t.setDate(t.getDate() - 1),
             end: (t) => t.setDate(t.getDate() - 1)
         }),
-    week: (ops: GenPeriodTimesOptions) =>
+    week: (ops: QuickGenPeriodTimesOptions) =>
         genPeriodTimes({
             ...ops,
             start: (t, weekOffset) =>
@@ -74,7 +81,7 @@ const presetPeriods = {
             end: (t, weekOffset) =>
                 t.setDate(t.getDate() - t.getDay() + weekOffset + 6)
         }),
-    lastWeek: (ops: GenPeriodTimesOptions) =>
+    lastWeek: (ops: QuickGenPeriodTimesOptions) =>
         genPeriodTimes({
             ...ops,
             start: (t, weekOffset) =>
@@ -82,34 +89,37 @@ const presetPeriods = {
             end: (t, weekOffset) =>
                 t.setDate(t.getDate() - t.getDay() + weekOffset - 1)
         }),
-    last7Days: (ops: GenPeriodTimesOptions) =>
+    last7Days: (ops: QuickGenPeriodTimesOptions) =>
         genPeriodTimes({
             ...ops,
-            start: (t) => t.setDate(t.getDate() - 6)
+            start: (t) => t.setDate(t.getDate() - 6),
+            end: noop
         }),
-    month: (ops: GenPeriodTimesOptions) =>
+    month: (ops: QuickGenPeriodTimesOptions) =>
         genPeriodTimes({
             ...ops,
             start: (t) => t.setDate(1),
             end: (t) => t.setMonth(t.getMonth() + 1, 0)
         }),
-    last30Days: (ops: GenPeriodTimesOptions) =>
+    last30Days: (ops: QuickGenPeriodTimesOptions) =>
         genPeriodTimes({
             ...ops,
-            start: (t) => t.setDate(t.getDate() - 29)
+            start: (t) => t.setDate(t.getDate() - 29),
+            end: noop
         }),
-    last180Days: (ops: GenPeriodTimesOptions) =>
+    last180Days: (ops: QuickGenPeriodTimesOptions) =>
         genPeriodTimes({
             ...ops,
-            start: (t) => t.setDate(t.getDate() - 179)
+            start: (t) => t.setDate(t.getDate() - 179),
+            end: noop
         }),
-    last6Month: (ops: GenPeriodTimesOptions) =>
+    last6Month: (ops: QuickGenPeriodTimesOptions) =>
         genPeriodTimes({
             ...ops,
             start: (t) => t.setMonth(t.getMonth() - 5, 1),
             end: (t) => t.setMonth(t.getMonth() + 1, 0)
         }),
-    year: (ops: GenPeriodTimesOptions) =>
+    year: (ops: QuickGenPeriodTimesOptions) =>
         genPeriodTimes({
             ...ops,
             start: (t) => t.setMonth(0, 1),
