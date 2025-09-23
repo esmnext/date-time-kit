@@ -17,6 +17,7 @@ export const limitKeys: DataLimit[] = [
     'last6Month',
     'year'
 ];
+export const quickKeys: QuickKey[] = [...limitKeys, 'custom'];
 
 const genDateWithHours = (
     isStart: boolean,

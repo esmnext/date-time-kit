@@ -80,7 +80,7 @@ const dateNow = Date.now();
             >quick select: <dt-quick-selector
                 :lang="lang"
                 ref="el"
-                slot="pop"
+                pop-strategy="absolute"
                 @time-changed="onChange"
                 @open-change="$event.detail
                     ? quickResult = 'Selecting...'
@@ -164,7 +164,7 @@ const dateNow = Date.now();
 div.wrapper {
     min-width: 100vw;
     min-height: 100vh;
-    padding: 25vmin;
+    padding: 75vmin;
 }
 [data-theme="light"] {
     --color-bg-block-light: #fff;

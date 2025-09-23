@@ -8,6 +8,7 @@ import {
 import { css, html } from '../../utils';
 import {
     type BaseAttrs,
+    type BaseEmits,
     type Emit2EventMap,
     UiBase
 } from '../web-component-base';
@@ -17,7 +18,7 @@ export interface Attrs extends BaseAttrs {
     disabled?: boolean;
     /** @default 'bottom-start' */
     placement?: `${'top' | 'bottom' | 'left' | 'right'}${'' | '-start' | '-end'}`;
-    /** @default 'fixed' */
+    /** @default 'none' */
     strategy?: 'absolute' | 'fixed' | 'none';
     /** @default 0 */
     offset?: number;
@@ -65,7 +66,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         else this.removeAttribute('placement');
     }
     public get strategy() {
-        return this._getAttr('strategy', 'fixed');
+        return this._getAttr('strategy', 'none');
     }
     public set strategy(v: Attrs['strategy']) {
         if (v) this.setAttribute('strategy', v);
@@ -138,13 +139,18 @@ export class Ele extends UiBase<Attrs, Emits> {
     public connectedCallback() {
         if (!super.connectedCallback()) return;
         this._triggerEle.addEventListener('click', this._onToggleClick);
+        this.strategy = this.strategy;
     }
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
         this._triggerEle.removeEventListener('click', this._onToggleClick);
     }
 
-    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
+    protected _onAttrChanged(
+        name: string,
+        oldValue: string | null,
+        newValue: string | null
+    ) {
         super._onAttrChanged(name, oldValue, newValue);
         if (name !== 'open') return;
         const isOpen = newValue !== null;

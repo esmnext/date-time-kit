@@ -1,7 +1,11 @@
 import { debounce } from '../../utils';
 import { type Weeks, weekKey } from '../calendar';
 import type { Ele as PeriodSelectorEle } from '../period-selector';
-import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
+import {
+    type Attrs as PopoverAttrs,
+    Ele as PopoverEle,
+    type EventMap as PopoverEvent
+} from '../popover';
 import {
     type BaseAttrs,
     type BaseEmits,
@@ -19,7 +23,8 @@ import {
     genPeriodTimes,
     quickGenPeriodTime,
     quickGenPeriodTimeInfo,
-    quickGenPeriodTimes
+    quickGenPeriodTimes,
+    quickKeys
 } from './quick-key';
 
 export {
@@ -35,7 +40,13 @@ export {
     quickGenPeriodTimeInfo
 };
 
-export interface Attrs extends BaseAttrs {
+export type Attrs = BaseAttrs & {
+    [K in `pop-${Exclude<keyof PopoverAttrs, keyof BaseAttrs>}`]?: K extends `pop-${infer U}`
+        ? U extends keyof PopoverAttrs
+            ? PopoverAttrs[U]
+            : never
+        : never;
+} & {
     /**
      * Timezone in minutes. For example: UTC+05:45 => `345`, UTC-01:00 => `-60`.
      *
@@ -63,7 +74,7 @@ export interface Attrs extends BaseAttrs {
      * End time of the quick selection. Only works in custom mode.
      */
     'end-time'?: string | number | '';
-}
+};
 
 export interface Emits extends BaseEmits {
     'time-changed': PeriodTimeInfo;
@@ -83,7 +94,12 @@ export class Ele extends UiBase<Attrs, Emits> {
             'week-start-at',
             'quick-key',
             'start-time',
-            'end-time'
+            'end-time',
+            'pop-disabled',
+            'pop-open',
+            'pop-placement',
+            'pop-strategy',
+            'pop-offset'
         ] satisfies (keyof Attrs)[];
     }
 
@@ -98,24 +114,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         return this._getAttr('quick-key', 'all');
     }
     public set quickKey(val: QuickKey) {
-        if (
-            ![
-                'all',
-                'today',
-                'yesterday',
-                'week',
-                'lastWeek',
-                'last7Days',
-                'month',
-                'last30Days',
-                'last180Days',
-                'last6Month',
-                'year',
-                'custom'
-            ].includes(val)
-        ) {
-            return;
-        }
+        if (!quickKeys.includes(val)) return;
         this.setAttribute('quick-key', val);
     }
     public get weekStartAt() {
@@ -137,7 +136,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         }
         const v = new Date(val);
         if (Number.isNaN(+v)) return;
-        this.setAttribute('time-start', +v + '');
+        this.setAttribute('start-time', +v + '');
     }
     public get endTime() {
         const v = this._getAttr('end-time', '' + this.startTime);
@@ -162,6 +161,9 @@ export class Ele extends UiBase<Attrs, Emits> {
             'dt-period-selector'
         ) as PeriodSelectorEle;
     }
+    private get _popoverEle() {
+        return this.shadowRoot!.querySelector('dt-popover') as PopoverEle;
+    }
 
     constructor() {
         super();
@@ -173,9 +175,11 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._renderTz();
         this._updateRadio();
         this._updatePeriodSelector();
-        this.shadowRoot!.querySelector<PopoverEle>(
-            'dt-popover'
-        )?.addEventListener('open-change', this._onPopoverChange);
+        this._popoverEle.addEventListener('open-change', this._onPopoverChange);
+        this._popoverEle.addEventListener(
+            'dt-attribute-changed',
+            this._onPopoverAttrChanged
+        );
         this.shadowRoot!.querySelector('.tz-trigger')?.addEventListener(
             'click',
             this._onTzTriggerClick
@@ -205,9 +209,14 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
-        this.shadowRoot!.querySelector<PopoverEle>(
-            'dt-popover'
-        )?.removeEventListener('open-change', this._onPopoverChange);
+        this._popoverEle.removeEventListener(
+            'open-change',
+            this._onPopoverChange
+        );
+        this._popoverEle.removeEventListener(
+            'dt-attribute-changed',
+            this._onPopoverAttrChanged
+        );
         this.shadowRoot!.querySelector('.tz-trigger')?.removeEventListener(
             'click',
             this._onTzTriggerClick
@@ -235,8 +244,18 @@ export class Ele extends UiBase<Attrs, Emits> {
         );
     }
 
-    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
+    protected _onAttrChanged(
+        name: string,
+        oldValue: string | null,
+        newValue: string | null
+    ) {
         super._onAttrChanged(name, oldValue, newValue);
+        if (name.startsWith('pop-')) {
+            const popName = name.replace('pop-', '');
+            if (newValue === null) this._popoverEle.removeAttribute(popName);
+            else this._popoverEle.setAttribute(popName, newValue);
+            return;
+        }
         if (name === 'time-zone') {
             this._renderTz();
         }
@@ -294,6 +313,15 @@ export class Ele extends UiBase<Attrs, Emits> {
         radio!.checked = true;
     }, 0);
 
+    private _onPopoverAttrChanged = (
+        e: PopoverEvent['dt-attribute-changed']
+    ) => {
+        if (!(e.target instanceof PopoverEle)) return;
+        const { name, oldValue, newValue } = e.detail;
+        if (newValue === oldValue) return;
+        if (newValue === null) this.removeAttribute('pop-' + name);
+        else this.setAttribute('pop-' + name, newValue);
+    };
     private _onPopoverChange = (e: PopoverEvent['open-change']) => {
         if (!(e.target instanceof PopoverEle)) return;
         if (e.detail === false) {
