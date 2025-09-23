@@ -123,6 +123,7 @@ const dateNow = Date.now();
             <p>state: {{ dateTimeSelectorState }}</p>
             <dt-date-time-selector
                 :lang="lang"
+                pop-strategy="absolute"
                 min-granularity="minute"
                 :current-time="currentTime"
                 @select-time="currentTime = +$event.detail"
@@ -132,6 +133,7 @@ const dateNow = Date.now();
             </dt-date-time-selector>
             <dt-date-time-selector
                 :lang="lang"
+                pop-strategy="fixed"
                 min-granularity="minute"
                 :current-time="currentTime"
                 :min-time="dateNow - 30 * 24 * 3600 * 1000"

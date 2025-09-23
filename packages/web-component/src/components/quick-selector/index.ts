@@ -1,11 +1,14 @@
 import { debounce } from '../../utils';
 import { type Weeks, weekKey } from '../calendar';
 import type { Ele as PeriodSelectorEle } from '../period-selector';
+import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
 import {
-    type Attrs as PopoverAttrs,
-    Ele as PopoverEle,
-    type EventMap as PopoverEvent
-} from '../popover';
+    clearupPopEleAttrSync2Parent,
+    parentPopAttrSync2PopEle,
+    popEleAttrSync2Parent,
+    popoverAttrKeys,
+    type reExportPopoverAttrs
+} from '../popover/attr-sync-helper';
 import {
     type BaseAttrs,
     type BaseEmits,
@@ -40,41 +43,36 @@ export {
     quickGenPeriodTimeInfo
 };
 
-export type Attrs = BaseAttrs & {
-    [K in `pop-${Exclude<keyof PopoverAttrs, keyof BaseAttrs>}`]?: K extends `pop-${infer U}`
-        ? U extends keyof PopoverAttrs
-            ? PopoverAttrs[U]
-            : never
-        : never;
-} & {
-    /**
-     * Timezone in minutes. For example: UTC+05:45 => `345`, UTC-01:00 => `-60`.
-     *
-     * @default
-     * -new Date().getTimezoneOffset() // local timezone in minutes
-     */
-    'time-zone'?: number;
-    /**
-     * Set which day of the week is the first day.
-     * @type `'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'`
-     * @default 'sun'
-     */
-    'week-start-at'?: Weeks;
-    /**
-     * Quick selection key.
-     *
-     * @default 'all'
-     */
-    'quick-key'?: QuickKey;
-    /**
-     * Start time of the quick selection. Only works in custom mode.
-     */
-    'start-time'?: string | number | '';
-    /**
-     * End time of the quick selection. Only works in custom mode.
-     */
-    'end-time'?: string | number | '';
-};
+export type Attrs = BaseAttrs &
+    reExportPopoverAttrs & {
+        /**
+         * Timezone in minutes. For example: UTC+05:45 => `345`, UTC-01:00 => `-60`.
+         *
+         * @default
+         * -new Date().getTimezoneOffset() // local timezone in minutes
+         */
+        'time-zone'?: number;
+        /**
+         * Set which day of the week is the first day.
+         * @type `'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'`
+         * @default 'sun'
+         */
+        'week-start-at'?: Weeks;
+        /**
+         * Quick selection key.
+         *
+         * @default 'all'
+         */
+        'quick-key'?: QuickKey;
+        /**
+         * Start time of the quick selection. Only works in custom mode.
+         */
+        'start-time'?: string | number | '';
+        /**
+         * End time of the quick selection. Only works in custom mode.
+         */
+        'end-time'?: string | number | '';
+    };
 
 export interface Emits extends BaseEmits {
     'time-changed': PeriodTimeInfo;
@@ -95,11 +93,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             'quick-key',
             'start-time',
             'end-time',
-            'pop-disabled',
-            'pop-open',
-            'pop-placement',
-            'pop-strategy',
-            'pop-offset'
+            ...popoverAttrKeys
         ] satisfies (keyof Attrs)[];
     }
 
@@ -176,10 +170,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._updateRadio();
         this._updatePeriodSelector();
         this._popoverEle.addEventListener('open-change', this._onPopoverChange);
-        this._popoverEle.addEventListener(
-            'dt-attribute-changed',
-            this._onPopoverAttrChanged
-        );
+        popEleAttrSync2Parent(this, this._popoverEle);
         this.shadowRoot!.querySelector('.tz-trigger')?.addEventListener(
             'click',
             this._onTzTriggerClick
@@ -213,10 +204,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             'open-change',
             this._onPopoverChange
         );
-        this._popoverEle.removeEventListener(
-            'dt-attribute-changed',
-            this._onPopoverAttrChanged
-        );
+        clearupPopEleAttrSync2Parent(this);
         this.shadowRoot!.querySelector('.tz-trigger')?.removeEventListener(
             'click',
             this._onTzTriggerClick
@@ -250,10 +238,9 @@ export class Ele extends UiBase<Attrs, Emits> {
         newValue: string | null
     ) {
         super._onAttrChanged(name, oldValue, newValue);
-        if (name.startsWith('pop-')) {
-            const popName = name.replace('pop-', '');
-            if (newValue === null) this._popoverEle.removeAttribute(popName);
-            else this._popoverEle.setAttribute(popName, newValue);
+        if (
+            parentPopAttrSync2PopEle(name, oldValue, newValue, this._popoverEle)
+        ) {
             return;
         }
         if (name === 'time-zone') {
@@ -313,15 +300,6 @@ export class Ele extends UiBase<Attrs, Emits> {
         radio!.checked = true;
     }, 0);
 
-    private _onPopoverAttrChanged = (
-        e: PopoverEvent['dt-attribute-changed']
-    ) => {
-        if (!(e.target instanceof PopoverEle)) return;
-        const { name, oldValue, newValue } = e.detail;
-        if (newValue === oldValue) return;
-        if (newValue === null) this.removeAttribute('pop-' + name);
-        else this.setAttribute('pop-' + name, newValue);
-    };
     private _onPopoverChange = (e: PopoverEvent['open-change']) => {
         if (!(e.target instanceof PopoverEle)) return;
         if (e.detail === false) {

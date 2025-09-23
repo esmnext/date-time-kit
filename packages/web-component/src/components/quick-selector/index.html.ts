@@ -1,6 +1,6 @@
 import { getCurrentTz, html } from '../../utils';
 import { Ele as PeriodSelectorEle } from '../period-selector';
-import type { QuickKey } from './quick-key';
+import { type QuickKey, limitKeys } from './quick-key';
 PeriodSelectorEle.define();
 import { Ele as I18nEle } from '../i18n';
 I18nEle.define();
@@ -21,21 +21,7 @@ export default html`
 <dt-popover part="popover">
 <slot name="trigger" slot="trigger"><input type="button" value="quick selector"/></slot>
 <div class="menu top" part="menu top" slot="pop"
-    ><div class="radio-grp">${(
-        [
-            'all',
-            'today',
-            'yesterday',
-            'week',
-            'lastWeek',
-            'last7Days',
-            'month',
-            'last30Days',
-            'last180Days',
-            'last6Month',
-            'year'
-        ] as QuickKey[]
-    )
+    ><div class="radio-grp">${limitKeys
         .map(
             (k) =>
                 html`<label

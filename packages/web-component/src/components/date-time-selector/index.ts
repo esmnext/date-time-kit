@@ -11,7 +11,14 @@ import {
     type Granularity as TimeGranularity,
     granularityList as timeGranularityList
 } from '../hhmmss-ms-list-grp/selector';
-import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
+import type { Ele as PopoverEle, EventMap as PopoverEvent } from '../popover';
+import {
+    clearupPopEleAttrSync2Parent,
+    parentPopAttrSync2PopEle,
+    popEleAttrSync2Parent,
+    popoverAttrKeys,
+    type reExportPopoverAttrs
+} from '../popover/attr-sync-helper';
 import {
     type BaseAttrs,
     type BaseEmits,
@@ -28,41 +35,42 @@ import { styleStr } from './styleStr';
 export const granularityList = ['day', ...timeGranularityList] as const;
 export type Granularity = (typeof granularityList)[number];
 
-export interface Attrs extends BaseAttrs {
-    /**
-     * Set which day of the week is the first day.
-     * @type `'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'`
-     * @default 'sun'
-     */
-    'week-start-at'?: Weeks;
-    /**
-     * The time of the calendar.
-     * @type {`string | number`} A value that can be passed to the Date constructor.
-     * @default Date.now()
-     */
-    'current-time'?: string | number;
-    /**
-     * The showing time, used to determine the month to show on calendar.
-     * @type {`string | number`} A value that can be passed to the Date constructor.
-     * @default 'current-time'
-     */
-    'showing-time'?: string | number;
-    /**
-     * 选择器的粒度，表示最小可选的时间单位。默认为 millisecond。
-     * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。
-     */
-    'min-granularity'?: Granularity;
-    /**
-     * The minimum time of the calendar display range.
-     * @type {`string | number`} A value that can be passed to the Date constructor.
-     */
-    'min-time'?: string | number;
-    /**
-     * The maximum time of the calendar display range.
-     * @type {`string | number`} A value that can be passed to the Date constructor.
-     */
-    'max-time'?: string | number;
-}
+export type Attrs = BaseAttrs &
+    reExportPopoverAttrs & {
+        /**
+         * Set which day of the week is the first day.
+         * @type `'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'`
+         * @default 'sun'
+         */
+        'week-start-at'?: Weeks;
+        /**
+         * The time of the calendar.
+         * @type {`string | number`} A value that can be passed to the Date constructor.
+         * @default Date.now()
+         */
+        'current-time'?: string | number;
+        /**
+         * The showing time, used to determine the month to show on calendar.
+         * @type {`string | number`} A value that can be passed to the Date constructor.
+         * @default 'current-time'
+         */
+        'showing-time'?: string | number;
+        /**
+         * 选择器的粒度，表示最小可选的时间单位。默认为 millisecond。
+         * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。
+         */
+        'min-granularity'?: Granularity;
+        /**
+         * The minimum time of the calendar display range.
+         * @type {`string | number`} A value that can be passed to the Date constructor.
+         */
+        'min-time'?: string | number;
+        /**
+         * The maximum time of the calendar display range.
+         * @type {`string | number`} A value that can be passed to the Date constructor.
+         */
+        'max-time'?: string | number;
+    };
 
 export interface Emits extends BaseEmits {
     'select-time': Date;
@@ -86,7 +94,8 @@ export class Ele extends UiBase<Attrs, Emits> {
             'showing-time',
             'min-time',
             'max-time',
-            'min-granularity'
+            'min-granularity',
+            ...popoverAttrKeys
         ] satisfies (keyof Attrs)[];
     }
     private _getTimeAttr(name: keyof Attrs, defaultValue: string) {
@@ -153,6 +162,9 @@ export class Ele extends UiBase<Attrs, Emits> {
             'dt-hhmmss-ms-selector'
         ) as HhMmSsMsSelectorEle;
     }
+    private get _popoverEle() {
+        return this.shadowRoot!.querySelector('dt-popover') as PopoverEle;
+    }
 
     constructor() {
         super();
@@ -163,6 +175,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (!super.connectedCallback()) return;
         this._calendar.formatter = (i: number) => String(i).padStart(2, '0');
         this._render();
+        popEleAttrSync2Parent(this, this._popoverEle);
         this._calendar.addEventListener('select-time', this._onCalendarSelect);
         this._navEle.addEventListener('change', this._onNavChange);
         this._navEle.addEventListener(
@@ -177,6 +190,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
+        clearupPopEleAttrSync2Parent(this);
         this._calendar.removeEventListener(
             'select-time',
             this._onCalendarSelect
@@ -192,8 +206,17 @@ export class Ele extends UiBase<Attrs, Emits> {
         );
         this._timeSelector.removeEventListener('open-change', this._stopEvent);
     }
-    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
+    protected _onAttrChanged(
+        name: string,
+        oldValue: string | null,
+        newValue: string | null
+    ) {
         super._onAttrChanged(name, oldValue, newValue);
+        if (
+            parentPopAttrSync2PopEle(name, oldValue, newValue, this._popoverEle)
+        ) {
+            return;
+        }
         this._render();
         if (name === 'current-time') {
             this.dispatchEvent('select-time', this.currentTime as Date);

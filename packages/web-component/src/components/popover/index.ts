@@ -172,8 +172,9 @@ export class Ele extends UiBase<Attrs, Emits> {
     private _onDocClick = (e: MouseEvent) => {
         const popEle = this.querySelector('[slot="pop"]');
         if (popEle) {
-            if (e.composedPath().includes(popEle)) return;
-            if (e.composedPath().includes(this)) {
+            const composedPath = e.composedPath();
+            if (composedPath.includes(popEle)) return;
+            if (composedPath.includes(this)) {
                 const popRect = popEle.getBoundingClientRect();
                 if (
                     e.clientX >= popRect.left &&
