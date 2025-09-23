@@ -44,6 +44,14 @@ export interface BaseAttrs {
     lang?: Lang;
 }
 
+export interface BaseEmits {
+    'dt-attribute-changed': {
+        name: string;
+        oldValue: string | null;
+        newValue: string | null;
+    };
+}
+
 if (typeof document === 'object') {
     try {
         const styleSheet = new CSSStyleSheet();
@@ -63,7 +71,7 @@ const HTMLElementBase = (() => {
 
 export class UiBase<
     Attr extends BaseAttrs = BaseAttrs,
-    Emit extends Record<string, any> = {}
+    Emit extends BaseEmits = BaseEmits
 > extends HTMLElementBase {
     public static readonly tagName: string = '';
     protected static _definePromise: Promise<CustomElementConstructor> | null =
@@ -125,12 +133,15 @@ export class UiBase<
         ) as getAttrType<Attr, K> | null;
     }
 
-    protected _onAttrChanged(_name: string, _oldVal: string, _newVal: string) {}
+    protected _onAttrChanged(_name: string, _oldVal: string | null, _newVal: string | null) {}
 
-    attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+    attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null) {
         if (oldValue === newValue) return;
-        if (name !== 'lang')
-            return this._onAttrChanged(name, oldValue, newValue);
+        if (name !== 'lang') {
+            this._onAttrChanged(name, oldValue, newValue);
+            this.dispatchEvent('dt-attribute-changed', { name, oldValue, newValue }, true);
+            return;
+        }
         this.shadowRoot?.querySelectorAll('[dt]').forEach((ele) => {
             if (newValue) {
                 ele.setAttribute('lang', newValue);
@@ -151,15 +162,14 @@ export class UiBase<
     connectedMoveCallback() {}
     adoptedCallback() {}
 
-    dispatchEvent<K extends keyof Emit | undefined = undefined>(
-        type: K | Event,
-        data?: K extends keyof Emit ? Emit[K] : any,
-        global = false
-    ) {
+    public dispatchEvent(event: Event): boolean;
+    public dispatchEvent<K extends keyof Emit>(type: K, data: Emit[K], global?: boolean): boolean;
+    public dispatchEvent(type: string, data?: any, global?: boolean): boolean;
+    dispatchEvent(type: string | Event, data?: any, global = false): boolean {
         return type instanceof Event
             ? super.dispatchEvent(type)
             : super.dispatchEvent(
-                  new CustomEvent(type as string, {
+                  new CustomEvent(type, {
                       ...(global
                           ? {
                                 bubbles: true,

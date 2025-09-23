@@ -14,6 +14,7 @@ import {
 import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
 import {
     type BaseAttrs,
+    type BaseEmits,
     type Emit2EventMap,
     UiBase
 } from '../web-component-base';
@@ -63,7 +64,7 @@ export interface Attrs extends BaseAttrs {
     'max-time'?: string | number;
 }
 
-export interface Emits {
+export interface Emits extends BaseEmits {
     'select-time': Date;
     'open-change': boolean;
 }
@@ -191,7 +192,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         );
         this._timeSelector.removeEventListener('open-change', this._stopEvent);
     }
-    protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
+    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
         super._onAttrChanged(name, oldValue, newValue);
         this._render();
         if (name === 'current-time') {

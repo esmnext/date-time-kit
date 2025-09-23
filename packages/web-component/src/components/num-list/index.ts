@@ -1,6 +1,7 @@
 import { closestByEvent, debounce, html } from '../../utils';
 import {
     type BaseAttrs,
+    type BaseEmits,
     type Emit2EventMap,
     UiBase
 } from '../web-component-base';
@@ -32,7 +33,7 @@ export interface Attrs extends BaseAttrs {
     position?: ScrollLogicalPosition;
 }
 
-export interface Emits {
+export interface Emits extends BaseEmits {
     'select-num': {
         oldNum: number;
         newNum: number;
@@ -205,7 +206,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._destroyOb();
     }
 
-    protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
+    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
         super._onAttrChanged(name, oldValue, newValue);
         // 选中选项后，会更新 dom class，此时触发的更新不需要重新渲染。
         // 这里是针对无限滚动时重新渲染会导致元素滚动异常。

@@ -23,7 +23,7 @@ export interface Attrs extends BaseAttrs {
     offset?: number;
 }
 
-export interface Emits {
+export interface Emits extends BaseEmits {
     'open-change': boolean;
 }
 export type EventMap = Emit2EventMap<Emits>;
@@ -144,7 +144,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._triggerEle.removeEventListener('click', this._onToggleClick);
     }
 
-    protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
+    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
         super._onAttrChanged(name, oldValue, newValue);
         if (name !== 'open') return;
         const isOpen = newValue !== null;

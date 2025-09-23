@@ -3,6 +3,7 @@ import { Ele as NumListEle, type EventMap as NumListEvent } from '../num-list';
 NumListEle.define();
 import {
     type BaseAttrs,
+    type BaseEmits,
     type Emit2EventMap,
     UiBase
 } from '../web-component-base';
@@ -26,7 +27,7 @@ export interface Attrs extends BaseAttrs {
     'col-order'?: 'ymd' | 'ydm' | 'myd' | 'mdy' | 'dym' | 'dmy';
 }
 
-export interface Emits {
+export interface Emits extends BaseEmits {
     change: {
         oldMs: number;
         newMs: number;
@@ -129,7 +130,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._listEleDay.removeEventListener('select-num', this._onColsSelect);
     }
 
-    protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
+    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
         super._onAttrChanged(name, oldValue, newValue);
         if (name === 'col-order') this._renderCols();
         else if (name === 'max-granularity' || name === 'min-granularity')

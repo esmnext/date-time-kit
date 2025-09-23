@@ -1,6 +1,6 @@
 import { debounce } from '../../utils';
 import { Ele as NumListEle, type EventMap as NumListEvent } from '../num-list';
-import { type BaseAttrs, UiBase } from '../web-component-base';
+import { type BaseAttrs, BaseEmits, UiBase } from '../web-component-base';
 import { baseCss } from './css';
 import { baseHtml } from './html';
 
@@ -32,7 +32,7 @@ export interface Attrs extends BaseAttrs {
     'col-order'?: ColOrder;
 }
 
-export interface BaseEmits {}
+export type { BaseEmits };
 
 /**
  * 时分秒毫秒选择器
@@ -139,7 +139,7 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
         return true;
     }
 
-    protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
+    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
         super._onAttrChanged(name, oldValue, newValue);
         if (name === 'col-order') this._renderCols();
         else if (name === 'max-granularity' || name === 'min-granularity')

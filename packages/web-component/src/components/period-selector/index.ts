@@ -12,7 +12,7 @@ import {
     granularityList as timeGranularityList
 } from '../hhmmss-ms-list-grp/selector';
 import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
-import { type BaseAttrs, UiBase } from '../web-component-base';
+import { type BaseAttrs, type BaseEmits, UiBase } from '../web-component-base';
 import {
     Ele as YyyyMmNavEle,
     type EventMap as YyyyMmNavEvent
@@ -49,7 +49,7 @@ export interface Attrs extends BaseAttrs {
     'week-start-at'?: Weeks;
 }
 
-export interface Emits {
+export interface Emits extends BaseEmits {
     change: {
         oldStartTime: Date;
         oldEndTime: Date;
@@ -253,7 +253,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         );
     }
 
-    protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
+    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
         super._onAttrChanged(name, oldValue, newValue);
         this._render();
     }

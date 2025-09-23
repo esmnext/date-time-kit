@@ -73,7 +73,7 @@ export class Ele extends BaseEle<Attrs, Emits> {
             ?.querySelector('button')
             ?.removeEventListener('click', this._onDoneBtnClick);
     }
-    protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
+    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
         super._onAttrChanged(name, oldValue, newValue);
         if (name === 'millisecond') return;
         this._render();

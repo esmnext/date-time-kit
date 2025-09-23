@@ -2,6 +2,7 @@ import { debounce } from '../../utils';
 import type { Ele as PopoverEle, EventMap as PopoverEvent } from '../popover';
 import {
     type BaseAttrs,
+    type BaseEmits,
     type Emit2EventMap,
     UiBase
 } from '../web-component-base';
@@ -36,7 +37,7 @@ export interface Attrs extends BaseAttrs {
     'show-ctrl-btn-month-sub'?: boolean;
 }
 
-export interface Emits {
+export interface Emits extends BaseEmits {
     change: {
         oldTime: Date;
         newTime: Date;
@@ -138,15 +139,15 @@ export class Ele extends UiBase<Attrs, Emits> {
         );
     }
 
-    protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
+    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
         super._onAttrChanged(name, oldValue, newValue);
         this._render();
         if (name === 'millisecond') {
             this.dispatchEvent(
                 'change',
                 {
-                    oldTime: new Date(+oldValue),
-                    newTime: new Date(+newValue)
+                    oldTime: new Date(Math.floor(+oldValue!)),
+                    newTime: new Date(Math.floor(+newValue!))
                 },
                 true
             );

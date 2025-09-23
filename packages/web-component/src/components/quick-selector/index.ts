@@ -4,6 +4,7 @@ import type { Ele as PeriodSelectorEle } from '../period-selector';
 import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
 import {
     type BaseAttrs,
+    type BaseEmits,
     type Emit2EventMap,
     UiBase
 } from '../web-component-base';
@@ -64,7 +65,7 @@ export interface Attrs extends BaseAttrs {
     'end-time'?: string | number | '';
 }
 
-export interface Emits {
+export interface Emits extends BaseEmits {
     'time-changed': PeriodTimeInfo;
     'open-change': boolean;
 }
@@ -234,7 +235,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         );
     }
 
-    protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
+    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
         super._onAttrChanged(name, oldValue, newValue);
         if (name === 'time-zone') {
             this._renderTz();

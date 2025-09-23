@@ -1,6 +1,7 @@
 import { closestByEvent, debounce } from '../../utils';
 import {
     type BaseAttrs,
+    type BaseEmits,
     type Emit2EventMap,
     UiBase
 } from '../web-component-base';
@@ -52,7 +53,7 @@ export interface Attrs extends BaseAttrs {
     'show-other-month'?: boolean;
 }
 
-export interface Emits {
+export interface Emits extends BaseEmits {
     'select-time': Date;
     'hover-item': Date;
 }
@@ -163,7 +164,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         );
     }
 
-    protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
+    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
         super._onAttrChanged(name, oldValue, newValue);
         if (name === 'week-start-at') {
             this._onWeekStartAtChange();
