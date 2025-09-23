@@ -1,4 +1,10 @@
-import { autoUpdate, computePosition, flip, shift } from '@floating-ui/dom';
+import {
+    autoUpdate,
+    computePosition,
+    flip,
+    offset,
+    shift
+} from '@floating-ui/dom';
 import { css, html } from '../../utils';
 import {
     type BaseAttrs,
@@ -13,6 +19,8 @@ export interface Attrs extends BaseAttrs {
     placement?: `${'top' | 'bottom' | 'left' | 'right'}${'' | '-start' | '-end'}`;
     /** @default 'fixed' */
     strategy?: 'absolute' | 'fixed';
+    /** @default 0 */
+    offset?: number;
 }
 
 export interface Emits {
@@ -32,8 +40,44 @@ export class Ele extends UiBase<Attrs, Emits> {
             'open',
             'disabled',
             'placement',
-            'strategy'
+            'strategy',
+            'offset'
         ] satisfies (keyof Attrs)[];
+    }
+
+    public get open() {
+        return this.hasAttribute('open');
+    }
+    public set open(v: boolean) {
+        this.toggleAttribute('open', v);
+    }
+    public get disabled() {
+        return this.hasAttribute('disabled');
+    }
+    public set disabled(v: boolean) {
+        this.toggleAttribute('disabled', v);
+    }
+    public get placement() {
+        return this._getAttr('placement', 'bottom-start');
+    }
+    public set placement(v: Attrs['placement']) {
+        if (v) this.setAttribute('placement', v);
+        else this.removeAttribute('placement');
+    }
+    public get strategy() {
+        return this._getAttr('strategy', 'fixed');
+    }
+    public set strategy(v: Attrs['strategy']) {
+        if (v) this.setAttribute('strategy', v);
+        else this.removeAttribute('strategy');
+    }
+    public get offset() {
+        const n = +this._getAttr('offset', '0');
+        return Number.isNaN(n) ? 0 : n;
+    }
+    public set offset(v: number) {
+        if (!Number.isNaN(v)) this.setAttribute('offset', v + '');
+        else this.removeAttribute('offset');
     }
 
     protected _style = css`
@@ -44,6 +88,7 @@ export class Ele extends UiBase<Attrs, Emits> {
   border: 1px solid var(--dt-border-dark, #0000001A);
   box-shadow: var(--dt-pop-box-shadow, 0 6px 16px #0003);
 }
+
 slot[name='pop'] {
   display: none;
   position: fixed;
@@ -52,10 +97,9 @@ slot[name='pop'] {
   left: 0;
   transform: translate(0, 0);
 }
-:host([open]) slot[name='pop'] { display: block; }
-:host([open]) slot[name='pop'] {
-  will-change: transform;
-}
+:host([strategy='absolute']) slot[name='pop'] { position: absolute; }
+:host([strategy='absolute']) { position: relative; }
+:host([open]) slot[name='pop'] { will-change: transform; display: block; }
 `;
     protected _template =
         html`<slot name="trigger"></slot><slot name="pop"></slot>`;
@@ -81,18 +125,6 @@ slot[name='pop'] {
             | undefined;
     }
 
-    public get open() {
-        return this.hasAttribute('open');
-    }
-    public set open(v: boolean) {
-        this.toggleAttribute('open', v);
-    }
-    public get disabled() {
-        return this.hasAttribute('disabled');
-    }
-    public set disabled(v: boolean) {
-        this.toggleAttribute('disabled', v);
-    }
     /**
      * toggle open state
      * @returns null if disabled, otherwise the new open state
@@ -162,9 +194,13 @@ slot[name='pop'] {
                 _triggerAssignedEle,
                 _popEle,
                 {
-                    placement: 'bottom-start',
-                    strategy: 'fixed',
-                    middleware: [flip(), shift()]
+                    placement: this.placement,
+                    strategy: this.strategy,
+                    middleware: [
+                        offset(this.offset),
+                        flip(),
+                        shift({ padding: 5 })
+                    ]
                 }
             );
             function roundByDPR(value: number) {
