@@ -10,7 +10,7 @@ export default html`
         <i class="btn sub year bidirectional-flip"></i>
         <i class="btn sub month bidirectional-flip"></i>
     </div>
-    <dt-popover class="echo">
+    <dt-popover class="echo" strategy="none" placement="bottom">
         <div slot="trigger" class="title-wrapper">
             <span class="title">title</span>
             <i class="title-arrow"></i>

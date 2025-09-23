@@ -18,7 +18,7 @@ export interface Attrs extends BaseAttrs {
     /** @default 'bottom-start' */
     placement?: `${'top' | 'bottom' | 'left' | 'right'}${'' | '-start' | '-end'}`;
     /** @default 'fixed' */
-    strategy?: 'absolute' | 'fixed';
+    strategy?: 'absolute' | 'fixed' | 'none';
     /** @default 0 */
     offset?: number;
 }
@@ -88,9 +88,10 @@ export class Ele extends UiBase<Attrs, Emits> {
   border: 1px solid var(--dt-border-dark, #0000001A);
   box-shadow: var(--dt-pop-box-shadow, 0 6px 16px #0003);
 }
+:host(:not([open])) slot[name='pop'] { display: none; }
+:host([open]:not([strategy='none'])) slot[name='pop'] { display: block; }
 
-slot[name='pop'] {
-  display: none;
+:host(:not([strategy='none'])) slot[name='pop'] {
   position: fixed;
   z-index: var(--dt-pop-z-index, 9999);
   top: 0;
@@ -99,10 +100,10 @@ slot[name='pop'] {
 }
 :host([strategy='absolute']) slot[name='pop'] { position: absolute; }
 :host([strategy='absolute']) { position: relative; }
-:host([open]) slot[name='pop'] { will-change: transform; display: block; }
+:host([open]:not([strategy='none'])) slot[name='pop'] { will-change: transform; }
 `;
     protected _template =
-        html`<slot name="trigger"></slot><slot name="pop"></slot>`;
+        html`<slot name="trigger" part="trigger"></slot><slot name="pop" part="pop"></slot>`;
 
     constructor() {
         super();
@@ -154,7 +155,7 @@ slot[name='pop'] {
                 true
             );
         });
-        if (isOpen) this._autoUpdatePosition();
+        if (isOpen && this.strategy !== 'none') this._autoUpdatePosition();
         else this._cleanupAutoUpdate?.();
         this.dispatchEvent('open-change', this.open, true);
     }
@@ -188,14 +189,14 @@ slot[name='pop'] {
     private _autoUpdatePosition() {
         this._cleanupAutoUpdate?.();
         const updatePosition = async () => {
-            const { _triggerAssignedEle, _popEle } = this;
-            if (!_triggerAssignedEle) return;
+            const { _triggerAssignedEle, _popEle, strategy } = this;
+            if (!_triggerAssignedEle || strategy === 'none') return;
             const { x, y } = await computePosition(
                 _triggerAssignedEle,
                 _popEle,
                 {
                     placement: this.placement,
-                    strategy: this.strategy,
+                    strategy: strategy,
                     middleware: [
                         offset(this.offset),
                         flip(),
