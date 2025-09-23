@@ -9,6 +9,9 @@
         "lint:js": "biome check --write --no-errors-on-unmatched",
         "build": "unbuild"
     },
+    "dependencies": {
+        "@floating-ui/dom": "^1.7.4"
+    },
     "devDependencies": {
         "@biomejs/biome": "1.9.4",
         "@types/node": "^24.0.0",

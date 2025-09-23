@@ -12,7 +12,6 @@ dt-popover {
   flex-direction: column;
   align-items: center;
   gap: 15px;
-  position: fixed;
   width: 285px;
 }
 .wrapper > * {

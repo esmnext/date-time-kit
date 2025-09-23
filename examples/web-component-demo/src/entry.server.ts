@@ -16,7 +16,7 @@ export default async (rc: RenderContext) => {
     <meta name="keywords" content="Vue, SSR, Server-Side Rendering, Esmx, Vue.js, JavaScript, TypeScript, Rspack">
     <link rel="icon" href="https://www.esmnext.com/logo.svg" type="image/svg+xml">
     ${rc.preload()}
-    <title>Vue SSR Demo | Powered by Esmx</title>
+    <title>date-time-kit Demo | Powered by Esmx</title>
     <style>
         body { margin: 0; }
     </style>

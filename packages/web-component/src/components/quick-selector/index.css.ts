@@ -15,7 +15,6 @@ dt-popover {
   align-items: center;
   font-size: 14px;
   gap: 10px;
-  position: fixed;
 }
 .menu > * {
   width: 100%;

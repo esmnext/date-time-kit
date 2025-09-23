@@ -164,7 +164,7 @@ const dateNow = Date.now();
 div.wrapper {
     min-width: 100vw;
     min-height: 100vh;
-    padding: 1rem;
+    padding: 25vmin;
 }
 [data-theme="light"] {
     --color-bg-block-light: #fff;

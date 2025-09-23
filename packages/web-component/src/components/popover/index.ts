@@ -1,3 +1,4 @@
+import { autoUpdate, computePosition, flip, shift } from '@floating-ui/dom';
 import { css, html } from '../../utils';
 import {
     type BaseAttrs,
@@ -8,6 +9,10 @@ import {
 export interface Attrs extends BaseAttrs {
     open?: boolean;
     disabled?: boolean;
+    /** @default 'bottom-start' */
+    placement?: `${'top' | 'bottom' | 'left' | 'right'}${'' | '-start' | '-end'}`;
+    /** @default 'fixed' */
+    strategy?: 'absolute' | 'fixed';
 }
 
 export interface Emits {
@@ -25,7 +30,9 @@ export class Ele extends UiBase<Attrs, Emits> {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
             'open',
-            'disabled'
+            'disabled',
+            'placement',
+            'strategy'
         ] satisfies (keyof Attrs)[];
     }
 
@@ -37,9 +44,21 @@ export class Ele extends UiBase<Attrs, Emits> {
   border: 1px solid var(--dt-border-dark, #0000001A);
   box-shadow: var(--dt-pop-box-shadow, 0 6px 16px #0003);
 }
+slot[name='pop'] {
+  display: none;
+  position: fixed;
+  z-index: var(--dt-pop-z-index, 9999);
+  top: 0;
+  left: 0;
+  transform: translate(0, 0);
+}
+:host([open]) slot[name='pop'] { display: block; }
+:host([open]) slot[name='pop'] {
+  will-change: transform;
+}
 `;
     protected _template =
-        html`<slot name="trigger"></slot><slot name="pop" style="display:none"></slot>`;
+        html`<slot name="trigger"></slot><slot name="pop"></slot>`;
 
     constructor() {
         super();
@@ -55,6 +74,11 @@ export class Ele extends UiBase<Attrs, Emits> {
         return this.shadowRoot?.querySelector(
             'slot[name="trigger"]'
         ) as HTMLSlotElement;
+    }
+    private get _triggerAssignedEle() {
+        return this._triggerEle.assignedElements({ flatten: true })[0] as
+            | HTMLElement
+            | undefined;
     }
 
     public get open() {
@@ -91,19 +115,15 @@ export class Ele extends UiBase<Attrs, Emits> {
         super._onAttrChanged(name, oldValue, newValue);
         if (name !== 'open') return;
         const isOpen = newValue !== null;
-        this._popEle.style.display = !isOpen ? 'none' : '';
-        if (typeof document !== 'undefined') {
-            setTimeout(() => {
-                if (isOpen)
-                    document.addEventListener('click', this._onDocClick, true);
-                else
-                    document.removeEventListener(
-                        'click',
-                        this._onDocClick,
-                        true
-                    );
-            });
-        }
+        setTimeout(() => {
+            document[(isOpen ? 'add' : 'remove') + 'EventListener'](
+                'click',
+                this._onDocClick,
+                true
+            );
+        });
+        if (isOpen) this._autoUpdatePosition();
+        else this._cleanupAutoUpdate?.();
         this.dispatchEvent('open-change', this.open, true);
     }
 
@@ -131,6 +151,38 @@ export class Ele extends UiBase<Attrs, Emits> {
         this.open = false;
         document.removeEventListener('click', this._onDocClick, true);
     };
+
+    private _cleanupAutoUpdate: null | (() => void) = null;
+    private _autoUpdatePosition() {
+        this._cleanupAutoUpdate?.();
+        const updatePosition = async () => {
+            const { _triggerAssignedEle, _popEle } = this;
+            if (!_triggerAssignedEle) return;
+            const { x, y } = await computePosition(
+                _triggerAssignedEle,
+                _popEle,
+                {
+                    placement: 'bottom-start',
+                    strategy: 'fixed',
+                    middleware: [flip(), shift()]
+                }
+            );
+            function roundByDPR(value: number) {
+                const dpr = window.devicePixelRatio || 1;
+                return Math.round(value * dpr) / dpr;
+            }
+            _popEle.style.transform = `translate(${roundByDPR(x)}px, ${roundByDPR(y)}px)`;
+        };
+        const cleanup = autoUpdate(
+            this._triggerEle,
+            this._popEle,
+            updatePosition
+        );
+        this._cleanupAutoUpdate = () => {
+            cleanup();
+            this._cleanupAutoUpdate = null;
+        };
+    }
 }
 
 Ele.define();
