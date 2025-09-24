@@ -325,20 +325,43 @@ export class Ele extends UiBase<Attrs, Emits> {
         )!.classList.toggle('active', !!this._selectedDate);
     }
 
+    private _updateDatePoint = (datePoint: Date) => {
+        if (!this._selectedDate) return;
+        const newDate = new Date(datePoint).setHours(0, 0, 0, 0);
+        const oldDate = new Date(this._selectedDate).setHours(0, 0, 0, 0);
+        const setStartDate = (date: number) =>
+            (this.timeStart = new Date(
+                date + this._startTimeSelector.millisecond
+            ));
+        const setEndDate = (date: number) =>
+            (this.timeEnd = new Date(date + this._endTimeSelector.millisecond));
+        if (newDate === oldDate) {
+            setStartDate(newDate);
+            setEndDate(newDate);
+        } else if (newDate < oldDate) {
+            setStartDate(newDate);
+            setEndDate(oldDate);
+        } else {
+            setStartDate(oldDate);
+            setEndDate(newDate);
+        }
+    };
     private _onCalendarSelect = (e: CalendarBaseEvent['select-time']) => {
         e.stopPropagation();
-        if (this._selectedDate) {
-            this._selectedDate = null;
-            this.timeEnd = +e.detail + this._endTimeSelector.millisecond;
+        if (this._selectedDate === null) {
+            const newTimePoint = new Date(
+                +e.detail + this._startTimeSelector.millisecond
+            );
+            this._selectedDate = newTimePoint;
+            this.timeStart = newTimePoint;
         } else {
-            this._selectedDate = this.timeEnd as Date;
-            this.timeStart = +e.detail + this._startTimeSelector.millisecond;
+            this._updateDatePoint(e.detail);
+            this._selectedDate = null;
         }
     };
     private _onCalendarItemHover = (e: CalendarBaseEvent['hover-item']) => {
         e.stopPropagation();
-        if (!this._selectedDate) return;
-        this.timeEnd = +e.detail + this._endTimeSelector.millisecond;
+        this._updateDatePoint(e.detail);
     };
     public abortSelecting() {
         if (!this._selectedDate) return;
