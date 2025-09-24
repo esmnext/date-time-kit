@@ -5,13 +5,14 @@ import {
     offset,
     shift
 } from '@floating-ui/dom';
-import { css, html } from '../../utils';
+import { css, html, smallScreenObserver } from '../../utils';
 import {
     type BaseAttrs,
     type BaseEmits,
     type Emit2EventMap,
     UiBase
 } from '../web-component-base';
+import { styleStr } from './css';
 
 export interface Attrs extends BaseAttrs {
     open?: boolean;
@@ -81,28 +82,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         else this.removeAttribute('offset');
     }
 
-    protected _style = css`
-::slotted([slot='pop']:not(.not-pop-bg)) {
-  background-color: var(--dt-bg-block-light, #fff);
-  padding: 10px 5px;
-  border-radius: 6px;
-  border: 1px solid var(--dt-border-dark, #0000001A);
-  box-shadow: var(--dt-pop-box-shadow, 0 6px 16px #0003);
-}
-:host(:not([open])) slot[name='pop'] { display: none; }
-:host([open]:not([strategy='none'])) slot[name='pop'] { display: block; }
-
-:host(:not([strategy='none'])) slot[name='pop'] {
-  position: fixed;
-  z-index: var(--dt-pop-z-index, 9999);
-  top: 0;
-  left: 0;
-  transform: translate(0, 0);
-}
-:host([strategy='absolute']) slot[name='pop'] { position: absolute; }
-:host([strategy='absolute']) { position: relative; }
-:host([open]:not([strategy='none'])) slot[name='pop'] { will-change: transform; }
-`;
+    protected _style = styleStr;
     protected _template =
         html`<slot name="trigger" part="trigger"></slot><slot name="pop" part="pop"></slot>`;
 
@@ -140,10 +120,12 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (!super.connectedCallback()) return;
         this._triggerEle.addEventListener('click', this._onToggleClick);
         this.strategy = this.strategy;
+        smallScreenObserver.observe(this, this._onScreenSizeChange);
     }
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
         this._triggerEle.removeEventListener('click', this._onToggleClick);
+        smallScreenObserver.unobserve(this);
     }
 
     protected _onAttrChanged(
@@ -161,8 +143,9 @@ export class Ele extends UiBase<Attrs, Emits> {
                 true
             );
         });
-        if (isOpen && this.strategy !== 'none') this._autoUpdatePosition();
-        else this._cleanupAutoUpdate?.();
+        if (!isOpen || this.strategy === 'none' || smallScreenObserver.isSmall)
+            this._cleanupAutoUpdate?.();
+        else this._autoUpdatePosition();
         this.dispatchEvent('open-change', this.open, true);
     }
 
@@ -227,6 +210,15 @@ export class Ele extends UiBase<Attrs, Emits> {
             this._cleanupAutoUpdate = null;
         };
     }
+    private _onScreenSizeChange = (isSmall: boolean) => {
+        if (!this.open || this.strategy === 'none') return;
+        if (isSmall) {
+            this._cleanupAutoUpdate?.();
+            this._popEle.style.transform = '';
+        } else {
+            this._autoUpdatePosition();
+        }
+    };
 }
 
 Ele.define();
