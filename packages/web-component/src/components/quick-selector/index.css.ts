@@ -26,14 +26,14 @@ dt-popover {
   gap: 5px;
   width: 100%;
 }
-.radio-grp > label {
+label {
   display: flex;
   align-items: center;
   gap: 10px;
   cursor: pointer;
   padding: 5px;
 }
-.radio-grp > label:hover {
+label:hover {
   background-color: var(--dt-bg-hover, #f5f5f5);
 }
 .radio-grp dt-i18n {
@@ -125,16 +125,6 @@ input[type='radio']:checked + .radio {
   line-height: 24px;
   color: var(--dt-text-auxiliary, #666);
 }
-.menu.tz label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  padding: 5px;
-}
-.menu.tz label:hover {
-  background-color: var(--dt-bg-hover, #f5f5f5);
-}
 
 button {
   border: none;
@@ -172,5 +162,25 @@ button#done {
 }
 .menu.custom #reset:hover {
   background-color: var(--dt-bg-secondary-hover, #D6D8DB);
+}
+
+@media (max-width: 750px) {
+  .menu[class] {
+    gap: 15px;
+    overflow: auto;
+    max-height: inherit;
+  }
+  .menu.tz fieldset {
+    gap: 10px;
+  }
+  .title {
+    margin-top: -15px;
+  }
+  .radio-grp {
+    gap: 10px;
+  }
+  label, .tz-trigger {
+    padding: 5px 0;
+  }
 }
 `;

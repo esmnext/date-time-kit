@@ -235,6 +235,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._cleanupAutoUpdate = () => {
             cleanup();
             this._cleanupAutoUpdate = null;
+            this._popEle.style.transform = '';
         };
     }
     private _onScreenSizeChange = (isSmall: boolean) => {

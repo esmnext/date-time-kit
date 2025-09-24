@@ -5,9 +5,9 @@
     "type": "module",
     "private": true,
     "scripts": {
-        "dev": "esmx dev",
+        "dev": "esmx dev --host",
         "build": "esmx build",
-        "preview": "esmx preview",
+        "preview": "esmx preview --host",
         "start": "esmx start",
         "lint:type": "vue-tsc --noEmit",
         "build:type": "vue-tsc --declaration --emitDeclarationOnly --noEmit false --outDir dist/src && tsc-alias -p tsconfig.json --outDir dist/src"

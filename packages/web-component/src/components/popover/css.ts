@@ -23,7 +23,8 @@ export const styleStr = css`
 
 @media (max-width: 750px) {
   :host([open]) slot[name='pop'] {
-    width: 100%;
+    width: 100vw;
+    max-height: min(90vh, 600px);
     top: unset;
     left: 0;
     bottom: 0;

@@ -11,7 +11,7 @@ export default async (rc: RenderContext) => {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
     <meta name="description" content="Vue with Server-Side Rendering powered by Esmx framework">
     <meta name="keywords" content="Vue, SSR, Server-Side Rendering, Esmx, Vue.js, JavaScript, TypeScript, Rspack">
     <link rel="icon" href="https://www.esmnext.com/logo.svg" type="image/svg+xml">
