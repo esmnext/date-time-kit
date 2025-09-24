@@ -73,13 +73,14 @@ export class Ele extends BaseEle<Attrs, Emits> {
             ?.querySelector('button')
             ?.removeEventListener('click', this._onDoneBtnClick);
     }
-    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
+    protected _onAttrChanged(
+        name: string,
+        oldValue: string | null,
+        newValue: string | null
+    ) {
         super._onAttrChanged(name, oldValue, newValue);
         if (name === 'millisecond') return;
         this._render();
-        if (name === 'current-time') {
-            this.dispatchEvent('select-time', this.currentTime as Date);
-        }
     }
 
     public get currentTime() {
@@ -112,7 +113,9 @@ export class Ele extends BaseEle<Attrs, Emits> {
             time.setMilliseconds(ms);
             return time;
         };
-        this.currentTime = calcTime(this.currentTime as Date, this.millisecond);
+        const time = calcTime(this.currentTime as Date, this.millisecond);
+        this.currentTime = time;
+        this.dispatchEvent('select-time', time);
         this._render();
         this._popoverEle.open = false;
     };
