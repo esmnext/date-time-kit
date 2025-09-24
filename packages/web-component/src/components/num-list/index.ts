@@ -206,7 +206,11 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._destroyOb();
     }
 
-    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
+    protected _onAttrChanged(
+        name: string,
+        oldValue: string | null,
+        newValue: string | null
+    ) {
         super._onAttrChanged(name, oldValue, newValue);
         // 选中选项后，会更新 dom class，此时触发的更新不需要重新渲染。
         // 这里是针对无限滚动时重新渲染会导致元素滚动异常。
@@ -256,9 +260,12 @@ export class Ele extends UiBase<Attrs, Emits> {
         const ele = this._currentItemEle;
         if (!ele) return;
         this._intersectionOb?.observe(ele);
-        const containerRect = this._containerEle.getBoundingClientRect();
+        const thisRect = this.getBoundingClientRect();
+        // 如果当前元素不可见，则不执行滚动
+        if (thisRect.height === 0) return;
+        this._intersectionOb?.observe(ele);
         const eleRect = ele.getBoundingClientRect();
-        const offsetTop = eleRect.top - containerRect.top + this.scrollTop;
+        const offsetTop = eleRect.top - thisRect.top + this.scrollTop;
         this.scrollTo({
             top: offsetTop
         });
