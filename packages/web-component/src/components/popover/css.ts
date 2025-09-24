@@ -54,7 +54,6 @@ export const styleStr = css`
     cursor: pointer;
   }
   ::slotted([slot='pop']:not(.not-pop-bg)) {
-    background-color: var(--dt-bg-block-light, #fff);
     padding: 15px;
     border-radius: 0;
     border: none;

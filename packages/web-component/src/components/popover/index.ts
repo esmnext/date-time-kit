@@ -30,6 +30,28 @@ export interface Emits extends BaseEmits {
 }
 export type EventMap = Emit2EventMap<Emits>;
 
+const cacheStyle: {
+    -readonly [k in keyof CSSStyleDeclaration]?: any;
+} = {};
+let hiddenCount = 0;
+const hiddenBodyOverflow = () => {
+    if (hiddenCount++) return;
+    const { style } = document.body;
+    (Array.from(style) as (keyof CSSStyleDeclaration)[]).forEach((prop) => {
+        cacheStyle[prop] = style[prop];
+    });
+    style.overflow = 'hidden';
+};
+const resetBodyOverflow = () => {
+    if (--hiddenCount > 0) return;
+    const { style } = document.body;
+    style.overflow = '';
+    for (const prop in cacheStyle) {
+        style[prop] = cacheStyle[prop];
+        Reflect.deleteProperty(cacheStyle, prop);
+    }
+};
+
 /**
  * 点击触发器后气泡弹出
  */
@@ -143,9 +165,14 @@ export class Ele extends UiBase<Attrs, Emits> {
                 true
             );
         });
-        if (!isOpen || this.strategy === 'none' || smallScreenObserver.isSmall)
+        const { isSmall } = smallScreenObserver;
+        if (!isOpen || this.strategy === 'none' || isSmall)
             this._cleanupAutoUpdate?.();
         else this._autoUpdatePosition();
+        if (isSmall) {
+            if (isOpen) hiddenBodyOverflow();
+            else resetBodyOverflow();
+        }
         this.dispatchEvent('open-change', this.open, true);
     }
 
@@ -215,8 +242,10 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (isSmall) {
             this._cleanupAutoUpdate?.();
             this._popEle.style.transform = '';
+            hiddenBodyOverflow();
         } else {
             this._autoUpdatePosition();
+            resetBodyOverflow();
         }
     };
 }
