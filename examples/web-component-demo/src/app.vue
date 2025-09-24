@@ -30,13 +30,14 @@ const onChange = (e: DtQuickSelectorEvent['time-changed']) => {
     quickKey.value = e.detail.type;
 };
 const setToNextWeek = () => {
-    const times = DtQuickSelectorPkg.genPeriodTimes(
-        (t, weekOffset) => t.setDate(t.getDate() - t.getDay() + weekOffset + 7),
-        (t, weekOffset) =>
+    const times = DtQuickSelectorPkg.genPeriodTimes({
+        start: (t, weekOffset) =>
+            t.setDate(t.getDate() - t.getDay() + weekOffset + 7),
+        end: (t, weekOffset) =>
             t.setDate(t.getDate() - t.getDay() + weekOffset + 13),
-        new Date(),
-        weekStartAt.value
-    );
+        initTime: new Date(),
+        weekStartAt: weekStartAt.value
+    });
     startTime.value = times.start.getTime();
     endTime.value = times.end.getTime();
     quickKey.value = 'custom';
