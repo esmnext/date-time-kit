@@ -72,6 +72,15 @@ export type Attrs = BaseAttrs &
          * End time of the quick selection. Only works in custom mode.
          */
         'end-time'?: string | number | '';
+        /**
+         * Exclude some quick selection options.
+         *
+         * @example
+         * ```ts
+         * exclude-field="last7Days, last30Days, timezone"
+         * ```
+         */
+        'exclude-field'?: (QuickKey | 'timezone')[];
     };
 
 export interface Emits extends BaseEmits {
@@ -93,6 +102,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             'quick-key',
             'start-time',
             'end-time',
+            'exclude-field',
             ...popoverAttrKeys
         ] satisfies (keyof Attrs)[];
     }
@@ -145,6 +155,24 @@ export class Ele extends UiBase<Attrs, Emits> {
         const v = new Date(val);
         if (Number.isNaN(+v)) return;
         this.setAttribute('time-end', +v + '');
+    }
+    public get excludeField() {
+        const v = this._getAttr('exclude-field', '') || '';
+        if (v === '') return [];
+        return (v as string).split(',').map((i) => i.trim()) as (
+            | QuickKey
+            | 'timezone'
+        )[];
+    }
+    public set excludeField(v: (QuickKey | 'timezone')[]) {
+        if (!Array.isArray(v) || v.length === 0) {
+            this.removeAttribute('exclude-field');
+            return;
+        }
+        const arr = v.filter(
+            (i) => quickKeys.includes(i as QuickKey) || i === 'timezone'
+        );
+        this.setAttribute('exclude-field', arr.join(','));
     }
 
     protected _style = styleStr;

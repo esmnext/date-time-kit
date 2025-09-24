@@ -24,18 +24,18 @@ export default html`
     ><div class="radio-grp">${limitKeys
         .map(
             (k) =>
-                html`<label
+                html`<label data-field="${k}"
                     ><input type="radio" name="radio" value="${k}" hidden
                     /><i class="radio"></i><dt-i18n i18n-key="quick.${k}">${k}</dt-i18n
                 ></label>`
         )
-        .join('')}<label class="custom-trigger"
+        .join('')}<label class="custom-trigger" data-field="custom"
             ><input type="radio" name="radio" value="custom" hidden
             /><i class="radio"></i><dt-i18n i18n-key="quick.custom" style="display:inline-block">Custom</dt-i18n
             >${arrowRightSvg}</label
     ></div
     ><i class="dividing-line"></i
-    ><div class="tz-trigger"
+    ><div class="tz-trigger" data-field="timezone"
         ><span
             ><dt-i18n i18n-key="quick.timezoneWithColon"></dt-i18n
             ><bdo>${utcText()}</bdo

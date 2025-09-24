@@ -1,5 +1,6 @@
 import { arrowRightSvg, svg2cssUrl } from '../../assets';
 import { css } from '../../utils';
+import { quickKeys } from './quick-key';
 
 export default css`
 :host {
@@ -15,6 +16,7 @@ dt-popover {
   align-items: center;
   font-size: 14px;
   gap: 10px;
+  min-width: 200px;
 }
 .menu > * {
   width: 100%;
@@ -162,6 +164,11 @@ button#done {
 }
 .menu.custom #reset:hover {
   background-color: var(--dt-bg-secondary-hover, #D6D8DB);
+}
+
+${[...quickKeys, 'timezone'].map((k) => `:host([exclude-field*="${k}"]) [data-field="${k}"]`).join(', ')},
+:host([exclude-field*="timezone"]) .menu.top .dividing-line {
+  display: none;
 }
 
 @media (max-width: 750px) {
