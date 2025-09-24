@@ -83,7 +83,6 @@ export class UiBase<
         }
         const tagName = this.tagName;
         if (!tagName) throw new Error('UiBase.define: tagName is not defined.');
-        console.log('Define custom element:', tagName);
         customElements.define(tagName, this);
         return (this._definePromise = customElements.whenDefined(tagName));
     }
@@ -133,13 +132,25 @@ export class UiBase<
         ) as getAttrType<Attr, K> | null;
     }
 
-    protected _onAttrChanged(_name: string, _oldVal: string | null, _newVal: string | null) {}
+    protected _onAttrChanged(
+        _name: string,
+        _oldVal: string | null,
+        _newVal: string | null
+    ) {}
 
-    attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null) {
+    attributeChangedCallback(
+        name: string,
+        oldValue: string | null,
+        newValue: string | null
+    ) {
         if (oldValue === newValue) return;
         if (name !== 'lang') {
             this._onAttrChanged(name, oldValue, newValue);
-            this.dispatchEvent('dt-attribute-changed', { name, oldValue, newValue }, true);
+            this.dispatchEvent(
+                'dt-attribute-changed',
+                { name, oldValue, newValue },
+                true
+            );
             return;
         }
         this.shadowRoot?.querySelectorAll('[dt]').forEach((ele) => {
@@ -163,7 +174,11 @@ export class UiBase<
     adoptedCallback() {}
 
     public dispatchEvent(event: Event): boolean;
-    public dispatchEvent<K extends keyof Emit>(type: K, data: Emit[K], global?: boolean): boolean;
+    public dispatchEvent<K extends keyof Emit>(
+        type: K,
+        data: Emit[K],
+        global?: boolean
+    ): boolean;
     public dispatchEvent(type: string, data?: any, global?: boolean): boolean;
     dispatchEvent(type: string | Event, data?: any, global = false): boolean {
         return type instanceof Event
