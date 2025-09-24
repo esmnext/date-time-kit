@@ -253,7 +253,11 @@ export class Ele extends UiBase<Attrs, Emits> {
         );
     }
 
-    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
+    protected _onAttrChanged(
+        name: string,
+        oldValue: string | null,
+        newValue: string | null
+    ) {
         super._onAttrChanged(name, oldValue, newValue);
         this._render();
     }
@@ -327,7 +331,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             this._selectedDate = null;
             this.timeEnd = +e.detail + this._endTimeSelector.millisecond;
         } else {
-            this._selectedDate = this.timeEnd as unknown as Date;
+            this._selectedDate = this.timeEnd as Date;
             this.timeStart = +e.detail + this._startTimeSelector.millisecond;
         }
     };
@@ -336,6 +340,11 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (!this._selectedDate) return;
         this.timeEnd = +e.detail + this._endTimeSelector.millisecond;
     };
+    public abortSelecting() {
+        if (!this._selectedDate) return;
+        this._selectedDate = null;
+        this._render();
+    }
     private _onNavChange = (e: YyyyMmNavEvent['change']) => {
         e.stopPropagation();
         const wrapper = closestByEvent(e, '.wrapper');

@@ -339,6 +339,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     };
     private _onDoneBtnClick = (_e: Event) => {
         const selector = this._periodSelector;
+        selector.abortSelecting();
         this._showMenu('top');
         this.quickKey = 'custom';
         this.dispatchEvent(
