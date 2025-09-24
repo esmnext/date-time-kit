@@ -25,12 +25,12 @@ export interface Attrs extends BaseAttrs {
      * @default Infinity
      */
     'max-num'?: number;
-    /**
-     * The position to scroll the current number into view.
-     * @type {`"center" | "end" | "nearest" | "start"`}
-     * @default "start"
-     */
-    position?: ScrollLogicalPosition;
+    // /**
+    //  * The position to scroll the current number into view.
+    //  * @type {`"center" | "end" | "nearest" | "start"`}
+    //  * @default "start"
+    //  */
+    // position?: ScrollLogicalPosition;
 }
 
 export interface Emits extends BaseEmits {
@@ -124,12 +124,30 @@ export class Ele extends UiBase<Attrs, Emits> {
                 const container = this._containerEle;
                 const firstItem = container.firstElementChild as HTMLElement;
                 const lastItem = container.lastElementChild as HTMLElement;
-                for (const { target, isIntersecting } of entries) {
+                for (const {
+                    target,
+                    isIntersecting,
+                    intersectionRatio,
+                    rootBounds,
+                    boundingClientRect
+                } of entries) {
                     if (!isIntersecting) continue;
                     observer.unobserve(target);
+                    // 只有在滚动的时候才会观察当前元素
                     if (target === this._currentItemEle) {
                         observer.observe(firstItem!);
                         observer.observe(lastItem!);
+                        // 继续观察：如果元素没有完全进入可视区域 || 滚动还没有结束
+                        if (
+                            intersectionRatio !== 1 ||
+                            (rootBounds &&
+                                boundingClientRect &&
+                                rootBounds.top !== boundingClientRect.top)
+                        ) {
+                            observer.observe(target);
+                        } else {
+                            this._isScrolling = false;
+                        }
                     }
                     if (target === firstItem) {
                         this._loadBefore();
@@ -167,6 +185,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         });
         this._intersectionOb?.observe(items[0]);
         this._intersectionOb?.observe(container.lastElementChild!);
+        if (this._isScrolling) this.scrollToCurrent();
     }, 0);
     private _loadAfter = debounce(() => {
         const container = this._containerEle;
@@ -193,6 +212,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         });
         this._intersectionOb?.observe(container.firstElementChild!);
         this._intersectionOb?.observe(items[items.length - 1]);
+        if (this._isScrolling) this.scrollToCurrent();
     }, 0);
 
     public connectedCallback() {
@@ -256,14 +276,15 @@ export class Ele extends UiBase<Attrs, Emits> {
         return Math.min(10, Math.ceil(thisHeight / this._itemHeight));
     }
 
+    private _isScrolling = false;
     public scrollToCurrent = () => {
         const ele = this._currentItemEle;
         if (!ele) return;
-        this._intersectionOb?.observe(ele);
         const thisRect = this.getBoundingClientRect();
         // 如果当前元素不可见，则不执行滚动
         if (thisRect.height === 0) return;
         this._intersectionOb?.observe(ele);
+        this._isScrolling = true;
         const eleRect = ele.getBoundingClientRect();
         const offsetTop = eleRect.top - thisRect.top + this.scrollTop;
         this.scrollTo({
