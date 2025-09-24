@@ -78,7 +78,9 @@ export const selectorCss = css`${baseCss}
 }
 
 dt-popover {
-  position: relative;
+  width: 100%;
+}
+dt-popover::part(pop) {
   width: 100%;
 }
 
@@ -130,7 +132,6 @@ dt-popover {
 }
 
 [slot="pop"] {
-  position: absolute;
   width: 100%;
   height: 461px;
 

@@ -45,7 +45,7 @@ import { Ele as PopoverEle } from '../popover';
 PopoverEle.define();
 
 export const selectorHtml = html`
-<dt-popover part="popover" strategy="none" placement="bottom">
+<dt-popover part="popover" strategy="absolute" placement="bottom">
   <div slot="trigger">
     <i class="time-icon"></i>
     <span class="time-echo">hh:mm:ss.sss</span>
