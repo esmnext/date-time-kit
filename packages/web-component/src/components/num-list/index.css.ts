@@ -6,6 +6,8 @@ export default css`
   --color-current-text: var(--calendar-item-in-range-text, #002BE7);
   --color-hover-bg: var(--calendar-item-hover-bg, #0000000D);
   --color-hover-text: var(--calendar-item-hover-text, #000);
+  --color-current-hover-bg: var(--calendar-item-in-range-hover-bg, var(--color-current-bg));
+  --color-current-hover-text: var(--calendar-item-in-range-hover-text, var(--color-current-text));
   display: block;
   overflow: hidden auto;
   position: relative !important;
@@ -34,5 +36,9 @@ export default css`
 .item:hover {
   color: var(--color-hover-text);
   background-color: var(--color-hover-bg);
+}
+.item.item-current:hover {
+  color: var(--color-current-hover-text);
+  background-color: var(--color-current-hover-bg);
 }
 `;
