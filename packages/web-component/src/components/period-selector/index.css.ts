@@ -38,6 +38,7 @@ export default css`
   font-size: 16px;
   line-height: 1;
   font-weight: bold;
+  white-space: pre-wrap;
 }
 
 .dividing-line {
@@ -78,5 +79,23 @@ dt-calendar-base::part(week) {
 }
 dt-calendar-base::part(item) {
   font-size: 14px;
+}
+
+dt-hhmmss-ms-selector {
+  width: 100%;
+}
+
+@media (max-width: 750px) {
+  .wrapper.end {
+    display: none;
+  }
+  .time-selector-wrapper {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+  }
+  dt-hhmmss-ms-selector {
+    flex: 1;
+  }
 }
 `;

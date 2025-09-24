@@ -61,7 +61,7 @@ export const styleStr = css`
     box-shadow: none;
   }
   /* for masking */
-  :host([open])::before {
+  :host([open]:not([strategy='none']))::before {
     content: '';
     position: fixed;
     top: 0;

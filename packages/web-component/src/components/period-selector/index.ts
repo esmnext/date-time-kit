@@ -1,4 +1,9 @@
-import { closestByEvent, debounce, getCurrentTzMs } from '../../utils';
+import {
+    closestByEvent,
+    debounce,
+    getCurrentTzMs,
+    smallScreenObserver
+} from '../../utils';
 import {
     type Ele as CalendarBaseEle,
     type EventMap as CalendarBaseEvent,
@@ -148,12 +153,12 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
     private get _startTimeSelector() {
         return this.shadowRoot?.querySelector(
-            '.start dt-hhmmss-ms-selector'
+            'dt-hhmmss-ms-selector[data-type="start"]'
         ) as HhMmSsMsSelectorEle;
     }
     private get _endTimeSelector() {
         return this.shadowRoot?.querySelector(
-            '.end dt-hhmmss-ms-selector'
+            'dt-hhmmss-ms-selector[data-type="end"]'
         ) as HhMmSsMsSelectorEle;
     }
 
@@ -206,6 +211,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             'select-time',
             this._onTimeSelectorChange
         );
+        smallScreenObserver.observe(this, this._render);
     }
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
@@ -251,6 +257,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             'select-time',
             this._onTimeSelectorChange
         );
+        smallScreenObserver.unobserve(this);
     }
 
     protected _onAttrChanged(
@@ -266,8 +273,9 @@ export class Ele extends UiBase<Attrs, Emits> {
         const timeStart = new Date(this._startNavEle.millisecond);
         const timeEnd = new Date(this._endNavEle.millisecond);
         const showCtrlBtn = diffInMonth(timeStart, timeEnd) > 1;
-        this._startNavEle.showCtrlBtnMonthAdd = showCtrlBtn;
-        this._endNavEle.showCtrlBtnMonthSub = showCtrlBtn;
+        const isSmall = smallScreenObserver.isSmall;
+        this._startNavEle.showCtrlBtnMonthAdd = isSmall || showCtrlBtn;
+        this._endNavEle.showCtrlBtnMonthSub = isSmall || showCtrlBtn;
     }
 
     private _render = debounce(() => {
@@ -275,14 +283,23 @@ export class Ele extends UiBase<Attrs, Emits> {
         let timeStart = this.timeStart as Date;
         let timeEnd = this.timeEnd as Date;
         if (timeStart > timeEnd) [timeStart, timeEnd] = [timeEnd, timeStart];
-        this._startCalendar.weekStartAt = this._endCalendar.weekStartAt =
+        const { _startCalendar, _endCalendar } = this;
+        _startCalendar.weekStartAt = _endCalendar.weekStartAt =
             this.weekStartAt;
-        this._startNavEle.millisecond =
-            this._startCalendar.showingTime =
-            this._startCalendar.timeStart =
-            this._endCalendar.timeStart =
+        _startCalendar.timeStart = _endCalendar.timeStart = +timeStart;
+        _endCalendar.timeEnd = _startCalendar.timeEnd = +timeEnd;
+        const isSmall = smallScreenObserver.isSmall;
+        if (
+            !isSmall ||
+            !this._selectedDate ||
+            +timeStart !== +this._selectedDate
+        ) {
+            this._startNavEle.millisecond = _startCalendar.showingTime =
                 +timeStart;
-        this._endCalendar.timeEnd = this._startCalendar.timeEnd = +timeEnd;
+        } else {
+            this._startNavEle.millisecond = _startCalendar.showingTime =
+                +timeEnd;
+        }
         if (diffInMonth(timeStart, timeEnd) <= 1) {
             const nextMonth = new Date(
                 timeStart.getFullYear(),
@@ -307,16 +324,34 @@ export class Ele extends UiBase<Attrs, Emits> {
         }
         this._updateDateEcho();
         this._updateNavCtrlBtn();
+        const startSelectorWrapper = this.shadowRoot!.querySelector(
+            '.start .time-selector-wrapper'
+        ) as HTMLElement;
+        const dividingLine = startSelectorWrapper.querySelector(
+            '.dividing-line'
+        ) as HTMLElement;
+        if (smallScreenObserver.isSmall) {
+            startSelectorWrapper.appendChild(this._endTimeSelector);
+            dividingLine.style.display = '';
+        } else {
+            (
+                this.shadowRoot!.querySelector(
+                    '.end .time-selector-wrapper'
+                ) as HTMLElement
+            ).appendChild(this._endTimeSelector);
+            dividingLine.style.display = 'none';
+        }
     }, 0);
 
     private _updateDateEcho() {
         let timeStart = this.timeStart as Date;
         let timeEnd = this.timeEnd as Date;
         if (timeStart > timeEnd) [timeStart, timeEnd] = [timeEnd, timeStart];
+        const isSmall = smallScreenObserver.isSmall;
         this.shadowRoot!.querySelector('.start-date-echo')!.textContent =
-            this.dateFormatter(timeStart);
+            this.dateFormatter(timeStart, this.minGranularity, isSmall);
         this.shadowRoot!.querySelector('.end-date-echo')!.textContent =
-            this.dateFormatter(timeEnd);
+            this.dateFormatter(timeEnd, this.minGranularity, isSmall);
         this.shadowRoot!.querySelector(
             '.start-date-echo-wrapper'
         )!.classList.toggle('active', !this._selectedDate);
@@ -402,7 +437,14 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._render();
     }
 
-    public dateFormatter = (time: Date) => time.toLocaleDateString('en-GB');
+    public dateFormatter = (
+        time: Date,
+        minGranularity: Granularity,
+        isSmall: boolean
+    ) => time.toLocaleDateString('en-GB');
+    // + (isSmall && minGranularity !== 'day'
+    //     ? ' ' + this.timeFormatter(time, minGranularity)
+    //     : '');
 
     public get timeFormatter() {
         return this._startTimeSelector.timeFormatter;

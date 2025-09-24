@@ -182,5 +182,14 @@ button#done {
   label, .tz-trigger {
     padding: 5px 0;
   }
+  .menu.custom dt-period-selector {
+    width: 100%;
+  }
+  .menu.custom .btns {
+    justify-content: center;
+  }
+  .menu.custom .btns button {
+    flex: 1;
+  }
 }
 `;

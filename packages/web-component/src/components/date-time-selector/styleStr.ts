@@ -37,4 +37,10 @@ dt-yyyymm-nav::part(list-grp) {
   height: 254px;
   margin-top: 15px;
 }
+
+@media (max-width: 750px) {
+  .wrapper {
+    width: 100%;
+  }
+}
 `;

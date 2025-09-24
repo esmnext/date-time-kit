@@ -28,11 +28,14 @@ export default html`
         show-ctrl-btn-month-sub
     ></dt-yyyymm-nav>
     <dt-calendar-base data-type="${s}"></dt-calendar-base>
-    <dt-hhmmss-ms-selector data-type="${s}">
-        <span slot="title"><dt-i18n i18n-key="time.${
-            s === 'start' ? 'startTime' : 'endTime'
-        }"></dt-i18n></span>
-    </dt-hhmmss-ms-selector>
+    <div class="time-selector-wrapper">
+        <dt-hhmmss-ms-selector data-type="${s}">
+            <span slot="title"><dt-i18n i18n-key="time.${
+                s === 'start' ? 'startTime' : 'endTime'
+            }"></dt-i18n></span>
+        </dt-hhmmss-ms-selector>
+        <i class="dividing-line" style="display:none"></i>
+    </div>
 </div>`
     )
     .join('')}</div>`;
