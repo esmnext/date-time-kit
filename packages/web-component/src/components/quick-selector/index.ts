@@ -273,6 +273,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         }
         if (name === 'tz-offset') {
             this._renderTz();
+            this._dispatchTimeChangeEvent();
         }
         if (name === 'quick-key') {
             this._updateRadio();
@@ -352,6 +353,24 @@ export class Ele extends UiBase<Attrs, Emits> {
     };
     private _onBackBtnClick = () => this._showMenu('top');
 
+    private _dispatchTimeChangeEvent() {
+        const quickKey = this.quickKey;
+        if (quickKey !== 'custom') {
+            const t = this.quickGenPeriodTimeInfo(quickKey);
+            this.dispatchEvent('time-changed', t, true);
+            return;
+        }
+        this.dispatchEvent(
+            'time-changed',
+            {
+                tzOffset: this.tzOffset,
+                start: this.startTime as Date,
+                end: this.endTime as Date,
+                type: 'custom'
+            },
+            true
+        );
+    }
     private _onRadioChange = (e: Event) => {
         if (!(e.target instanceof HTMLInputElement)) return;
         if (e.target.type !== 'radio') return;
@@ -359,26 +378,10 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (name === 'radio') {
             const v = value as QuickKey;
             if (v === 'custom') return;
-            const t = this.quickGenPeriodTimeInfo(v);
-            this.dispatchEvent('time-changed', t, true);
+            this.quickKey = v;
+            this._dispatchTimeChangeEvent();
         } else if (name === 'tz') {
             this.tzOffset = +value;
-            const quickKey = this.quickKey;
-            if (quickKey === 'custom') {
-                this.dispatchEvent(
-                    'time-changed',
-                    {
-                        tzOffset: this.tzOffset,
-                        start: this.startTime as Date,
-                        end: this.endTime as Date,
-                        type: 'custom'
-                    },
-                    true
-                );
-                return;
-            }
-            const t = this.quickGenPeriodTimeInfo(quickKey);
-            this.dispatchEvent('time-changed', t, true);
         }
     };
     private _onDoneBtnClick = (_e: Event) => {
@@ -386,16 +389,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         selector.abortSelecting();
         this._showMenu('top');
         this.quickKey = 'custom';
-        this.dispatchEvent(
-            'time-changed',
-            {
-                tzOffset: this.tzOffset,
-                start: selector.timeStart as Date,
-                end: selector.timeEnd as Date,
-                type: 'custom'
-            },
-            true
-        );
+        this._dispatchTimeChangeEvent();
     };
 
     public readonly genPeriodTimes = (options: GenPeriodTimesOptions) =>
