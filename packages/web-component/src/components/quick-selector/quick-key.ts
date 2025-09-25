@@ -1,4 +1,5 @@
 import type { DataLimit } from '../../i18n';
+import { getCurrentTzOffset } from '../../utils';
 import { type Weeks, weekKey } from '../calendar';
 
 export type { DataLimit };
@@ -153,19 +154,30 @@ export type PeriodTimeInfo<
 > = T extends 'all'
     ? {
           type: 'all';
+          /** Locale time */
           start?: null;
+          /** Locale time */
           end?: null;
+          /** Timezone offset in minutes. e.g. UTC+05:45 => `-345`, UTC-01:00 => `60` */
+          tzOffset: number;
       }
     : {
           type: Exclude<T, 'all'>;
+          /** Locale time */
           start: RT;
+          /** Locale time */
           end: RT;
+          /** Timezone offset in minutes. e.g. UTC+05:45 => `-345`, UTC-01:00 => `60` */
+          tzOffset: number;
       };
 
 export const quickGenPeriodTimeInfo = <T extends DataLimit = DataLimit>(
     type: T,
-    options: QuickGenPeriodTimesOptions = {}
+    options: QuickGenPeriodTimesOptions = {},
+    tzOffset = getCurrentTzOffset()
 ) => {
     const t = quickGenPeriodTime(type, options);
-    return (!t ? { type } : { type, ...t }) as PeriodTimeInfo<T>;
+    return (
+        !t ? { type, tzOffset } : { type, ...t, tzOffset }
+    ) as PeriodTimeInfo<T>;
 };

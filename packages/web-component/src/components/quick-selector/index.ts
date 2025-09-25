@@ -373,6 +373,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         this.dispatchEvent(
             'time-changed',
             {
+                tzOffset: this.tzOffset,
                 start: selector.timeStart as Date,
                 end: selector.timeEnd as Date,
                 type: 'custom'
@@ -391,7 +392,12 @@ export class Ele extends UiBase<Attrs, Emits> {
     ) => quickGenPeriodTime(period, { weekStartAt: this.weekStartAt });
     public readonly quickGenPeriodTimeInfo = <T extends DataLimit = DataLimit>(
         type: T
-    ) => quickGenPeriodTimeInfo(type, { weekStartAt: this.weekStartAt });
+    ) =>
+        quickGenPeriodTimeInfo(
+            type,
+            { weekStartAt: this.weekStartAt },
+            this.tzOffset
+        );
 }
 
 Ele.define();
