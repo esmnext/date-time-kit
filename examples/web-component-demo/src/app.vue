@@ -125,8 +125,8 @@ const dateNow = Date.now();
             <option value="year">year</option>
             <option value="custom">custom (next week)</option>
         </select>
-        <p>result: <pre id="quick-result">{{ quickResult }}</pre></p>
-        <p>result with timezone offset: <pre id="quick-result">{{ quickResultWithOffset }}</pre></p>
+        <pre id="quick-result">result: {{ quickResult }}</pre>
+        <pre id="quick-result">result with timezone offset: {{ quickResultWithOffset }}</pre>
 
         <hr />
 

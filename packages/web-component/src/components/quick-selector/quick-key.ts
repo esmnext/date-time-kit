@@ -183,6 +183,7 @@ export const quickGenPeriodTimeInfo = <T extends DataLimit = DataLimit>(
 };
 
 export const localeInfo2UTCInfo = (info: PeriodTimeInfo) => {
+    info = { ...info };
     if (info.type === 'all') return info;
     const { tzOffset, start, end } = info;
     info.start = new Date(
@@ -193,6 +194,7 @@ export const localeInfo2UTCInfo = (info: PeriodTimeInfo) => {
 };
 
 export const UTCInfo2LocaleInfo = (info: PeriodTimeInfo) => {
+    info = { ...info };
     if (info.type === 'all') return info;
     const { tzOffset, start, end } = info;
     info.start = new Date(

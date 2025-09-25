@@ -158,7 +158,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         }
         const v = new Date(val);
         if (Number.isNaN(+v)) return;
-        this.setAttribute('time-end', +v + '');
+        this.setAttribute('end-time', +v + '');
     }
     public get excludeField() {
         const v = this._getAttr('exclude-field', '') || '';
@@ -392,7 +392,12 @@ export class Ele extends UiBase<Attrs, Emits> {
         const selector = this._periodSelector;
         selector.abortSelecting();
         this._showMenu('top');
+        let { timeStart, timeEnd } = this._periodSelector;
+        if (timeStart > timeEnd) [timeStart, timeEnd] = [timeEnd, timeStart];
+        this.startTime = timeStart;
+        this.endTime = timeEnd;
         this.quickKey = 'custom';
+        this._dispatchTimeChangeEvent();
     };
 
     public readonly genPeriodTimes = (options: GenPeriodTimesOptions) =>
