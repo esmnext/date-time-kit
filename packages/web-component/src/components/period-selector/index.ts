@@ -1,9 +1,4 @@
-import {
-    closestByEvent,
-    debounce,
-    getCurrentTzMs,
-    smallScreenObserver
-} from '../../utils';
+import { closestByEvent, debounce, smallScreenObserver } from '../../utils';
 import {
     type Ele as CalendarBaseEle,
     type EventMap as CalendarBaseEvent,

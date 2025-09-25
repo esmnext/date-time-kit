@@ -35,8 +35,8 @@ export function debounce(fn: Function, delay = 0) {
     };
 }
 
-export const getCurrentTz = () => -new Date().getTimezoneOffset();
-export const getCurrentTzMs = () => getCurrentTz() * 60 * 1000;
+export const getCurrentTzOffset = () => new Date().getTimezoneOffset();
+export const getCurrentTzOffsetMs = () => getCurrentTzOffset() * 60 * 1000;
 
 export const cssDirLtrSelector1 = `:-webkit-any(:lang(ae),:lang(ar),:lang(arc),:lang(bcc),:lang(bqi),:lang(ckb),:lang(dv),:lang(fa),:lang(glk),:lang(he),:lang(ku),:lang(mzn),:lang(nqo),:lang(pnb),:lang(ps),:lang(sd),:lang(ug),:lang(ur),:lang(yi))`;
 export const cssDirLtrSelector2 = `:-moz-any(:lang(ae),:lang(ar),:lang(arc),:lang(bcc),:lang(bqi),:lang(ckb),:lang(dv),:lang(fa),:lang(glk),:lang(he),:lang(ku),:lang(mzn),:lang(nqo),:lang(pnb),:lang(ps),:lang(sd),:lang(ug),:lang(ur),:lang(yi))`;

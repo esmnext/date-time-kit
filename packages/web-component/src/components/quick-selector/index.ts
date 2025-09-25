@@ -1,4 +1,4 @@
-import { debounce } from '../../utils';
+import { debounce, getCurrentTzOffset } from '../../utils';
 import { type Weeks, weekKey } from '../calendar';
 import type { Ele as PeriodSelectorEle } from '../period-selector';
 import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
@@ -16,7 +16,7 @@ import {
     UiBase
 } from '../web-component-base';
 import styleStr from './index.css';
-import html, { getCurrentTz, utcText } from './index.html';
+import html, { utcText } from './index.html';
 import {
     type DataLimit,
     type GenPeriodTimesOptions,
@@ -46,12 +46,12 @@ export {
 export type Attrs = BaseAttrs &
     reExportPopoverAttrs & {
         /**
-         * Timezone in minutes. For example: UTC+05:45 => `345`, UTC-01:00 => `-60`.
+         * Timezone in minutes. For example: UTC+05:45 => `-345`, UTC-01:00 => `60`.
          *
          * @default
-         * -new Date().getTimezoneOffset() // local timezone in minutes
+         * new Date().getTimezoneOffset() // locale timezone in minutes
          */
-        'time-zone'?: number;
+        'tz-offset'?: number;
         /**
          * Set which day of the week is the first day.
          * @type `'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'`
@@ -97,7 +97,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
-            'time-zone',
+            'tz-offset',
             'week-start-at',
             'quick-key',
             'start-time',
@@ -107,12 +107,12 @@ export class Ele extends UiBase<Attrs, Emits> {
         ] satisfies (keyof Attrs)[];
     }
 
-    public get timezone() {
-        return +this._getAttr('time-zone', '' + getCurrentTz());
+    public get tzOffset() {
+        return +this._getAttr('tz-offset', '' + -getCurrentTzOffset());
     }
-    public set timezone(v: number) {
+    public set tzOffset(v: number) {
         if (!Number.isSafeInteger(v)) return;
-        this.setAttribute('time-zone', '' + v);
+        this.setAttribute('tz-offset', '' + v);
     }
     public get quickKey() {
         return this._getAttr('quick-key', 'all');
@@ -271,7 +271,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         ) {
             return;
         }
-        if (name === 'time-zone') {
+        if (name === 'tz-offset') {
             this._renderTz();
         }
         if (name === 'quick-key') {
@@ -309,7 +309,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     }, 0);
 
     private _renderTz = debounce(() => {
-        const tz = this.timezone;
+        const tz = -this.tzOffset;
         const tzRadios =
             this.shadowRoot!.querySelectorAll<HTMLInputElement>(
                 'input[name="tz"]'
@@ -362,7 +362,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             const t = this.quickGenPeriodTimeInfo(v);
             this.dispatchEvent('time-changed', t, true);
         } else if (name === 'tz') {
-            this.timezone = +value;
+            this.tzOffset = -value;
         }
     };
     private _onDoneBtnClick = (_e: Event) => {

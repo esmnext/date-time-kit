@@ -1,4 +1,4 @@
-import { getCurrentTz, html } from '../../utils';
+import { getCurrentTzOffset, html } from '../../utils';
 import { Ele as PeriodSelectorEle } from '../period-selector';
 import { type QuickKey, limitKeys } from './quick-key';
 PeriodSelectorEle.define();
@@ -7,9 +7,7 @@ I18nEle.define();
 
 import { arrowRightSvg, backArrowSvg } from '../../assets';
 
-export { getCurrentTz };
-
-export const utcText = (tz: number = getCurrentTz()) =>
+export const utcText = (tz = -getCurrentTzOffset()) =>
     tz >= 0
         ? (`UTC+${(~~(tz / 60) + '').padStart(2, '0')}:${((tz % 60) + '').padStart(2, '0')}` as const)
         : (`UTC-${(~~-(tz / 60) + '').padStart(2, '0')}:${((-tz % 60) + '').padStart(2, '0')}` as const);
@@ -48,7 +46,7 @@ export default html`
     ></div
     ><fieldset class="subtitle"
         ><legend><dt-i18n i18n-key="quick.recommend"></dt-i18n></legend
-    >${[...new Set([getCurrentTz(), 120])].map(genTzRadio).join('')}</fieldset
+    >${[...new Set([-getCurrentTzOffset(), 120])].map(genTzRadio).join('')}</fieldset
     ><fieldset class="subtitle"
         ><legend><dt-i18n i18n-key="quick.timezoneList"></dt-i18n></legend
         >${[
@@ -57,7 +55,7 @@ export default html`
             10.5, 11, 12, 12.45, 13, 14
         ]
             .map((tz) =>
-                tz === 2 || tz * 60 === getCurrentTz()
+                tz === 2 || tz * 60 === -getCurrentTzOffset()
                     ? ''
                     : genTzRadio(tz * 60)
             )

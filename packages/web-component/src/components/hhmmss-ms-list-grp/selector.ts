@@ -1,4 +1,4 @@
-import { debounce, getCurrentTzMs } from '../../utils';
+import { debounce, getCurrentTzOffsetMs } from '../../utils';
 import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
 import type { Emit2EventMap } from '../web-component-base';
 import {
@@ -95,8 +95,8 @@ export class Ele extends BaseEle<Attrs, Emits> {
 
     private _render = debounce(() => {
         if (!this.isConnected) return;
-        const tz = getCurrentTzMs();
-        this.millisecond = (+this.currentTime + tz) % (24 * 60 * 60 * 1000);
+        const tz = getCurrentTzOffsetMs();
+        this.millisecond = (+this.currentTime - tz) % (24 * 60 * 60 * 1000);
         this.shadowRoot!.querySelector('.time-echo')!.textContent =
             this.timeFormatter(this.currentTime as Date, this.minGranularity);
     }, 0);
@@ -121,7 +121,7 @@ export class Ele extends BaseEle<Attrs, Emits> {
     };
 
     public timeFormatter = (time: Date, minGranularity: Granularity) => {
-        const t = new Date(+time + getCurrentTzMs())
+        const t = new Date(+time - getCurrentTzOffsetMs())
             .toISOString()
             .slice(11, 23);
         if (minGranularity === 'hour') return t.slice(0, 2);
