@@ -1,6 +1,6 @@
 import { getCurrentTzOffset, html } from '../../utils';
 import { Ele as PeriodSelectorEle } from '../period-selector';
-import { type QuickKey, limitKeys } from './quick-key';
+import { limitKeys } from './quick-key';
 PeriodSelectorEle.define();
 import { Ele as I18nEle } from '../i18n';
 I18nEle.define();
@@ -8,7 +8,7 @@ I18nEle.define();
 import { arrowRightSvg, backArrowSvg } from '../../assets';
 
 export const utcText = (tzOffset = getCurrentTzOffset()) =>
-    tzOffset >= 0
+    tzOffset > 0
         ? (`UTC-${(~~(tzOffset / 60) + '').padStart(2, '0')}:${((tzOffset % 60) + '').padStart(2, '0')}` as const)
         : (`UTC+${(~~-(tzOffset / 60) + '').padStart(2, '0')}:${((-tzOffset % 60) + '').padStart(2, '0')}` as const);
 
