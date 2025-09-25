@@ -108,7 +108,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
 
     public get tzOffset() {
-        return +this._getAttr('tz-offset', '' + -getCurrentTzOffset());
+        return +this._getAttr('tz-offset', '' + getCurrentTzOffset());
     }
     public set tzOffset(v: number) {
         if (!Number.isSafeInteger(v)) return;
@@ -309,16 +309,16 @@ export class Ele extends UiBase<Attrs, Emits> {
     }, 0);
 
     private _renderTz = debounce(() => {
-        const tz = -this.tzOffset;
+        const tzOffset = this.tzOffset;
         const tzRadios =
             this.shadowRoot!.querySelectorAll<HTMLInputElement>(
                 'input[name="tz"]'
             );
         tzRadios!.forEach((radio) => {
-            radio.checked = +radio.value === tz;
+            radio.checked = +radio.value === tzOffset;
         });
         this.shadowRoot!.querySelector('.tz-trigger bdo')!.textContent =
-            utcText(tz);
+            utcText(tzOffset);
     }, 0);
     private _updateRadio = debounce(() => {
         const quickKey = this.quickKey;
@@ -362,7 +362,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             const t = this.quickGenPeriodTimeInfo(v);
             this.dispatchEvent('time-changed', t, true);
         } else if (name === 'tz') {
-            this.tzOffset = -value;
+            this.tzOffset = +value;
             const quickKey = this.quickKey;
             if (quickKey === 'custom') {
                 this.dispatchEvent(

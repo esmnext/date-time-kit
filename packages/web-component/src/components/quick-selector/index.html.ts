@@ -7,13 +7,15 @@ I18nEle.define();
 
 import { arrowRightSvg, backArrowSvg } from '../../assets';
 
-export const utcText = (tz = -getCurrentTzOffset()) =>
-    tz >= 0
-        ? (`UTC+${(~~(tz / 60) + '').padStart(2, '0')}:${((tz % 60) + '').padStart(2, '0')}` as const)
-        : (`UTC-${(~~-(tz / 60) + '').padStart(2, '0')}:${((-tz % 60) + '').padStart(2, '0')}` as const);
+export const utcText = (tzOffset = getCurrentTzOffset()) =>
+    tzOffset >= 0
+        ? (`UTC-${(~~(tzOffset / 60) + '').padStart(2, '0')}:${((tzOffset % 60) + '').padStart(2, '0')}` as const)
+        : (`UTC+${(~~-(tzOffset / 60) + '').padStart(2, '0')}:${((-tzOffset % 60) + '').padStart(2, '0')}` as const);
 
-const genTzRadio = (tz: number) =>
-    html`<label><input type="radio" name="tz" value="${tz}" hidden/><i class="radio"></i><span>${utcText(tz)}</span></label>`;
+const genTzRadio = (tzOffset: number) =>
+    html`<label><input type="radio" name="tz" value="${
+        tzOffset
+    }" hidden/><i class="radio"></i><span>${utcText(tzOffset)}</span></label>`;
 
 export default html`
 <dt-popover part="popover">
@@ -46,7 +48,7 @@ export default html`
     ></div
     ><fieldset class="subtitle"
         ><legend><dt-i18n i18n-key="quick.recommend"></dt-i18n></legend
-    >${[...new Set([-getCurrentTzOffset(), 120])].map(genTzRadio).join('')}</fieldset
+    >${[...new Set([getCurrentTzOffset(), 2 * -60])].map(genTzRadio).join('')}</fieldset
     ><fieldset class="subtitle"
         ><legend><dt-i18n i18n-key="quick.timezoneList"></dt-i18n></legend
         >${[
@@ -55,9 +57,9 @@ export default html`
             10.5, 11, 12, 12.45, 13, 14
         ]
             .map((tz) =>
-                tz === 2 || tz * 60 === -getCurrentTzOffset()
+                tz === 2 || tz * -60 === getCurrentTzOffset()
                     ? ''
-                    : genTzRadio(tz * 60)
+                    : genTzRadio(tz * -60)
             )
             .join('')}</fieldset
     ></div
