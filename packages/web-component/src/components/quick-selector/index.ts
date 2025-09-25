@@ -23,7 +23,9 @@ import {
     type PeriodTimeInfo,
     type QuickGenPeriodTimesOptions,
     type QuickKey,
+    UTCInfo2LocaleInfo,
     genPeriodTimes,
+    localeInfo2UTCInfo,
     quickGenPeriodTime,
     quickGenPeriodTimeInfo,
     quickGenPeriodTimes,
@@ -40,7 +42,9 @@ export {
     genPeriodTimes,
     quickGenPeriodTime,
     quickGenPeriodTimes,
-    quickGenPeriodTimeInfo
+    quickGenPeriodTimeInfo,
+    localeInfo2UTCInfo,
+    UTCInfo2LocaleInfo
 };
 
 export type Attrs = BaseAttrs &

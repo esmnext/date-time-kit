@@ -181,3 +181,23 @@ export const quickGenPeriodTimeInfo = <T extends DataLimit = DataLimit>(
         !t ? { type, tzOffset } : { type, ...t, tzOffset }
     ) as PeriodTimeInfo<T>;
 };
+
+export const localeInfo2UTCInfo = (info: PeriodTimeInfo) => {
+    if (info.type === 'all') return info;
+    const { tzOffset, start, end } = info;
+    info.start = new Date(
+        +start - (getCurrentTzOffset() - tzOffset) * 60 * 1000
+    );
+    info.end = new Date(+end - (getCurrentTzOffset() - tzOffset) * 60 * 1000);
+    return info;
+};
+
+export const UTCInfo2LocaleInfo = (info: PeriodTimeInfo) => {
+    if (info.type === 'all') return info;
+    const { tzOffset, start, end } = info;
+    info.start = new Date(
+        +start + (getCurrentTzOffset() - tzOffset) * 60 * 1000
+    );
+    info.end = new Date(+end + (getCurrentTzOffset() - tzOffset) * 60 * 1000);
+    return info;
+};
