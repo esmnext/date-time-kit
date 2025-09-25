@@ -65,11 +65,11 @@ export type Attrs = BaseAttrs &
          */
         'quick-key'?: QuickKey;
         /**
-         * Start time of the quick selection. Only works in custom mode.
+         * Start locale time of the quick selection. Only works in custom mode.
          */
         'start-time'?: string | number | '';
         /**
-         * End time of the quick selection. Only works in custom mode.
+         * End locale time of the quick selection. Only works in custom mode.
          */
         'end-time'?: string | number | '';
         /**
@@ -363,6 +363,22 @@ export class Ele extends UiBase<Attrs, Emits> {
             this.dispatchEvent('time-changed', t, true);
         } else if (name === 'tz') {
             this.tzOffset = -value;
+            const quickKey = this.quickKey;
+            if (quickKey === 'custom') {
+                this.dispatchEvent(
+                    'time-changed',
+                    {
+                        tzOffset: this.tzOffset,
+                        start: this.startTime as Date,
+                        end: this.endTime as Date,
+                        type: 'custom'
+                    },
+                    true
+                );
+                return;
+            }
+            const t = this.quickGenPeriodTimeInfo(quickKey);
+            this.dispatchEvent('time-changed', t, true);
         }
     };
     private _onDoneBtnClick = (_e: Event) => {
