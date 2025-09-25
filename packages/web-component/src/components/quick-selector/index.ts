@@ -281,6 +281,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         }
         if (name === 'quick-key') {
             this._updateRadio();
+            this._dispatchTimeChangeEvent();
         }
         if (name === 'week-start-at') {
             this._updatePeriodSelector();
@@ -357,7 +358,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     };
     private _onBackBtnClick = () => this._showMenu('top');
 
-    private _dispatchTimeChangeEvent() {
+    private _dispatchTimeChangeEvent = debounce(() => {
         const quickKey = this.quickKey;
         if (quickKey !== 'custom') {
             const t = this.quickGenPeriodTimeInfo(quickKey);
@@ -374,7 +375,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             },
             true
         );
-    }
+    });
     private _onRadioChange = (e: Event) => {
         if (!(e.target instanceof HTMLInputElement)) return;
         if (e.target.type !== 'radio') return;
@@ -383,7 +384,6 @@ export class Ele extends UiBase<Attrs, Emits> {
             const v = value as QuickKey;
             if (v === 'custom') return;
             this.quickKey = v;
-            this._dispatchTimeChangeEvent();
         } else if (name === 'tz') {
             this.tzOffset = +value;
         }
@@ -393,7 +393,6 @@ export class Ele extends UiBase<Attrs, Emits> {
         selector.abortSelecting();
         this._showMenu('top');
         this.quickKey = 'custom';
-        this._dispatchTimeChangeEvent();
     };
 
     public readonly genPeriodTimes = (options: GenPeriodTimesOptions) =>

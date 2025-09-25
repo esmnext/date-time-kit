@@ -20,14 +20,22 @@ const quickKey = ref<DtQuickSelectorQuickKey>('all');
 const weekStartAt = ref<'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'>(
     'sun'
 );
+const tzOffset = ref<number>(new Date().getTimezoneOffset());
 
 const quickResult = ref('');
+const quickResultWithOffset = ref('');
 const onChange = (e: DtQuickSelectorEvent['time-changed']) => {
     console.log('time-changed', e.detail);
     quickResult.value = JSON.stringify(e.detail, null, 2);
+    quickResultWithOffset.value = JSON.stringify(
+        DtQuickSelectorPkg.localeInfo2UTCInfo(e.detail),
+        null,
+        2
+    );
     startTime.value = e.detail.start?.getTime() || '';
     endTime.value = e.detail.end?.getTime() || '';
     quickKey.value = e.detail.type;
+    tzOffset.value = e.detail.tzOffset;
 };
 const setToNextWeek = () => {
     const times = DtQuickSelectorPkg.genPeriodTimes({
@@ -77,6 +85,7 @@ const dateNow = Date.now();
             <option value="ko-KR">ko-KR</option>
             <option value="ar-AE">ar-AE</option>
         </select>
+        <p>timezone offset: <input type="number" v-model="tzOffset"/></p>
         <p
             >quick select: <dt-quick-selector
                 :lang="lang"
@@ -90,6 +99,7 @@ const dateNow = Date.now();
                 :quick-key="quickKey"
                 :start-time="startTime"
                 :end-time="endTime"
+                :tz-offset="tzOffset"
             ></dt-quick-selector
         ></p>
         <select v-model="weekStartAt" name="week-start-at">
@@ -115,7 +125,8 @@ const dateNow = Date.now();
             <option value="year">year</option>
             <option value="custom">custom (next week)</option>
         </select>
-        result: <pre id="quick-result">{{ quickResult }}</pre>
+        <p>result: <pre id="quick-result">{{ quickResult }}</pre></p>
+        <p>result with timezone offset: <pre id="quick-result">{{ quickResultWithOffset }}</pre></p>
 
         <hr />
 
