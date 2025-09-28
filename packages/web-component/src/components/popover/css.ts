@@ -5,7 +5,7 @@ export const styleStr = css`
 ::slotted([slot='pop']:not(.not-pop-bg)) {
   background-color: var(--dt-bg-block-light, #fff);
   padding: 10px 5px;
-  border-radius: 6px;
+  border-radius: var(--dt-pop-border-radius, 6px);
   border: 1px solid var(--dt-border-dark, #0000001A);
   box-shadow: var(--dt-pop-box-shadow, 0 6px 16px #0003);
 }
