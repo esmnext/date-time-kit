@@ -5,7 +5,7 @@ import {
     offset,
     shift
 } from '@floating-ui/dom';
-import { css, html, smallScreenObserver } from '../../utils';
+import { html, smallScreenObserver } from '../../utils';
 import {
     type BaseAttrs,
     type BaseEmits,
@@ -13,6 +13,8 @@ import {
     UiBase
 } from '../web-component-base';
 import { styleStr } from './css';
+
+export type { reExportPopoverAttrs as reExportAttrs } from './attr-sync-helper';
 
 export interface Attrs extends BaseAttrs {
     open?: boolean;
