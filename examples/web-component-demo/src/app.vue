@@ -148,8 +148,8 @@ const dateNow = Date.now();
                 pop-strategy="fixed"
                 min-granularity="minute"
                 :current-time="currentTime"
-                :min-time="dateNow - 30 * 24 * 3600 * 1000"
-                :max-time="dateNow + 30 * 24 * 3600 * 1000"
+                :min-time="dateNow - 60 * 24 * 3600 * 1000"
+                :max-time="dateNow - 30 * 24 * 3600 * 1000"
                 @select-time="currentTime = +$event.detail"
                 @open-change="dateTimeSelectorState = $event.detail ? 'open' : 'close'"
             >

@@ -46,7 +46,7 @@ export type Attrs = BaseAttrs &
         /**
          * The time of the calendar.
          * @type {`string | number`} A value that can be passed to the Date constructor.
-         * @default Date.now()
+         * @default Math.min('max-time', Math.max('min-time', Date.now()))
          */
         'current-time'?: string | number;
         /**
@@ -107,11 +107,26 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (Number.isNaN(+v)) return;
         this.setAttribute(name, +v + '');
     }
+    private get _maxMinTime() {
+        let min = +this.minTime;
+        let max = +this.maxTime;
+        if (Number.isNaN(min)) min = Number.NEGATIVE_INFINITY;
+        if (Number.isNaN(max)) max = Number.POSITIVE_INFINITY;
+        if (min > max) [min, max] = [max, min];
+        return { min, max };
+    }
     public get currentTime() {
-        return this._getTimeAttr('current-time', '' + Date.now());
+        const { min, max } = this._maxMinTime;
+        const currTime = this._getTimeAttr('current-time', '' + Date.now());
+        if (+currTime < min) return new Date(min);
+        if (+currTime > max) return new Date(max);
+        return currTime;
     }
     public set currentTime(val: number | string | Date) {
-        this._setTimeAttr('current-time', val);
+        const v = new Date(val);
+        if (Number.isNaN(+v)) return;
+        const { min, max } = this._maxMinTime;
+        this._setTimeAttr('current-time', Math.min(max, Math.max(min, +v)));
     }
     public get showingTime() {
         return this._getTimeAttr('showing-time', '' + +this.currentTime);
@@ -233,8 +248,9 @@ export class Ele extends UiBase<Attrs, Emits> {
             _calendar.timeEnd =
                 +currentTime;
         _calendar.showingTime = this.showingTime;
-        _calendar.minTime = this.minTime;
-        _calendar.maxTime = this.maxTime;
+        const { min, max } = this._maxMinTime;
+        _calendar.minTime = min;
+        _calendar.maxTime = max;
 
         if (this.minGranularity === 'day') {
             _timeSelector.style.display = 'none';
