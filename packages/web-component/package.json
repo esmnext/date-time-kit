@@ -20,7 +20,7 @@
         "unbuild": "3.6.0",
         "vitest": "3.2.4"
     },
-    "version": "2.0.0-alpha.18",
+    "version": "2.0.0-alpha.19",
     "type": "module",
     "private": false,
     "exports": {
