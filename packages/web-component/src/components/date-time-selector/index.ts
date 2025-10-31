@@ -107,16 +107,17 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (Number.isNaN(+v)) return;
         this.setAttribute(name, +v + '');
     }
-    private get _maxMinTime() {
-        let min = +this.minTime;
-        let max = +this.maxTime;
+    private _getMaxMinTime({
+        min = +this._getTimeAttr('min-time', 'NaN'),
+        max = +this._getTimeAttr('max-time', 'NaN')
+    } = {}) {
         if (Number.isNaN(min)) min = Number.NEGATIVE_INFINITY;
         if (Number.isNaN(max)) max = Number.POSITIVE_INFINITY;
         if (min > max) [min, max] = [max, min];
         return { min, max };
     }
     public get currentTime() {
-        const { min, max } = this._maxMinTime;
+        const { min, max } = this._getMaxMinTime();
         const currTime = this._getTimeAttr('current-time', '' + Date.now());
         if (+currTime < min) return new Date(min);
         if (+currTime > max) return new Date(max);
@@ -125,7 +126,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     public set currentTime(val: number | string | Date) {
         const v = new Date(val);
         if (Number.isNaN(+v)) return;
-        const { min, max } = this._maxMinTime;
+        const { min, max } = this._getMaxMinTime();
         this._setTimeAttr('current-time', Math.min(max, Math.max(min, +v)));
     }
     public get showingTime() {
@@ -135,16 +136,24 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._setTimeAttr('showing-time', val);
     }
     public get minTime() {
-        return this._getTimeAttr('min-time', 'null');
+        return this._getMaxMinTime().min;
     }
     public set minTime(val: number | string | Date) {
-        this._setTimeAttr('min-time', val);
+        const { min, max } = this._getMaxMinTime({
+            min: +new Date(Number.isNaN(+val) ? val : +val)
+        });
+        this._setTimeAttr('min-time', min);
+        this._setTimeAttr('max-time', max);
     }
     public get maxTime() {
-        return this._getTimeAttr('max-time', 'null');
+        return this._getMaxMinTime().max;
     }
     public set maxTime(val: number | string | Date) {
-        this._setTimeAttr('max-time', val);
+        const { min, max } = this._getMaxMinTime({
+            max: +new Date(Number.isNaN(+val) ? val : +val)
+        });
+        this._setTimeAttr('min-time', min);
+        this._setTimeAttr('max-time', max);
     }
     public get weekStartAt() {
         return this._getAttr('week-start-at', 'sun');
@@ -248,7 +257,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             _calendar.timeEnd =
                 +currentTime;
         _calendar.showingTime = this.showingTime;
-        const { min, max } = this._maxMinTime;
+        const { min, max } = this._getMaxMinTime();
         _calendar.minTime = min;
         _calendar.maxTime = max;
 

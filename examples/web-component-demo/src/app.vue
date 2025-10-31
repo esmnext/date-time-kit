@@ -63,7 +63,9 @@ const quickKeyProxy = computed({
 });
 
 const currentTime = ref<string | number | undefined>(void 0);
+const currentTimeWithLimit = ref<string | number | undefined>(void 0);
 const dateTimeSelectorState = ref<'open' | 'close'>('close');
+const dateTimeSelectorWithLimitState = ref<'open' | 'close'>('close');
 
 const dateNow = Date.now();
 </script>
@@ -133,6 +135,8 @@ const dateNow = Date.now();
         <div>
             <p>selected time: {{ currentTime && new Date(currentTime).toISOString() }}</p>
             <p>state: {{ dateTimeSelectorState }}</p>
+            <p>selected time with max-min: {{ currentTimeWithLimit && new Date(currentTimeWithLimit).toISOString() }}</p>
+            <p>state with max-min: {{ dateTimeSelectorWithLimitState }}</p>
             <dt-date-time-selector
                 :lang="lang"
                 pop-strategy="absolute"
@@ -147,11 +151,11 @@ const dateNow = Date.now();
                 :lang="lang"
                 pop-strategy="fixed"
                 min-granularity="minute"
-                :current-time="currentTime"
-                :min-time="dateNow - 60 * 24 * 3600 * 1000"
-                :max-time="dateNow - 30 * 24 * 3600 * 1000"
-                @select-time="currentTime = +$event.detail"
-                @open-change="dateTimeSelectorState = $event.detail ? 'open' : 'close'"
+                :current-time="currentTimeWithLimit"
+                :min-time="dateNow - 40 * 24 * 3600 * 1000"
+                :max-time="dateNow - 20 * 24 * 3600 * 1000"
+                @select-time="currentTimeWithLimit = +$event.detail"
+                @open-change="dateTimeSelectorWithLimitState = $event.detail ? 'open' : 'close'"
             >
                 <button slot="trigger">date time selector with max-min time</button>
             </dt-date-time-selector>
