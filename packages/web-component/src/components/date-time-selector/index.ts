@@ -211,6 +211,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             this._onTimeSelectorChange
         );
         this._timeSelector.addEventListener('open-change', this._stopEvent);
+        this.dispatchEvent('select-time', this.currentTime as Date);
     }
     public disconnectedCallback() {
         if (!super.disconnectedCallback()) return;
