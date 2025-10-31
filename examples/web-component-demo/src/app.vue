@@ -93,6 +93,7 @@ const dateNow = Date.now();
                 :lang="lang"
                 ref="el"
                 pop-strategy="absolute"
+                min-granularity="minute"
                 @time-changed="onChange"
                 @open-change="$event.detail
                     ? quickResult = 'Selecting...'

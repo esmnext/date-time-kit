@@ -1,5 +1,6 @@
 import { debounce, getCurrentTzOffset } from '../../utils';
 import { type Weeks, weekKey } from '../calendar';
+import { granularityList as timeGranularityList } from '../hhmmss-ms-list-grp/selector';
 import type { Ele as PeriodSelectorEle } from '../period-selector';
 import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
 import {
@@ -47,6 +48,9 @@ export {
     UTCInfo2LocaleInfo
 };
 
+export const granularityList = ['day', ...timeGranularityList] as const;
+export type Granularity = (typeof granularityList)[number];
+
 export type Attrs = BaseAttrs &
     reExportPopoverAttrs & {
         /**
@@ -77,6 +81,11 @@ export type Attrs = BaseAttrs &
          */
         'end-time'?: string | number | '';
         /**
+         * 选择器的粒度，表示最小可选的时间单位。默认为 millisecond。
+         * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。
+         */
+        'min-granularity'?: Granularity;
+        /**
          * Exclude some quick selection options.
          *
          * @example
@@ -106,6 +115,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             'quick-key',
             'start-time',
             'end-time',
+            'min-granularity',
             'exclude-field',
             ...popoverAttrKeys
         ] satisfies (keyof Attrs)[];
@@ -159,6 +169,13 @@ export class Ele extends UiBase<Attrs, Emits> {
         const v = new Date(val);
         if (Number.isNaN(+v)) return;
         this.setAttribute('end-time', +v + '');
+    }
+    public get minGranularity() {
+        return this._getAttr('min-granularity', 'millisecond');
+    }
+    public set minGranularity(val: NonNullable<Attrs['min-granularity']>) {
+        if (!granularityList.includes(val)) return;
+        this.setAttribute('min-granularity', val);
     }
     public get excludeField() {
         const v = this._getAttr('exclude-field', '') || '';
@@ -311,6 +328,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             ele.timeStart = defaultPeriod.start;
             ele.timeEnd = defaultPeriod.end;
         }
+        ele.minGranularity = this.minGranularity;
         ele.showCalendarDatePoint();
     }, 0);
 
