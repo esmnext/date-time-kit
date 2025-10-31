@@ -142,7 +142,9 @@ export class Ele extends UiBase<Attrs, Emits> {
                             intersectionRatio !== 1 ||
                             (rootBounds &&
                                 boundingClientRect &&
-                                rootBounds.top !== boundingClientRect.top)
+                                Math.abs(
+                                    rootBounds.top - boundingClientRect.top
+                                ) > 2)
                         ) {
                             observer.observe(target);
                         } else {
