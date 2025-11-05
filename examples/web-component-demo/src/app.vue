@@ -93,7 +93,6 @@ const dateNow = Date.now();
                 :lang="lang"
                 ref="el"
                 pop-strategy="absolute"
-                min-granularity="minute"
                 @time-changed="onChange"
                 @open-change="$event.detail
                     ? quickResult = 'Selecting...'
@@ -104,6 +103,21 @@ const dateNow = Date.now();
                 :end-time="endTime"
                 :tz-offset="tzOffset"
             ></dt-quick-selector
+            ><dt-quick-selector
+                :lang="lang"
+                ref="el"
+                pop-strategy="absolute"
+                min-granularity="day"
+                @time-changed="onChange"
+                @open-change="$event.detail
+                    ? quickResult = 'Selecting...'
+                    : quickResult += '\nDone'"
+                :week-start-at="weekStartAt"
+                :quick-key="quickKey"
+                :start-time="startTime"
+                :end-time="endTime"
+                :tz-offset="tzOffset"
+            ><button slot="trigger">min-granularity="day"</button></dt-quick-selector
         ></p>
         <select v-model="weekStartAt" name="week-start-at">
             <option value="sun">week start at Sunday</option>
@@ -141,7 +155,6 @@ const dateNow = Date.now();
             <dt-date-time-selector
                 :lang="lang"
                 pop-strategy="absolute"
-                min-granularity="minute"
                 :current-time="currentTime"
                 @select-time="currentTime = +$event.detail"
                 @open-change="dateTimeSelectorState = $event.detail ? 'open' : 'close'"
@@ -151,7 +164,6 @@ const dateNow = Date.now();
             <dt-date-time-selector
                 :lang="lang"
                 pop-strategy="fixed"
-                min-granularity="minute"
                 :current-time="currentTimeWithLimit"
                 :min-time="dateNow - 40 * 24 * 3600 * 1000"
                 :max-time="dateNow - 20 * 24 * 3600 * 1000"
@@ -159,6 +171,26 @@ const dateNow = Date.now();
                 @open-change="dateTimeSelectorWithLimitState = $event.detail ? 'open' : 'close'"
             >
                 <button slot="trigger">date time selector with max-min time</button>
+            </dt-date-time-selector>
+            <dt-date-time-selector
+                :lang="lang"
+                pop-strategy="absolute"
+                min-granularity="minute"
+                :current-time="currentTime"
+                @select-time="currentTime = +$event.detail"
+                @open-change="dateTimeSelectorState = $event.detail ? 'open' : 'close'"
+            >
+                <button slot="trigger">min-granularity="minute"</button>
+            </dt-date-time-selector>
+            <dt-date-time-selector
+                :lang="lang"
+                pop-strategy="absolute"
+                min-granularity="day"
+                :current-time="currentTime"
+                @select-time="currentTime = +$event.detail"
+                @open-change="dateTimeSelectorState = $event.detail ? 'open' : 'close'"
+            >
+                <button slot="trigger">min-granularity="day"</button>
             </dt-date-time-selector>
             <ul>
                 <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil, mollitia?</li>

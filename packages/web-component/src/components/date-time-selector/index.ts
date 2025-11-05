@@ -57,7 +57,7 @@ export type Attrs = BaseAttrs &
         'showing-time'?: string | number;
         /**
          * 选择器的粒度，表示最小可选的时间单位。默认为 millisecond。
-         * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。
+         * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。忽略的时间单位将被重置为 0。
          */
         'min-granularity'?: Granularity;
         /**
@@ -273,7 +273,11 @@ export class Ele extends UiBase<Attrs, Emits> {
 
     private _onCalendarSelect = (e: CalendarBaseEvent['select-time']) => {
         e.stopPropagation();
-        this.currentTime = +e.detail + this._timeSelector.millisecond;
+        this.currentTime =
+            +e.detail +
+            (this.minGranularity === 'day'
+                ? 0
+                : this._timeSelector.millisecond);
     };
     private _onNavChange = (e: YyyyMmNavEvent['change']) => {
         e.stopPropagation();

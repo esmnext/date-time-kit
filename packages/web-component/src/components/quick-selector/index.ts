@@ -82,7 +82,7 @@ export type Attrs = BaseAttrs &
         'end-time'?: string | number | '';
         /**
          * 选择器的粒度，表示最小可选的时间单位。默认为 millisecond。
-         * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。
+         * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。忽略的时间单位视情况重置为 0 或 23 或 59 或 999。
          */
         'min-granularity'?: Granularity;
         /**
@@ -410,7 +410,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         const selector = this._periodSelector;
         selector.abortSelecting();
         this._showMenu('top');
-        let { timeStart, timeEnd } = this._periodSelector;
+        let { timeStart, timeEnd } = selector;
         if (timeStart > timeEnd) [timeStart, timeEnd] = [timeEnd, timeStart];
         this.startTime = timeStart;
         this.endTime = timeEnd;

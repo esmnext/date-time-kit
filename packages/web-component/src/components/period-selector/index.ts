@@ -38,7 +38,7 @@ export interface Attrs extends BaseAttrs {
     'time-end': string | number;
     /**
      * 选择器的粒度，表示最小可选的时间单位。默认为 millisecond。
-     * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。
+     * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。忽略的时间单位视情况重置为 0 或 23 或 59 或 999。
      */
     'min-granularity'?: Granularity;
     /**
@@ -355,16 +355,26 @@ export class Ele extends UiBase<Attrs, Emits> {
         )!.classList.toggle('active', !!this._selectedDate);
     }
 
+    private _getTimeSelectorMs(type: 'start' | 'end') {
+        const selector =
+            type === 'start' ? this._startTimeSelector : this._endTimeSelector;
+        return this.minGranularity === 'day'
+            ? type === 'start'
+                ? 0
+                : 86399999 // 23:59:59.999
+            : selector.millisecond;
+    }
+
     private _updateDatePoint = (datePoint: Date) => {
         if (!this._selectedDate) return;
         const newDate = new Date(datePoint).setHours(0, 0, 0, 0);
         const oldDate = new Date(this._selectedDate).setHours(0, 0, 0, 0);
         const setStartDate = (date: number) =>
             (this.timeStart = new Date(
-                date + this._startTimeSelector.millisecond
+                date + this._getTimeSelectorMs('start')
             ));
         const setEndDate = (date: number) =>
-            (this.timeEnd = new Date(date + this._endTimeSelector.millisecond));
+            (this.timeEnd = new Date(date + this._getTimeSelectorMs('end')));
         if (newDate === oldDate) {
             setStartDate(newDate);
             setEndDate(newDate);
@@ -380,7 +390,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         e.stopPropagation();
         if (this._selectedDate === null) {
             const newTimePoint = new Date(
-                +e.detail + this._startTimeSelector.millisecond
+                +e.detail + this._getTimeSelectorMs('start')
             );
             this._selectedDate = newTimePoint;
             this.timeStart = newTimePoint;
