@@ -1,4 +1,3 @@
-import { debounce } from '../../utils';
 import type { Ele as PopoverEle, EventMap as PopoverEvent } from '../popover';
 import {
     type BaseAttrs,
@@ -139,7 +138,11 @@ export class Ele extends UiBase<Attrs, Emits> {
         );
     }
 
-    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
+    protected _onAttrChanged(
+        name: string,
+        oldValue: string | null,
+        newValue: string | null
+    ) {
         super._onAttrChanged(name, oldValue, newValue);
         this._render();
         if (name === 'millisecond') {
@@ -154,14 +157,14 @@ export class Ele extends UiBase<Attrs, Emits> {
         }
     }
 
-    private _render = debounce(() => {
+    private _render = super._genRenderFn(() => {
         const root = this.shadowRoot!;
         const ms = this.millisecond;
         root.querySelector<YyyyMmDdListGrpEle>(
             'dt-yyyymmdd-list-grp'
         )!.millisecond = ms;
         root.querySelector('.title')!.textContent = this.titleFormatter(ms);
-    }, 0);
+    });
 
     private _onTitleToggle = (e: PopoverEvent['open-change']) => {
         const isOpen = e.detail;

@@ -1,4 +1,5 @@
 import type { Lang } from '../../i18n';
+import { debounce } from '../../utils';
 import { scrollbarStyleStr, styleStr } from './css';
 
 type EmitType = Record<string, any>;
@@ -221,5 +222,12 @@ export class UiBase<
             listener as EventListenerOrEventListenerObject,
             options
         );
+    }
+
+    protected _genRenderFn<F extends (...args: any) => void>(fn: F) {
+        return debounce((...args: Parameters<F>) => {
+            if (!this.isConnected) return;
+            fn(...args);
+        }, 0) as F;
     }
 }

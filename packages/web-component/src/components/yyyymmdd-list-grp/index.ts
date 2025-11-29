@@ -1,4 +1,3 @@
-import { debounce } from '../../utils';
 import { Ele as NumListEle, type EventMap as NumListEvent } from '../num-list';
 NumListEle.define();
 import {
@@ -130,7 +129,11 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._listEleDay.removeEventListener('select-num', this._onColsSelect);
     }
 
-    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
+    protected _onAttrChanged(
+        name: string,
+        oldValue: string | null,
+        newValue: string | null
+    ) {
         super._onAttrChanged(name, oldValue, newValue);
         if (name === 'col-order') this._renderCols();
         else if (name === 'max-granularity' || name === 'min-granularity')
@@ -138,8 +141,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         else if (name === 'millisecond') this._updateColsValue();
     }
 
-    private _renderCols = debounce(() => {
-        if (!this.isConnected) return;
+    private _renderCols = super._genRenderFn(() => {
         const { colOrder } = this;
         // columns order
         const orderedCols = ['year', 'month', 'day']
@@ -153,10 +155,9 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (orderedCols.every((el, i) => el === colsContainer.children[i]))
             return;
         colsContainer.append(...orderedCols);
-    }, 0);
+    });
 
-    private _updateGranularity = debounce(() => {
-        if (!this.isConnected) return;
+    private _updateGranularity = super._genRenderFn(() => {
         const { maxGranularity, minGranularity } = this;
         const colsContainer =
             this.shadowRoot!.querySelector<HTMLElement>('.cols')!;
@@ -175,10 +176,9 @@ export class Ele extends UiBase<Attrs, Emits> {
         ).length
             ? ''
             : 'none';
-    }, 0);
+    });
 
-    private _updateColsValue = debounce(() => {
-        if (!this.isConnected) return;
+    private _updateColsValue = super._genRenderFn(() => {
         const { millisecond } = this;
         const date = new Date(millisecond);
         if (Number.isNaN(date.getTime())) return;
@@ -190,7 +190,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             0
         ).getDate();
         this._listEleDay.currentNum = date.getDate();
-    }, 0);
+    });
 
     private _getMsFromEle() {
         const month = this._listEleMonth.currentNum;

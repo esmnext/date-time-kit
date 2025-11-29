@@ -309,7 +309,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         }
     }
 
-    private _updatePeriodSelector = debounce(() => {
+    private _updatePeriodSelector = super._genRenderFn(() => {
         this._periodSelector.weekStartAt = this.weekStartAt;
         if (
             this.shadowRoot?.querySelector<HTMLElement>('.menu.custom')?.style
@@ -330,9 +330,9 @@ export class Ele extends UiBase<Attrs, Emits> {
         }
         ele.minGranularity = this.minGranularity;
         ele.showCalendarDatePoint();
-    }, 0);
+    });
 
-    private _renderTz = debounce(() => {
+    private _renderTz = super._genRenderFn(() => {
         const tzOffset = this.tzOffset;
         const tzRadios =
             this.shadowRoot!.querySelectorAll<HTMLInputElement>(
@@ -343,14 +343,14 @@ export class Ele extends UiBase<Attrs, Emits> {
         });
         this.shadowRoot!.querySelector('.tz-trigger bdo')!.textContent =
             utcText(tzOffset);
-    }, 0);
-    private _updateRadio = debounce(() => {
+    });
+    private _updateRadio = super._genRenderFn(() => {
         const quickKey = this.quickKey;
         const radio = this.shadowRoot!.querySelector<HTMLInputElement>(
             `input[name="radio"][value="${quickKey}"]`
         );
         radio!.checked = true;
-    }, 0);
+    });
 
     private _onPopoverChange = (e: PopoverEvent['open-change']) => {
         if (!(e.target instanceof PopoverEle)) return;

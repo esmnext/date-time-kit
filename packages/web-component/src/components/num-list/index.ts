@@ -188,7 +188,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._intersectionOb?.observe(items[0]);
         this._intersectionOb?.observe(container.lastElementChild!);
         if (this._isScrolling) this.scrollToCurrent();
-    }, 0);
+    });
     private _loadAfter = debounce(() => {
         const container = this._containerEle;
         const firstItem = container.firstElementChild as HTMLElement;
@@ -215,7 +215,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._intersectionOb?.observe(container.firstElementChild!);
         this._intersectionOb?.observe(items[items.length - 1]);
         if (this._isScrolling) this.scrollToCurrent();
-    }, 0);
+    });
 
     public connectedCallback() {
         if (!super.connectedCallback()) return;
@@ -294,8 +294,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         });
     };
 
-    private _render = debounce(() => {
-        if (!this.isConnected) return;
+    private _render = super._genRenderFn(() => {
         this._destroyOb();
         const container = this._containerEle;
         container.innerHTML = '';
@@ -321,7 +320,7 @@ export class Ele extends UiBase<Attrs, Emits> {
                 container.appendChild(this._createItem(i, currentNum));
             }
         setTimeout(this.scrollToCurrent, 0);
-    }, 0);
+    });
 
     private _onClick = (e: MouseEvent) => {
         if (!this.isConnected) return;

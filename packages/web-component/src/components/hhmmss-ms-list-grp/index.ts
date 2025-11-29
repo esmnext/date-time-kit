@@ -23,7 +23,11 @@ export class Ele extends BaseEle<BaseAttrs, Emits> {
         this._applyTemplate();
     }
 
-    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
+    protected _onAttrChanged(
+        name: string,
+        oldValue: string | null,
+        newValue: string | null
+    ) {
         super._onAttrChanged(name, oldValue, newValue);
         if (name === 'millisecond') {
             this._emitChange(+oldValue! || 0, +newValue! || 0);
@@ -32,7 +36,7 @@ export class Ele extends BaseEle<BaseAttrs, Emits> {
 
     private _emitChange = debounce((oldMs: number, newMs: number) => {
         this.dispatchEvent('change', { oldMs, newMs }, true);
-    }, 0);
+    });
 }
 
 Ele.define();

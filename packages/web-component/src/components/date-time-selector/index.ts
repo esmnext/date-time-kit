@@ -1,4 +1,4 @@
-import { closestByEvent, debounce } from '../../utils';
+import { closestByEvent } from '../../utils';
 import {
     type Ele as CalendarBaseEle,
     type EventMap as CalendarBaseEvent,
@@ -248,8 +248,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         }
     }
 
-    private _render = debounce(() => {
-        if (!this.isConnected) return;
+    private _render = super._genRenderFn(() => {
         const currentTime = this.currentTime as Date;
         const { _calendar, _timeSelector } = this;
         _calendar.weekStartAt = this.weekStartAt;
@@ -269,7 +268,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         _timeSelector.style.display = '';
         _timeSelector.minGranularity = this.minGranularity;
         _timeSelector.currentTime = currentTime;
-    }, 0);
+    });
 
     private _onCalendarSelect = (e: CalendarBaseEvent['select-time']) => {
         e.stopPropagation();

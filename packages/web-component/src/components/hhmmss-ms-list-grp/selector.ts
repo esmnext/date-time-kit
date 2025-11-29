@@ -1,4 +1,4 @@
-import { debounce, getCurrentTzOffsetMs } from '../../utils';
+import { getCurrentTzOffsetMs } from '../../utils';
 import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
 import type { Emit2EventMap } from '../web-component-base';
 import {
@@ -93,13 +93,12 @@ export class Ele extends BaseEle<Attrs, Emits> {
         this.setAttribute('current-time', +v + '');
     }
 
-    private _render = debounce(() => {
-        if (!this.isConnected) return;
+    private _render = super._genRenderFn(() => {
         const tz = getCurrentTzOffsetMs();
         this.millisecond = (+this.currentTime - tz) % (24 * 60 * 60 * 1000);
         this.shadowRoot!.querySelector('.time-echo')!.textContent =
             this.timeFormatter(this.currentTime as Date, this.minGranularity);
-    }, 0);
+    });
 
     private _onPopoverChange = (e: PopoverEvent['open-change']) => {
         if (!(e.target instanceof PopoverEle)) return;

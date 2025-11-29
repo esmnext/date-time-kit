@@ -1,6 +1,5 @@
-import { debounce } from '../../utils';
 import { Ele as NumListEle, type EventMap as NumListEvent } from '../num-list';
-import { type BaseAttrs, BaseEmits, UiBase } from '../web-component-base';
+import { type BaseAttrs, type BaseEmits, UiBase } from '../web-component-base';
 import { baseCss } from './css';
 import { baseHtml } from './html';
 
@@ -139,7 +138,11 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
         return true;
     }
 
-    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
+    protected _onAttrChanged(
+        name: string,
+        oldValue: string | null,
+        newValue: string | null
+    ) {
         super._onAttrChanged(name, oldValue, newValue);
         if (name === 'col-order') this._renderCols();
         else if (name === 'max-granularity' || name === 'min-granularity')
@@ -147,8 +150,7 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
         else if (name === 'millisecond') this._updateColsValue();
     }
 
-    private _renderCols = debounce(() => {
-        if (!this.isConnected) return;
+    private _renderCols = super._genRenderFn(() => {
         const {
             colOrder,
             _listEleHour: hEle,
@@ -169,10 +171,9 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
             return;
         colsContainer.innerHTML = '';
         colsContainer.append(...orderedCols);
-    }, 0);
+    });
 
-    private _updateGranularity = debounce(() => {
-        if (!this.isConnected) return;
+    private _updateGranularity = super._genRenderFn(() => {
         const { maxGranularity, minGranularity } = this;
         const hEle = this.shadowRoot!.querySelector<HTMLElement>('.col.hour')!;
         const mEle =
@@ -204,10 +205,9 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
             ? ''
             : 'none';
         msEle.style.display = maxG >= 0 && minG <= 0 ? '' : 'none';
-    }, 0);
+    });
 
-    private _updateColsValue = debounce(() => {
-        if (!this.isConnected) return;
+    private _updateColsValue = super._genRenderFn(() => {
         const {
             _listEleHour: hEle,
             _listEleMinute: mEle,
@@ -226,7 +226,7 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
         mEle.currentNum = minute;
         sEle.currentNum = second;
         this._msInputEle.value = ('000' + ms).slice(-3);
-    }, 0);
+    });
 
     private _getMsFromEle() {
         const hour = this._listEleHour.currentNum;

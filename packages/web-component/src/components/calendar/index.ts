@@ -1,4 +1,4 @@
-import { closestByEvent, debounce } from '../../utils';
+import { closestByEvent } from '../../utils';
 import {
     type BaseAttrs,
     type BaseEmits,
@@ -164,7 +164,11 @@ export class Ele extends UiBase<Attrs, Emits> {
         );
     }
 
-    protected _onAttrChanged(name: string, oldValue: string | null, newValue: string | null) {
+    protected _onAttrChanged(
+        name: string,
+        oldValue: string | null,
+        newValue: string | null
+    ) {
         super._onAttrChanged(name, oldValue, newValue);
         if (name === 'week-start-at') {
             this._onWeekStartAtChange();
@@ -182,18 +186,15 @@ export class Ele extends UiBase<Attrs, Emits> {
         }
     }
 
-    private _onWeekStartAtChange = debounce(() => {
-        if (!this.isConnected) return;
+    private _onWeekStartAtChange = super._genRenderFn(() => {
         const weekOrder = getWeekInOrder(this.weekStartAt);
         this.shadowRoot!.querySelectorAll('.week').forEach((ele, i) => {
             ele.setAttribute('i18n-key', `date.${weekOrder[i]}`!);
         });
         this._onTimeChange();
-    }, 0);
+    });
 
-    private _onTimeChange = debounce(() => {
-        if (!this.isConnected) return;
-
+    private _onTimeChange = super._genRenderFn(() => {
         const currentTime = this.showingTime as Date;
         let timeStart = this.timeStart as Date;
         let timeEnd = this.timeEnd as Date;
@@ -292,7 +293,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             ele.part.add('next');
             changeItemText(ele, this.showOtherMonth ? this.formatter(i) : ' ');
         }
-    }, 0);
+    });
 
     private _onClick = (e: MouseEvent) => {
         const item = closestByEvent(e, '.item[data-time]:not(.disabled)', this);

@@ -25,9 +25,9 @@ export const closestByEvent = (
  * @param fn - The function to debounce.
  * @returns A debounced version of the provided function.
  */
-export function debounce(fn: Function, delay = 0) {
+export function debounce<F extends (...args: any) => void>(fn: F, delay = 0) {
     let timer: ReturnType<typeof setTimeout> | null = null;
-    return function <U>(this: U, ...args: any[]) {
+    return function <U>(this: U, ...args: Parameters<F>) {
         if (timer !== null) clearTimeout(timer);
         timer = setTimeout(() => {
             fn.apply(this, args);

@@ -1,4 +1,4 @@
-import { closestByEvent, debounce, smallScreenObserver } from '../../utils';
+import { closestByEvent, smallScreenObserver } from '../../utils';
 import {
     type Ele as CalendarBaseEle,
     type EventMap as CalendarBaseEvent,
@@ -273,8 +273,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._endNavEle.showCtrlBtnMonthSub = isSmall || showCtrlBtn;
     }
 
-    private _render = debounce(() => {
-        if (!this.isConnected) return;
+    private _render = super._genRenderFn(() => {
         let timeStart = this.timeStart as Date;
         let timeEnd = this.timeEnd as Date;
         if (timeStart > timeEnd) [timeStart, timeEnd] = [timeEnd, timeStart];
@@ -336,7 +335,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             ).appendChild(this._endTimeSelector);
             dividingLine.style.display = 'none';
         }
-    }, 0);
+    });
 
     private _updateDateEcho() {
         let timeStart = this.timeStart as Date;
