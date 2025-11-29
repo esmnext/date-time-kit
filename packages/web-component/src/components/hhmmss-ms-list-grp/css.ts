@@ -84,7 +84,7 @@ dt-popover::part(pop) {
   width: 100%;
 }
 
-[slot="trigger"] {
+.time-trigger {
   width: 100%;
   padding: 4px;
   display: flex;
@@ -96,7 +96,7 @@ dt-popover::part(pop) {
   cursor: pointer;
 }
 
-[open] > [slot="trigger"] {
+[open] .time-trigger {
   border-color: var(--dt-accent, #18181B);
 }
 
@@ -133,7 +133,7 @@ dt-popover::part(pop) {
 
 [slot="pop"] {
   width: 100%;
-  height: 461px;
+  max-height: 461px;
 
   display: flex;
   flex-direction: column;
