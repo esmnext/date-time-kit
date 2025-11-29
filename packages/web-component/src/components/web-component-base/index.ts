@@ -199,22 +199,17 @@ export class UiBase<
         newValue: string | null
     ) {
         if (oldValue === newValue) return;
-        if (name !== 'lang') {
-            this._onAttrChanged(name, oldValue, newValue);
-            this.dispatchEvent(
-                'dt-attribute-changed',
-                { name, oldValue, newValue },
-                true
-            );
-            return;
-        }
-        this.shadowRoot?.querySelectorAll('[dt]').forEach((ele) => {
-            if (newValue) {
-                ele.setAttribute('lang', newValue);
-            } else {
-                ele.removeAttribute('lang');
-            }
-        });
+        this._onAttrChanged(name, oldValue, newValue);
+        this.dispatchEvent(
+            'dt-attribute-changed',
+            { name, oldValue, newValue },
+            true
+        );
+        if (name === 'lang')
+            this.$<UiBase>`[dt]`.forEach((ele) => {
+                if (newValue) ele.setAttribute('lang', newValue);
+                else ele.removeAttribute('lang');
+            });
     }
     /** return `false | void` means not continue */
     connectedCallback(): boolean | void {

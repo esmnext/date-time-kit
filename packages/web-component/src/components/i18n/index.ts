@@ -18,9 +18,8 @@ export class Ele extends UiBase<Attrs> {
         ] satisfies (keyof Attrs)[];
     }
 
-    attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-        super.attributeChangedCallback(name, oldValue, newValue);
-        if (oldValue === newValue) return;
+    protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
+        super._onAttrChanged(name, oldValue, newValue);
         if (name === 'lang' || name === 'i18n-key')
             this.updateText();
     }
