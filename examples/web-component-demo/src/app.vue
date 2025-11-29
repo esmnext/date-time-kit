@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { DtQuickSelector as DtQuickSelectorPkg } from '@gez/date-time-kit';
+import {
+    DtDataTimeSelector as DtDataTimeSelectorPkg,
+    DtQuickSelector as DtQuickSelectorPkg
+} from '@gez/date-time-kit';
 import { Lang } from '@gez/date-time-kit/dist/i18n';
 import { computed, ref } from 'vue';
 import {
@@ -7,6 +10,7 @@ import {
     DtQuickSelectorQuickKey,
     init
 } from './DefCustomEle';
+import InputRange from './input-range.vue';
 
 init();
 
@@ -68,6 +72,10 @@ const dateTimeSelectorState = ref<'open' | 'close'>('close');
 const dateTimeSelectorWithLimitState = ref<'open' | 'close'>('close');
 
 const dateNow = Date.now();
+
+const dateTimeSelectorGranMax = ref<DtDataTimeSelectorPkg.Granularity>('year');
+const dateTimeSelectorGranMin =
+    ref<DtDataTimeSelectorPkg.Granularity>('millisecond');
 </script>
 
 <template>
@@ -152,6 +160,10 @@ const dateNow = Date.now();
             <p>state: {{ dateTimeSelectorState }}</p>
             <p>selected time with max-min: {{ currentTimeWithLimit && new Date(currentTimeWithLimit).toISOString() }}</p>
             <p>state with max-min: {{ dateTimeSelectorWithLimitState }}</p>
+
+            Granularity:
+            <InputRange v-model:max="dateTimeSelectorGranMax" v-model:min="dateTimeSelectorGranMin" />
+
             <dt-date-time-selector
                 :lang="lang"
                 pop-strategy="absolute"
@@ -185,12 +197,13 @@ const dateNow = Date.now();
             <dt-date-time-selector
                 :lang="lang"
                 pop-strategy="absolute"
-                min-granularity="day"
+                :min-granularity="dateTimeSelectorGranMin"
+                :max-granularity="dateTimeSelectorGranMax"
                 :current-time="currentTime"
                 @select-time="currentTime = +$event.detail"
                 @open-change="dateTimeSelectorState = $event.detail ? 'open' : 'close'"
             >
-                <button slot="trigger">min-granularity="day"</button>
+                <!-- <button slot="trigger">granularity=[{{ dateTimeSelectorGranMax }}, {{ dateTimeSelectorGranMin }}]</button> -->
             </dt-date-time-selector>
             <ul>
                 <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil, mollitia?</li>
@@ -211,8 +224,8 @@ const dateNow = Date.now();
     </div>
 </template>
 
-<style>
-div.wrapper {
+<style scoped>
+.wrapper {
     min-width: 100vw;
     min-height: 100vh;
     padding: 75vmin;

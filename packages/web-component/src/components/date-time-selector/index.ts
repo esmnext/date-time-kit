@@ -32,7 +32,12 @@ import {
 import html from './index.html';
 import { styleStr } from './styleStr';
 
-export const granularityList = ['day', ...timeGranularityList] as const;
+export const granularityList = [
+    'year',
+    'month',
+    'day',
+    ...timeGranularityList
+] as const;
 export type Granularity = (typeof granularityList)[number];
 
 export type Attrs = BaseAttrs &
@@ -60,6 +65,11 @@ export type Attrs = BaseAttrs &
          * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。忽略的时间单位将被重置为 0。
          */
         'min-granularity'?: Granularity;
+        /**
+         * 选择器的粒度，表示最大可选的时间单位。默认为 year。
+         * 例如设置为 'day'，则表示只能选择到日，年和月秒将被忽略。忽略的时间单位将被重置为 0、1972（离1970最近的闰年）。
+         */
+        'max-granularity'?: Granularity;
         /**
          * The minimum time of the calendar display range.
          * @type {`string | number`} A value that can be passed to the Date constructor.
@@ -98,6 +108,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             'min-time',
             'max-time',
             'min-granularity',
+            'max-granularity',
             ...popoverAttrKeys
         ] satisfies (keyof Attrs)[];
     }
@@ -172,16 +183,64 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (!granularityList.includes(val)) return;
         this.setAttribute('min-granularity', val);
     }
+    public get maxGranularity() {
+        return this._getAttr('max-granularity', 'year');
+    }
+    public set maxGranularity(val: NonNullable<Attrs['max-granularity']>) {
+        if (!granularityList.includes(val)) return;
+        this.setAttribute('max-granularity', val);
+    }
 
     get _staticEls() {
         return {
             ...super._staticEls,
             nav: this.$0<YyyyMmNavEle>`dt-yyyymm-nav`!,
             calendar: this.$0<CalendarBaseEle>`dt-calendar-base`!,
-            timeSelector: this.$0<HhMmSsMsSelectorEle>`dt-hhmmss-ms-selector`!,
+            timeSelectors: this.$<HhMmSsMsSelectorEle>`dt-hhmmss-ms-selector`!,
+            timeSelectorWithCalendar: this
+                .$0<HhMmSsMsSelectorEle>`dt-hhmmss-ms-selector.withCalendar`!,
+            timeSelectorOnlyTime: this
+                .$0<HhMmSsMsSelectorEle>`dt-hhmmss-ms-selector.onlyTime`!,
             popover: this.$0<PopoverEle>`dt-popover`!
         } as const;
     }
+
+    private get _granType() {
+        let minGranIdx = granularityList.indexOf(this.minGranularity);
+        let maxGranIdx = granularityList.indexOf(this.maxGranularity);
+        if (minGranIdx === -1) minGranIdx = granularityList.length - 1;
+        if (maxGranIdx === -1) maxGranIdx = 0;
+        if (minGranIdx < maxGranIdx)
+            [minGranIdx, maxGranIdx] = [maxGranIdx, minGranIdx];
+        const dayGranIdx = granularityList.indexOf('day');
+
+        if (dayGranIdx < maxGranIdx && dayGranIdx < minGranIdx) {
+            return 'onlyTime';
+        } else if (maxGranIdx <= dayGranIdx && minGranIdx <= dayGranIdx) {
+            return 'onlyCalendar';
+        } else {
+            return 'calendarAndTime';
+        }
+    }
+
+    private _updateSlot() {
+        const { _els } = this;
+        const onlyTimeSlot = _els.timeSelectorOnlyTime.querySelector('slot');
+        if (this._granType === 'onlyTime') {
+            if (this.querySelector('[slot="trigger"]')) {
+                onlyTimeSlot?.setAttribute('slot', 'trigger');
+            } else {
+                onlyTimeSlot?.removeAttribute('slot');
+            }
+            onlyTimeSlot?.setAttribute('name', 'trigger');
+            _els.popover.querySelector('slot')?.removeAttribute('name');
+        } else {
+            onlyTimeSlot?.removeAttribute('name');
+            _els.popover.querySelector('slot')?.setAttribute('name', 'trigger');
+        }
+    }
+
+    private _ob: MutationObserver | null = null;
 
     public connectedCallback() {
         if (!super.connectedCallback()) return;
@@ -192,15 +251,22 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._bindEvt(_els.calendar)('select-time', this._onCalendarSelect);
         this._bindEvt(_els.nav)('change', this._onNavChange);
         this._bindEvt(_els.nav)('popover-open-change', this._onNavOpenToggle);
-        this._bindEvt(_els.timeSelector)(
+        this._bindEvt(_els.timeSelectors)(
             'select-time',
             this._onTimeSelectorChange
         );
-        this._bindEvt(_els.timeSelector)('open-change', this._stopEvent);
+        this._bindEvt(_els.timeSelectorWithCalendar)(
+            'open-change',
+            this._stopEvent
+        );
         this.dispatchEvent('select-time', this.currentTime as Date);
+        this._ob = new MutationObserver(() => this._updateSlot());
+        this._ob.observe(this, { childList: true });
     }
     public disconnectedCallback() {
         clearupPopEleAttrSync2Parent(this);
+        this._ob?.disconnect();
+        this._ob = null;
         return super.disconnectedCallback();
     }
     protected _onAttrChanged(
@@ -227,9 +293,9 @@ export class Ele extends UiBase<Attrs, Emits> {
 
     private _render = super._genRenderFn(() => {
         const currentTime = this.currentTime as Date;
-        const { _els } = this;
+        const { _els, _granType } = this;
         _els.calendar.weekStartAt = this.weekStartAt;
-        this._els.nav.millisecond =
+        _els.nav.millisecond =
             _els.calendar.timeStart =
             _els.calendar.timeEnd =
                 +currentTime;
@@ -238,13 +304,29 @@ export class Ele extends UiBase<Attrs, Emits> {
         _els.calendar.minTime = min;
         _els.calendar.maxTime = max;
 
-        if (this.minGranularity === 'day') {
-            _els.timeSelector.style.display = 'none';
-            return;
+        this._updateSlot();
+
+        _els.popover.style.display = _granType === 'onlyTime' ? 'none' : '';
+
+        if (_granType === 'onlyTime') {
+            _els.timeSelectorOnlyTime.style.display = '';
+            _els.timeSelectorOnlyTime.maxGranularity = this
+                .maxGranularity as TimeGranularity;
+            _els.timeSelectorOnlyTime.minGranularity = this
+                .minGranularity as TimeGranularity;
+            _els.timeSelectorOnlyTime.currentTime = currentTime;
+        } else if (_granType === 'onlyCalendar') {
+            _els.timeSelectorOnlyTime.style.display =
+                _els.timeSelectorWithCalendar.style.display = 'none';
+        } else {
+            _els.timeSelectorWithCalendar.style.display = '';
+            _els.timeSelectorWithCalendar.maxGranularity = this
+                .maxGranularity as TimeGranularity;
+            _els.timeSelectorWithCalendar.minGranularity = this
+                .minGranularity as TimeGranularity;
+            _els.timeSelectorWithCalendar.currentTime = currentTime;
+            _els.timeSelectorOnlyTime.style.display = 'none';
         }
-        _els.timeSelector.style.display = '';
-        _els.timeSelector.minGranularity = this.minGranularity;
-        _els.timeSelector.currentTime = currentTime;
     });
 
     private _onCalendarSelect = (e: CalendarBaseEvent['select-time']) => {
@@ -253,7 +335,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             +e.detail +
             (this.minGranularity === 'day'
                 ? 0
-                : this._els.timeSelector.millisecond);
+                : this._els.timeSelectorWithCalendar.millisecond);
     };
     private _onNavChange = (e: YyyyMmNavEvent['change']) => {
         e.stopPropagation();
@@ -274,14 +356,15 @@ export class Ele extends UiBase<Attrs, Emits> {
     };
 
     public get timeFormatter() {
-        return this._els.timeSelector.timeFormatter;
+        return this._els.timeSelectorWithCalendar.timeFormatter;
     }
     public set timeFormatter(fn: (
         time: Date,
         minGranularity: TimeGranularity
     ) => string) {
         if (typeof fn !== 'function') return;
-        this._els.timeSelector.timeFormatter = fn;
+        this._els.timeSelectorWithCalendar.timeFormatter = fn;
+        this._els.timeSelectorOnlyTime.timeFormatter = fn;
     }
 }
 

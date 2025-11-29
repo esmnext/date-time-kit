@@ -17,7 +17,8 @@ export default html`
             show-ctrl-btn-month-sub
         ></dt-yyyymm-nav>
         <dt-calendar-base></dt-calendar-base>
-        <dt-hhmmss-ms-selector></dt-hhmmss-ms-selector>
+        <dt-hhmmss-ms-selector class="withCalendar"></dt-hhmmss-ms-selector>
     </div>
 </dt-popover>
+<dt-hhmmss-ms-selector class="onlyTime"><slot></slot></dt-hhmmss-ms-selector>
 `;

@@ -38,8 +38,13 @@ dt-yyyymm-nav::part(list-grp) {
   margin-top: 15px;
 }
 
+.onlyTime::part(pop) {
+  width: 285px;
+}
+
 @media (max-width: 750px) {
-  .wrapper {
+  .wrapper,
+  .onlyTime::part(pop) {
     width: 100%;
   }
 }
