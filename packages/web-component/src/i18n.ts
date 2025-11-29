@@ -48,6 +48,7 @@ export type I18nCfg = {
         thu: string;
         fri: string;
         sat: string;
+        singleTitle: string;
     };
     timeUnit: {
         year: string;
@@ -104,7 +105,8 @@ export const i18n: I18n = {
             wed: 'Wed',
             thu: 'Thu',
             fri: 'Fri',
-            sat: 'Sat'
+            sat: 'Sat',
+            singleTitle: 'Date Select'
         },
         timeUnit: {
             year: 'Year',
@@ -157,7 +159,8 @@ export const i18n: I18n = {
             wed: '三',
             thu: '四',
             fri: '五',
-            sat: '六'
+            sat: '六',
+            singleTitle: '日期选择'
         },
         timeUnit: {
             year: '年',
@@ -210,7 +213,8 @@ export const i18n: I18n = {
             wed: '三',
             thu: '四',
             fri: '五',
-            sat: '六'
+            sat: '六',
+            singleTitle: '日期選擇'
         },
         timeUnit: {
             year: '年',
@@ -257,7 +261,8 @@ export const i18n: I18n = {
             wed: 'Wed',
             thu: 'Thu',
             fri: 'Fri',
-            sat: 'Sat'
+            sat: 'Sat',
+            singleTitle: 'Pilih Tanggal'
         },
         timeUnit: {
             year: 'Tahun',
@@ -310,7 +315,8 @@ export const i18n: I18n = {
             wed: 'T4',
             thu: 'T5',
             fri: 'T6',
-            sat: 'T7'
+            sat: 'T7',
+            singleTitle: 'Chọn ngày'
         },
         timeUnit: {
             year: 'Năm',
@@ -363,7 +369,8 @@ export const i18n: I18n = {
             wed: 'พ.',
             thu: 'พฤ.',
             fri: 'ศ.',
-            sat: 'ส.'
+            sat: 'ส.',
+            singleTitle: 'เลือกวันที่'
         },
         timeUnit: {
             year: 'ปี',
@@ -417,7 +424,8 @@ export const i18n: I18n = {
             wed: 'Wed',
             thu: 'Thu',
             fri: 'Fri',
-            sat: 'Sat'
+            sat: 'Sat',
+            singleTitle: 'Pilih Tarikh'
         },
         timeUnit: {
             year: 'Tahun',
@@ -470,7 +478,8 @@ export const i18n: I18n = {
             wed: '수',
             thu: '목',
             fri: '금',
-            sat: '토'
+            sat: '토',
+            singleTitle: '날짜 선택'
         },
         timeUnit: {
             year: '년',
@@ -529,7 +538,8 @@ export const i18n: I18n = {
             wed: 'الأربعاء',
             thu: 'الخميس',
             fri: 'الجمعة',
-            sat: 'السبت'
+            sat: 'السبت',
+            singleTitle: 'اختيار التاريخ'
         },
         timeUnit: {
             year: 'سنة',
