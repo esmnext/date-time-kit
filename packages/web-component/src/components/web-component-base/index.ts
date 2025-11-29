@@ -93,27 +93,27 @@ export class UiBase<
         return ['lang'] satisfies (keyof BaseAttrs)[];
     }
 
-    protected _template = '';
-    protected _style = '';
-    protected _initTemplate() {
+    protected static _style = '';
+    protected static _template = '';
+    private get _constructor() {
+        return this.constructor as typeof UiBase;
+    }
+    private _initTemplate() {
         const { tagName } = this;
         if (templateCache.has(tagName)) return templateCache.get(tagName)!;
         const templateEle = document.createElement('template');
-        templateEle.innerHTML = `<style>${scrollbarStyleStr}${styleStr}${this._style}</style>${this._template}`;
+        templateEle.innerHTML = `<style>${scrollbarStyleStr}${styleStr}${
+            this._constructor._style
+        }</style>${this._constructor._template}`;
         templateCache.set(tagName, templateEle);
         return templateEle;
-    }
-    protected _applyTemplate() {
-        if (!this.shadowRoot) return;
-        this.shadowRoot.innerHTML = '';
-        this.shadowRoot.appendChild(
-            this._initTemplate().content.cloneNode(true)
-        );
     }
 
     constructor() {
         super();
-        this.attachShadow({ mode: 'open' });
+        const shadowRoot = this.attachShadow({ mode: 'open' });
+        shadowRoot.innerHTML = '';
+        shadowRoot.appendChild(this._initTemplate().content.cloneNode(true));
     }
 
     protected _getAttr<K extends keyof Attr>(

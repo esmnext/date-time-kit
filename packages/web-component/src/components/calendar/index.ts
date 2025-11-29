@@ -64,6 +64,8 @@ export type EventMap = Emit2EventMap<Emits>;
  */
 export class Ele extends UiBase<Attrs, Emits> {
     public static tagName = 'dt-calendar-base' as const;
+    protected static _style = styleStr;
+    protected static _template = html;
 
     static get observedAttributes(): string[] {
         return [
@@ -135,14 +137,6 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
     public set showOtherMonth(val: boolean) {
         this.setAttribute('show-other-month', '' + val);
-    }
-
-    protected _style = styleStr;
-    protected _template = html;
-
-    constructor() {
-        super();
-        this._applyTemplate();
     }
 
     public connectedCallback() {

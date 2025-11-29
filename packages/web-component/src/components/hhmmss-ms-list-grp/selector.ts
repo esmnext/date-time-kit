@@ -31,20 +31,15 @@ export type EventMap = Emit2EventMap<Emits>;
  */
 export class Ele extends BaseEle<Attrs, Emits> {
     public static readonly tagName = 'dt-hhmmss-ms-selector' as const;
+    protected static _style = selectorCss;
+    protected static _template = selectorHtml;
+
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
             'current-time'
         ] satisfies (keyof Attrs)[];
     }
-
-    protected _style = selectorCss;
-    protected _template = selectorHtml;
-    constructor() {
-        super();
-        this._applyTemplate();
-    }
-
     private get _popoverEle() {
         return this.shadowRoot?.querySelector('dt-popover') as PopoverEle;
     }

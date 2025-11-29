@@ -59,6 +59,9 @@ const resetBodyOverflow = () => {
  */
 export class Ele extends UiBase<Attrs, Emits> {
     public static readonly tagName = 'dt-popover' as const;
+    protected static _style = styleStr;
+    protected static _template =
+        html`<slot name="trigger" part="trigger"></slot><slot name="pop" part="pop"></slot>`;
 
     static get observedAttributes(): string[] {
         return [
@@ -104,15 +107,6 @@ export class Ele extends UiBase<Attrs, Emits> {
     public set offset(v: number) {
         if (!Number.isNaN(v)) this.setAttribute('offset', v + '');
         else this.removeAttribute('offset');
-    }
-
-    protected _style = styleStr;
-    protected _template =
-        html`<slot name="trigger" part="trigger"></slot><slot name="pop" part="pop"></slot>`;
-
-    constructor() {
-        super();
-        this._applyTemplate();
     }
 
     private get _popEle() {

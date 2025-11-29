@@ -8,24 +8,14 @@ export interface Attrs extends BaseAttrs {
 
 export class Ele extends UiBase<Attrs> {
     public static readonly tagName = 'dt-i18n' as const;
+    protected static _style = css`:host{display:contents}`;
+    protected static _template = html`<slot></slot>`;
 
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
             'i18n-key'
         ] satisfies (keyof Attrs)[];
-    }
-
-    protected _style = css`
-:host {
-  display: contents;
-}
-`
-    protected _template = html`<slot></slot>`;
-
-    constructor() {
-        super();
-        this._applyTemplate();
     }
 
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {

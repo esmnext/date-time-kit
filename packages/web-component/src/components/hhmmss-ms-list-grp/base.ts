@@ -40,6 +40,8 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
     A,
     E
 > {
+    protected static _style = baseCss;
+    protected static _template = baseHtml;
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
@@ -49,9 +51,6 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
             'col-order'
         ] satisfies (keyof Attrs)[];
     }
-
-    protected _style = baseCss;
-    protected _template = baseHtml;
 
     private get _listEleHour() {
         return this.shadowRoot?.querySelector('dt-num-list.hour') as NumListEle;

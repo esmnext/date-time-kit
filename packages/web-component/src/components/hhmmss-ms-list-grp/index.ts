@@ -18,11 +18,6 @@ export type EventMap = Emit2EventMap<Emits>;
 export class Ele extends BaseEle<BaseAttrs, Emits> {
     public static readonly tagName = 'dt-hhmmss-ms-list-grp' as const;
 
-    constructor() {
-        super();
-        this._applyTemplate();
-    }
-
     protected _onAttrChanged(
         name: string,
         oldValue: string | null,

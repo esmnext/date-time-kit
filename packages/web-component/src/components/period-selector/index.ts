@@ -74,6 +74,8 @@ const diffInMonth = (a: Date, b: Date) => {
  */
 export class Ele extends UiBase<Attrs, Emits> {
     public static readonly tagName = 'dt-period-selector' as const;
+    protected static _style = styleStr;
+    protected static _template = html;
 
     static get observedAttributes(): string[] {
         return [
@@ -116,14 +118,6 @@ export class Ele extends UiBase<Attrs, Emits> {
     public set minGranularity(val: Granularity) {
         if (!granularityList.includes(val)) return;
         this.setAttribute('min-granularity', val);
-    }
-
-    protected _style = styleStr;
-    protected _template = html;
-
-    constructor() {
-        super();
-        this._applyTemplate();
     }
 
     private get _startNavEle() {

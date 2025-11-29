@@ -48,6 +48,9 @@ export type EventMap = Emit2EventMap<Emits>;
  */
 export class Ele extends UiBase<Attrs, Emits> {
     public static tagName = 'dt-num-list' as const;
+    protected static _style = styleStr;
+    protected static _template =
+        html`<div class="container" part="container"></div>`;
 
     static get observedAttributes(): string[] {
         return [
@@ -56,14 +59,6 @@ export class Ele extends UiBase<Attrs, Emits> {
             'min-num',
             'max-num'
         ] satisfies (keyof Attrs)[];
-    }
-
-    protected _style = styleStr;
-    protected _template = html`<div class="container" part="container"></div>`;
-
-    constructor() {
-        super();
-        this._applyTemplate();
     }
 
     private get _containerEle() {

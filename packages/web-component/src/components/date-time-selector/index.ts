@@ -86,6 +86,9 @@ export type EventMap = Emit2EventMap<Emits>;
  */
 export class Ele extends UiBase<Attrs, Emits> {
     public static readonly tagName = 'dt-date-time-selector' as const;
+    protected static _style = styleStr;
+    protected static _template = html;
+
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
@@ -170,9 +173,6 @@ export class Ele extends UiBase<Attrs, Emits> {
         this.setAttribute('min-granularity', val);
     }
 
-    protected _style = styleStr;
-    protected _template = html;
-
     private get _navEle() {
         return this.shadowRoot?.querySelector('dt-yyyymm-nav') as YyyyMmNavEle;
     }
@@ -188,11 +188,6 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
     private get _popoverEle() {
         return this.shadowRoot!.querySelector('dt-popover') as PopoverEle;
-    }
-
-    constructor() {
-        super();
-        this._applyTemplate();
     }
 
     public connectedCallback() {

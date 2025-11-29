@@ -52,6 +52,8 @@ export type EventMap = Emit2EventMap<Emits>;
  */
 export class Ele extends UiBase<Attrs, Emits> {
     public static readonly tagName = 'dt-yyyymm-nav' as const;
+    protected static _style = styleStr;
+    protected static _template = html;
 
     static get observedAttributes(): string[] {
         return [
@@ -65,9 +67,6 @@ export class Ele extends UiBase<Attrs, Emits> {
             'show-ctrl-btn-month-sub'
         ] satisfies (keyof Attrs)[];
     }
-
-    protected _style = styleStr;
-    protected _template = html;
 
     public get millisecond() {
         return Math.floor(+this._getAttr('millisecond', '0'));
@@ -100,11 +99,6 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
     public set showCtrlBtnMonthSub(val: boolean) {
         this.toggleAttribute('show-ctrl-btn-month-sub', val);
-    }
-
-    constructor() {
-        super();
-        this._applyTemplate();
     }
 
     public connectedCallback() {
