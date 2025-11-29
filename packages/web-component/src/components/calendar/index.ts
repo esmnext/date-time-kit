@@ -79,6 +79,14 @@ export class Ele extends UiBase<Attrs, Emits> {
         ] satisfies (keyof Attrs)[];
     }
 
+    get _staticEls() {
+        return {
+            ...super._staticEls,
+            weeks: this.$`.week`,
+            items: this.$`.item`
+        } as const;
+    }
+
     public get showingTime() {
         const v = this._getAttr('showing-time', '' + Date.now());
         return new Date(Number.isNaN(+v) ? v : +v);
@@ -143,19 +151,8 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (!super.connectedCallback()) return;
         this._onWeekStartAtChange();
         this._onTimeChange();
-        this.addEventListener('click', this._onClick);
-        this.shadowRoot!.querySelector('.wrapper')!.addEventListener(
-            'pointerover',
-            this._onPointerOver
-        );
-    }
-    public disconnectedCallback() {
-        if (!super.disconnectedCallback()) return;
-        this.removeEventListener('click', this._onClick);
-        this.shadowRoot!.querySelector('.wrapper')!.removeEventListener(
-            'pointerover',
-            this._onPointerOver
-        );
+        this._bindEvt(this)('click', this._onClick);
+        this._bindEvt`.wrapper`('pointerover', this._onPointerOver);
     }
 
     protected _onAttrChanged(
@@ -182,7 +179,7 @@ export class Ele extends UiBase<Attrs, Emits> {
 
     private _onWeekStartAtChange = super._genRenderFn(() => {
         const weekOrder = getWeekInOrder(this.weekStartAt);
-        this.shadowRoot!.querySelectorAll('.week').forEach((ele, i) => {
+        this._els.weeks.forEach((ele, i) => {
             ele.setAttribute('i18n-key', `date.${weekOrder[i]}`!);
         });
         this._onTimeChange();
@@ -234,7 +231,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             (firstWeekOfCurMonth - weekStartOffset + 7) % 7;
 
         let itemIdx = 0;
-        const items = this.shadowRoot!.querySelectorAll<HTMLElement>('.item');
+        const items = this._els.items;
         const changeItemText = (item: HTMLElement, text: string) => {
             item.querySelector('span')!.textContent = text;
         };
@@ -270,8 +267,8 @@ export class Ele extends UiBase<Attrs, Emits> {
             ele.dataset.time = time.toISOString();
             changeItemText(ele, this.formatter(i));
         }
-        const inRangeItem = Array.from(
-            this.shadowRoot!.querySelectorAll('.item.in-range')
+        const inRangeItem = items.filter((e) =>
+            e.classList.contains('in-range')
         );
         if (inRangeItem.length) {
             inRangeItem[0].classList.add('range-start');

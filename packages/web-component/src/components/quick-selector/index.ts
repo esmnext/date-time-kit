@@ -199,13 +199,12 @@ export class Ele extends UiBase<Attrs, Emits> {
         this.setAttribute('exclude-field', arr.join(','));
     }
 
-    private get _periodSelector() {
-        return this.shadowRoot!.querySelector(
-            'dt-period-selector'
-        ) as PeriodSelectorEle;
-    }
-    private get _popoverEle() {
-        return this.shadowRoot!.querySelector('dt-popover') as PopoverEle;
+    get _staticEls() {
+        return {
+            ...super._staticEls,
+            periodSelector: this.$0<PeriodSelectorEle>`dt-period-selector`!,
+            popover: this.$0<PopoverEle>`dt-popover`!
+        } as const;
     }
 
     public connectedCallback() {
@@ -213,67 +212,20 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._renderTz();
         this._updateRadio();
         this._updatePeriodSelector();
-        this._popoverEle.addEventListener('open-change', this._onPopoverChange);
-        popEleAttrSync2Parent(this, this._popoverEle);
-        this.shadowRoot!.querySelector('.tz-trigger')?.addEventListener(
-            'click',
-            this._onTzTriggerClick
-        );
-        this.shadowRoot!.querySelector('.custom-trigger')?.addEventListener(
-            'click',
-            this._onCustomTriggerClick
-        );
-        this.shadowRoot!.querySelector('.menu.tz .title svg')?.addEventListener(
-            'click',
-            this._onBackBtnClick
-        );
-        this.shadowRoot!.querySelector(
-            '.menu.custom .title svg'
-        )?.addEventListener('click', this._onBackBtnClick);
-        this.shadowRoot!.querySelectorAll('.menu').forEach((menu) => {
-            menu.addEventListener('change', this._onRadioChange);
-        });
-        this.shadowRoot!.querySelector('#reset')?.addEventListener(
-            'click',
-            this._updatePeriodSelector
-        );
-        this.shadowRoot!.querySelector('#done')?.addEventListener(
-            'click',
-            this._onDoneBtnClick
-        );
+        const { _els } = this;
+        this._bindEvt(_els.popover)('open-change', this._onPopoverChange);
+        this._bindEvt`.tz-trigger`('click', this._onTzTriggerClick);
+        this._bindEvt`.custom-trigger`('click', this._onCustomTriggerClick);
+        this._bindEvt`.menu.tz .title svg`('click', this._onBackBtnClick);
+        this._bindEvt`.menu.custom .title svg`('click', this._onBackBtnClick);
+        this._bindEvt`.menu`('change', this._onRadioChange);
+        this._bindEvt`#reset`('click', this._updatePeriodSelector);
+        this._bindEvt`#done`('click', this._onDoneBtnClick);
+        popEleAttrSync2Parent(this, this._els.popover);
     }
     public disconnectedCallback() {
-        if (!super.disconnectedCallback()) return;
-        this._popoverEle.removeEventListener(
-            'open-change',
-            this._onPopoverChange
-        );
         clearupPopEleAttrSync2Parent(this);
-        this.shadowRoot!.querySelector('.tz-trigger')?.removeEventListener(
-            'click',
-            this._onTzTriggerClick
-        );
-        this.shadowRoot!.querySelector('.custom-trigger')?.removeEventListener(
-            'click',
-            this._onCustomTriggerClick
-        );
-        this.shadowRoot!.querySelector(
-            '.menu.tz .title svg'
-        )?.removeEventListener('click', this._onBackBtnClick);
-        this.shadowRoot!.querySelector(
-            '.menu.custom .title svg'
-        )?.removeEventListener('click', this._onBackBtnClick);
-        this.shadowRoot!.querySelectorAll('.menu').forEach((menu) => {
-            menu.removeEventListener('change', this._onRadioChange);
-        });
-        this.shadowRoot!.querySelector('#reset')?.removeEventListener(
-            'click',
-            this._updatePeriodSelector
-        );
-        this.shadowRoot!.querySelector('#done')?.removeEventListener(
-            'click',
-            this._onDoneBtnClick
-        );
+        return super.disconnectedCallback();
     }
 
     protected _onAttrChanged(
@@ -283,7 +235,12 @@ export class Ele extends UiBase<Attrs, Emits> {
     ) {
         super._onAttrChanged(name, oldValue, newValue);
         if (
-            parentPopAttrSync2PopEle(name, oldValue, newValue, this._popoverEle)
+            parentPopAttrSync2PopEle(
+                name,
+                oldValue,
+                newValue,
+                this._els.popover
+            )
         ) {
             return;
         }
@@ -305,14 +262,9 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
 
     private _updatePeriodSelector = super._genRenderFn(() => {
-        this._periodSelector.weekStartAt = this.weekStartAt;
-        if (
-            this.shadowRoot?.querySelector<HTMLElement>('.menu.custom')?.style
-                .display === 'none'
-        ) {
-            return;
-        }
-        const ele = this._periodSelector;
+        this._els.periodSelector.weekStartAt = this.weekStartAt;
+        if (this.$0`.menu.custom`?.style.display === 'none') return;
+        const ele = this._els.periodSelector;
         const startTime = this.startTime;
         const endTime = this.endTime;
         if (startTime !== '' && endTime !== '') {
@@ -329,22 +281,16 @@ export class Ele extends UiBase<Attrs, Emits> {
 
     private _renderTz = super._genRenderFn(() => {
         const tzOffset = this.tzOffset;
-        const tzRadios =
-            this.shadowRoot!.querySelectorAll<HTMLInputElement>(
-                'input[name="tz"]'
-            );
-        tzRadios!.forEach((radio) => {
+        this.$<HTMLInputElement>`input[name="tz"]`.forEach((radio) => {
             radio.checked = +radio.value === tzOffset;
         });
-        this.shadowRoot!.querySelector('.tz-trigger bdo')!.textContent =
-            utcText(tzOffset);
+        this.$0`.tz-trigger bdo`!.textContent = utcText(tzOffset);
     });
     private _updateRadio = super._genRenderFn(() => {
         const quickKey = this.quickKey;
-        const radio = this.shadowRoot!.querySelector<HTMLInputElement>(
-            `input[name="radio"][value="${quickKey}"]`
-        );
-        radio!.checked = true;
+        this
+            .$0<HTMLInputElement>`input[name="radio"][value="${quickKey}"]`!.checked =
+            true;
     });
 
     private _onPopoverChange = (e: PopoverEvent['open-change']) => {
@@ -354,8 +300,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         }
     };
     private _showMenu(type: 'top' | 'tz' | 'custom') {
-        const menus = this.shadowRoot?.querySelectorAll<HTMLElement>('.menu');
-        menus?.forEach((menu) =>
+        this.$`.menu`.forEach((menu) =>
             menu.classList.contains(type)
                 ? (menu.slot = 'pop')
                 : menu.removeAttribute('slot')
@@ -402,7 +347,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         }
     };
     private _onDoneBtnClick = (_e: Event) => {
-        const selector = this._periodSelector;
+        const selector = this._els.periodSelector;
         selector.abortSelecting();
         this._showMenu('top');
         let { timeStart, timeEnd } = selector;

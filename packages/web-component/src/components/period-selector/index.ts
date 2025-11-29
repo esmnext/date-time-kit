@@ -120,35 +120,21 @@ export class Ele extends UiBase<Attrs, Emits> {
         this.setAttribute('min-granularity', val);
     }
 
-    private get _startNavEle() {
-        return this.shadowRoot?.querySelector(
-            '.start dt-yyyymm-nav'
-        ) as YyyyMmNavEle;
-    }
-    private get _endNavEle() {
-        return this.shadowRoot?.querySelector(
-            '.end dt-yyyymm-nav'
-        ) as YyyyMmNavEle;
-    }
-    private get _startCalendar() {
-        return this.shadowRoot?.querySelector(
-            '.start dt-calendar-base'
-        ) as CalendarBaseEle;
-    }
-    private get _endCalendar() {
-        return this.shadowRoot?.querySelector(
-            '.end dt-calendar-base'
-        ) as CalendarBaseEle;
-    }
-    private get _startTimeSelector() {
-        return this.shadowRoot?.querySelector(
-            'dt-hhmmss-ms-selector[data-type="start"]'
-        ) as HhMmSsMsSelectorEle;
-    }
-    private get _endTimeSelector() {
-        return this.shadowRoot?.querySelector(
-            'dt-hhmmss-ms-selector[data-type="end"]'
-        ) as HhMmSsMsSelectorEle;
+    get _staticEls() {
+        return {
+            ...super._staticEls,
+            allNav: this.$<YyyyMmNavEle>`dt-yyyymm-nav`!,
+            startNav: this.$0<YyyyMmNavEle>`.start dt-yyyymm-nav`!,
+            endNav: this.$0<YyyyMmNavEle>`.end dt-yyyymm-nav`!,
+            calendars: this.$<CalendarBaseEle>`dt-calendar-base`!,
+            startCalendar: this.$0<CalendarBaseEle>`.start dt-calendar-base`!,
+            endCalendar: this.$0<CalendarBaseEle>`.end dt-calendar-base`!,
+            timeSelectors: this.$<HhMmSsMsSelectorEle>`dt-hhmmss-ms-selector`!,
+            startTimeSelector: this
+                .$0<HhMmSsMsSelectorEle>`.start dt-hhmmss-ms-selector`!,
+            endTimeSelector: this
+                .$0<HhMmSsMsSelectorEle>`.end dt-hhmmss-ms-selector`!
+        } as const;
     }
 
     // 存放的是结束时间点
@@ -156,97 +142,30 @@ export class Ele extends UiBase<Attrs, Emits> {
 
     public connectedCallback() {
         if (!super.connectedCallback()) return;
+        const { _els } = this;
         this._selectedDate = null;
-        this._startCalendar.formatter = this._endCalendar.formatter = (
-            i: number
-        ) => String(i).padStart(2, '0');
+        _els.calendars.forEach(
+            (c) => (c.formatter = (i) => ('' + i).padStart(2, '0'))
+        );
         this._render();
-        this._startCalendar.addEventListener(
-            'select-time',
-            this._onCalendarSelect
-        );
-        this._endCalendar.addEventListener(
-            'select-time',
-            this._onCalendarSelect
-        );
-        this._startNavEle.addEventListener('change', this._onNavChange);
-        this._endNavEle.addEventListener('change', this._onNavChange);
-        this._startCalendar.addEventListener(
-            'hover-item',
-            this._onCalendarItemHover
-        );
-        this._endCalendar.addEventListener(
-            'hover-item',
-            this._onCalendarItemHover
-        );
-        this._startNavEle.addEventListener(
+
+        this._bindEvt(_els.allNav)('change', this._onNavChange);
+        this._bindEvt(_els.allNav)(
             'popover-open-change',
             this._onNavOpenToggle
         );
-        this._endNavEle.addEventListener(
-            'popover-open-change',
-            this._onNavOpenToggle
-        );
-        this._startTimeSelector.addEventListener(
-            'open-change',
-            this._stopEvent
-        );
-        this._endTimeSelector.addEventListener('open-change', this._stopEvent);
-        this._startTimeSelector.addEventListener(
-            'select-time',
-            this._onTimeSelectorChange
-        );
-        this._endTimeSelector.addEventListener(
+        this._bindEvt(_els.calendars)('select-time', this._onCalendarSelect);
+        this._bindEvt(_els.calendars)('hover-item', this._onCalendarItemHover);
+        this._bindEvt(_els.timeSelectors)('open-change', this._stopEvent);
+        this._bindEvt(_els.timeSelectors)(
             'select-time',
             this._onTimeSelectorChange
         );
         smallScreenObserver.observe(this, this._render);
     }
     public disconnectedCallback() {
-        if (!super.disconnectedCallback()) return;
-        this._startCalendar.removeEventListener(
-            'select-time',
-            this._onCalendarSelect
-        );
-        this._endCalendar.removeEventListener(
-            'select-time',
-            this._onCalendarSelect
-        );
-        this._startNavEle.removeEventListener('change', this._onNavChange);
-        this._endNavEle.removeEventListener('change', this._onNavChange);
-        this._startCalendar.removeEventListener(
-            'hover-item',
-            this._onCalendarItemHover
-        );
-        this._endCalendar.removeEventListener(
-            'hover-item',
-            this._onCalendarItemHover
-        );
-        this._startNavEle.removeEventListener(
-            'popover-open-change',
-            this._onNavOpenToggle
-        );
-        this._endNavEle.removeEventListener(
-            'popover-open-change',
-            this._onNavOpenToggle
-        );
-        this._startTimeSelector.removeEventListener(
-            'open-change',
-            this._stopEvent
-        );
-        this._endTimeSelector.removeEventListener(
-            'open-change',
-            this._stopEvent
-        );
-        this._startTimeSelector.removeEventListener(
-            'select-time',
-            this._onTimeSelectorChange
-        );
-        this._endTimeSelector.removeEventListener(
-            'select-time',
-            this._onTimeSelectorChange
-        );
         smallScreenObserver.unobserve(this);
+        return super.disconnectedCallback();
     }
 
     protected _onAttrChanged(
@@ -259,74 +178,63 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
 
     private _updateNavCtrlBtn() {
-        const timeStart = new Date(this._startNavEle.millisecond);
-        const timeEnd = new Date(this._endNavEle.millisecond);
+        const { _els } = this;
+        const timeStart = new Date(_els.startNav.millisecond);
+        const timeEnd = new Date(_els.endNav.millisecond);
         const showCtrlBtn = diffInMonth(timeStart, timeEnd) > 1;
         const isSmall = smallScreenObserver.isSmall;
-        this._startNavEle.showCtrlBtnMonthAdd = isSmall || showCtrlBtn;
-        this._endNavEle.showCtrlBtnMonthSub = isSmall || showCtrlBtn;
+        _els.startNav.showCtrlBtnMonthAdd = _els.endNav.showCtrlBtnMonthSub =
+            isSmall || showCtrlBtn;
     }
 
     private _render = super._genRenderFn(() => {
         let timeStart = this.timeStart as Date;
         let timeEnd = this.timeEnd as Date;
         if (timeStart > timeEnd) [timeStart, timeEnd] = [timeEnd, timeStart];
-        const { _startCalendar, _endCalendar } = this;
-        _startCalendar.weekStartAt = _endCalendar.weekStartAt =
+        const { _els } = this;
+        _els.startCalendar.weekStartAt = _els.endCalendar.weekStartAt =
             this.weekStartAt;
-        _startCalendar.timeStart = _endCalendar.timeStart = +timeStart;
-        _endCalendar.timeEnd = _startCalendar.timeEnd = +timeEnd;
+        _els.startCalendar.timeStart = _els.endCalendar.timeStart = +timeStart;
+        _els.endCalendar.timeEnd = _els.startCalendar.timeEnd = +timeEnd;
         const isSmall = smallScreenObserver.isSmall;
-        if (
+        _els.startNav.millisecond = _els.startCalendar.showingTime =
             !isSmall ||
             !this._selectedDate ||
             +timeStart !== +this._selectedDate
-        ) {
-            this._startNavEle.millisecond = _startCalendar.showingTime =
-                +timeStart;
-        } else {
-            this._startNavEle.millisecond = _startCalendar.showingTime =
-                +timeEnd;
-        }
+                ? +timeStart
+                : +timeEnd;
         if (diffInMonth(timeStart, timeEnd) <= 1) {
             const nextMonth = new Date(
                 timeStart.getFullYear(),
                 timeStart.getMonth() + 1
             );
-            this._endCalendar.showingTime = nextMonth;
-            this._endNavEle.millisecond = +nextMonth;
+            _els.endCalendar.showingTime = nextMonth;
+            _els.endNav.millisecond = +nextMonth;
         } else {
-            this._endCalendar.showingTime = timeEnd;
-            this._endNavEle.millisecond = +timeEnd;
+            _els.endCalendar.showingTime = timeEnd;
+            _els.endNav.millisecond = +timeEnd;
         }
         if (this.minGranularity === 'day') {
-            this._startTimeSelector.style.display = 'none';
-            this._endTimeSelector.style.display = 'none';
+            _els.timeSelectors.forEach((e) => (e.style.display = 'none'));
         } else {
-            this._startTimeSelector.style.display = '';
-            this._endTimeSelector.style.display = '';
-            this._startTimeSelector.currentTime = timeStart;
-            this._endTimeSelector.currentTime = timeEnd;
-            this._startTimeSelector.minGranularity = this.minGranularity;
-            this._endTimeSelector.minGranularity = this.minGranularity;
+            _els.timeSelectors.forEach((e) => (e.style.display = ''));
+            _els.startTimeSelector.currentTime = timeStart;
+            _els.endTimeSelector.currentTime = timeEnd;
+            _els.startTimeSelector.minGranularity =
+                _els.endTimeSelector.minGranularity = this.minGranularity;
         }
         this._updateDateEcho();
         this._updateNavCtrlBtn();
-        const startSelectorWrapper = this.shadowRoot!.querySelector(
-            '.start .time-selector-wrapper'
-        ) as HTMLElement;
-        const dividingLine = startSelectorWrapper.querySelector(
-            '.dividing-line'
-        ) as HTMLElement;
+        const dividingLine = this.$0`.start .dividing-line`!;
         if (smallScreenObserver.isSmall) {
-            startSelectorWrapper.appendChild(this._endTimeSelector);
+            this.$0`.start .time-selector-wrapper`!.appendChild(
+                this._els.endTimeSelector
+            );
             dividingLine.style.display = '';
         } else {
-            (
-                this.shadowRoot!.querySelector(
-                    '.end .time-selector-wrapper'
-                ) as HTMLElement
-            ).appendChild(this._endTimeSelector);
+            this.$0`.end .time-selector-wrapper`!.appendChild(
+                this._els.endTimeSelector
+            );
             dividingLine.style.display = 'none';
         }
     });
@@ -336,21 +244,31 @@ export class Ele extends UiBase<Attrs, Emits> {
         let timeEnd = this.timeEnd as Date;
         if (timeStart > timeEnd) [timeStart, timeEnd] = [timeEnd, timeStart];
         const isSmall = smallScreenObserver.isSmall;
-        this.shadowRoot!.querySelector('.start-date-echo')!.textContent =
-            this.dateFormatter(timeStart, this.minGranularity, isSmall);
-        this.shadowRoot!.querySelector('.end-date-echo')!.textContent =
-            this.dateFormatter(timeEnd, this.minGranularity, isSmall);
-        this.shadowRoot!.querySelector(
-            '.start-date-echo-wrapper'
-        )!.classList.toggle('active', !this._selectedDate);
-        this.shadowRoot!.querySelector(
-            '.end-date-echo-wrapper'
-        )!.classList.toggle('active', !!this._selectedDate);
+        this.$0`.start-date-echo`!.textContent = this.dateFormatter(
+            timeStart,
+            this.minGranularity,
+            isSmall
+        );
+        this.$0`.end-date-echo`!.textContent = this.dateFormatter(
+            timeEnd,
+            this.minGranularity,
+            isSmall
+        );
+        this.$0`.start-date-echo-wrapper`!.classList.toggle(
+            'active',
+            !this._selectedDate
+        );
+        this.$0`.end-date-echo-wrapper`!.classList.toggle(
+            'active',
+            !!this._selectedDate
+        );
     }
 
     private _getTimeSelectorMs(type: 'start' | 'end') {
         const selector =
-            type === 'start' ? this._startTimeSelector : this._endTimeSelector;
+            type === 'start'
+                ? this._els.startTimeSelector
+                : this._els.endTimeSelector;
         return this.minGranularity === 'day'
             ? type === 'start'
                 ? 0
@@ -407,9 +325,9 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (!wrapper) return;
         const { newTime } = e.detail;
         if (wrapper.classList.contains('start')) {
-            this._startCalendar.showingTime = +newTime;
+            this._els.startCalendar.showingTime = +newTime;
         } else {
-            this._endCalendar.showingTime = +newTime;
+            this._els.endCalendar.showingTime = +newTime;
         }
         this._updateNavCtrlBtn();
     };
@@ -445,15 +363,15 @@ export class Ele extends UiBase<Attrs, Emits> {
     //     : '');
 
     public get timeFormatter() {
-        return this._startTimeSelector.timeFormatter;
+        return this._els.startTimeSelector.timeFormatter;
     }
     public set timeFormatter(fn: (
         time: Date,
         minGranularity: TimeGranularity
     ) => string) {
         if (typeof fn !== 'function') return;
-        this._startTimeSelector.timeFormatter = fn;
-        this._endTimeSelector.timeFormatter = fn;
+        this._els.startTimeSelector.timeFormatter = fn;
+        this._els.endTimeSelector.timeFormatter = fn;
     }
 }
 

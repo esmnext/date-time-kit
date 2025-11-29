@@ -109,18 +109,15 @@ export class Ele extends UiBase<Attrs, Emits> {
         else this.removeAttribute('offset');
     }
 
-    private get _popEle() {
-        return this.shadowRoot?.querySelector(
-            'slot[name="pop"]'
-        ) as HTMLDivElement;
-    }
-    private get _triggerEle() {
-        return this.shadowRoot?.querySelector(
-            'slot[name="trigger"]'
-        ) as HTMLSlotElement;
+    get _staticEls() {
+        return {
+            ...super._staticEls,
+            pop: this.$0`slot[name="pop"]`!,
+            trigger: this.$0<HTMLSlotElement>`slot[name="trigger"]`!
+        } as const;
     }
     private get _triggerAssignedEle() {
-        return this._triggerEle.assignedElements({ flatten: true })[0] as
+        return this._els.trigger.assignedElements({ flatten: true })[0] as
             | HTMLElement
             | undefined;
     }
@@ -136,14 +133,14 @@ export class Ele extends UiBase<Attrs, Emits> {
 
     public connectedCallback() {
         if (!super.connectedCallback()) return;
-        this._triggerEle.addEventListener('click', this._onToggleClick);
+        this._bindEvt(this._els.trigger)('click', this._onToggleClick);
         this.strategy = this.strategy;
         smallScreenObserver.observe(this, this._onScreenSizeChange);
     }
     public disconnectedCallback() {
-        if (!super.disconnectedCallback()) return;
-        this._triggerEle.removeEventListener('click', this._onToggleClick);
+        this._els.trigger.removeEventListener('click', this._onToggleClick);
         smallScreenObserver.unobserve(this);
+        return super.disconnectedCallback();
     }
 
     protected _onAttrChanged(
@@ -202,11 +199,11 @@ export class Ele extends UiBase<Attrs, Emits> {
     private _autoUpdatePosition() {
         this._cleanupAutoUpdate?.();
         const updatePosition = async () => {
-            const { _triggerAssignedEle, _popEle, strategy } = this;
+            const { _triggerAssignedEle, _els, strategy } = this;
             if (!_triggerAssignedEle || strategy === 'none') return;
             const { x, y } = await computePosition(
                 _triggerAssignedEle,
-                _popEle,
+                _els.pop,
                 {
                     placement: this.placement,
                     strategy: strategy,
@@ -221,24 +218,24 @@ export class Ele extends UiBase<Attrs, Emits> {
                 const dpr = window.devicePixelRatio || 1;
                 return Math.round(value * dpr) / dpr;
             }
-            _popEle.style.transform = `translate(${roundByDPR(x)}px, ${roundByDPR(y)}px)`;
+            _els.pop.style.transform = `translate(${roundByDPR(x)}px, ${roundByDPR(y)}px)`;
         };
         const cleanup = autoUpdate(
-            this._triggerEle,
-            this._popEle,
+            this._els.trigger,
+            this._els.pop,
             updatePosition
         );
         this._cleanupAutoUpdate = () => {
             cleanup();
             this._cleanupAutoUpdate = null;
-            this._popEle.style.transform = '';
+            this._els.pop.style.transform = '';
         };
     }
     private _onScreenSizeChange = (isSmall: boolean) => {
         if (!this.open || this.strategy === 'none') return;
         if (isSmall) {
             this._cleanupAutoUpdate?.();
-            this._popEle.style.transform = '';
+            this._els.pop.style.transform = '';
             hiddenBodyOverflow();
         } else {
             this._autoUpdatePosition();

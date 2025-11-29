@@ -12,7 +12,9 @@ export const granularityList = [
 export type Granularity = (typeof granularityList)[number];
 
 export const colOrderList = ['hms', 'hsm', 'mhs', 'msh', 'shm', 'smh'] as const;
-export type ColOrder = (typeof colOrderList)[number];
+export type ColOrder = (typeof colOrderList)[number] & {
+    [Symbol.iterator](): IterableIterator<'h' | 'm' | 's'>;
+};
 
 export interface Attrs extends BaseAttrs {
     millisecond: number;
@@ -33,9 +35,7 @@ export interface Attrs extends BaseAttrs {
 
 export type { BaseEmits };
 
-/**
- * 时分秒毫秒选择器
- */
+/** 时分秒毫秒选择器 */
 export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
     A,
     E
@@ -52,21 +52,20 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
         ] satisfies (keyof Attrs)[];
     }
 
-    private get _listEleHour() {
-        return this.shadowRoot?.querySelector('dt-num-list.hour') as NumListEle;
-    }
-    private get _listEleMinute() {
-        return this.shadowRoot?.querySelector(
-            'dt-num-list.minute'
-        ) as NumListEle;
-    }
-    private get _listEleSecond() {
-        return this.shadowRoot?.querySelector(
-            'dt-num-list.second'
-        ) as NumListEle;
-    }
-    private get _msInputEle() {
-        return this.shadowRoot?.querySelector('input#ms') as HTMLInputElement;
+    get _staticEls() {
+        return {
+            ...super._staticEls,
+            cols: this.$0`.cols`!,
+            hCol: this.$0`.col.hour`!,
+            mCol: this.$0`.col.minute`!,
+            sCol: this.$0`.col.second`!,
+            lists: this.$<NumListEle>`dt-num-list`!,
+            hList: this.$0<NumListEle>`dt-num-list.hour`!,
+            mList: this.$0<NumListEle>`dt-num-list.minute`!,
+            sList: this.$0<NumListEle>`dt-num-list.second`!,
+            msWrapper: this.$0`[part="ms-wrapper"]`!,
+            msInput: this.$0<HTMLInputElement>`input#ms`!
+        } as const;
     }
 
     public get millisecond() {
@@ -100,40 +99,20 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
     }
 
     public scrollToCurrentItem() {
-        this.shadowRoot?.querySelectorAll('dt-num-list').forEach((ele) => {
-            if (ele instanceof NumListEle) ele.scrollToCurrent();
-        });
+        this._els.lists.forEach((e) => e.scrollToCurrent());
     }
 
     public connectedCallback(): boolean | void {
         if (!super.connectedCallback()) return;
-        this._listEleHour.formatter =
-            this._listEleMinute.formatter =
-            this._listEleSecond.formatter =
-                (num) => ('0' + num).slice(-2);
+        const { _els } = this;
+        _els.lists.forEach((e) => (e.formatter = (n) => ('0' + n).slice(-2)));
 
         this._renderCols();
         this._updateGranularity();
         this._updateColsValue();
 
-        this._listEleHour.addEventListener('select-num', this._onColsSelect);
-        this._listEleMinute.addEventListener('select-num', this._onColsSelect);
-        this._listEleSecond.addEventListener('select-num', this._onColsSelect);
-        this._msInputEle.addEventListener('input', this._onMsInput);
-        return true;
-    }
-    public disconnectedCallback(): boolean | void {
-        if (!super.disconnectedCallback()) return;
-        this._listEleHour.removeEventListener('select-num', this._onColsSelect);
-        this._listEleMinute.removeEventListener(
-            'select-num',
-            this._onColsSelect
-        );
-        this._listEleSecond.removeEventListener(
-            'select-num',
-            this._onColsSelect
-        );
-        this._msInputEle.removeEventListener('input', this._onMsInput);
+        this._bindEvt(_els.lists)('select-num', this._onColsSelect);
+        this._bindEvt(_els.msInput)('input', this._onMsInput);
         return true;
     }
 
@@ -143,49 +122,22 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
         newValue: string | null
     ) {
         super._onAttrChanged(name, oldValue, newValue);
-        if (name === 'col-order') this._renderCols();
-        else if (name === 'max-granularity' || name === 'min-granularity')
+        if (name === 'max-granularity' || name === 'min-granularity')
             this._updateGranularity();
+        else if (name === 'col-order') this._renderCols();
         else if (name === 'millisecond') this._updateColsValue();
     }
 
     private _renderCols = super._genRenderFn(() => {
-        const {
-            colOrder,
-            _listEleHour: hEle,
-            _listEleMinute: mEle,
-            _listEleSecond: sEle
-        } = this;
-        // columns order
-        const orderedCols: HTMLElement[] = [];
-        for (const c of colOrder) {
-            if (c === 'h') orderedCols.push(hEle);
-            else if (c === 'm') orderedCols.push(mEle);
-            else if (c === 's') orderedCols.push(sEle);
+        const { _els } = this;
+        for (const c of this.colOrder) {
+            _els[`${c}Col`].remove();
+            _els.cols.appendChild(_els[`${c}Col`]);
         }
-        const colsContainer =
-            this.shadowRoot!.querySelector<HTMLElement>('.cols')!;
-        // return if order not changed
-        if (!orderedCols.every((el, i) => el === colsContainer.children[i]))
-            return;
-        colsContainer.innerHTML = '';
-        colsContainer.append(...orderedCols);
     });
 
     private _updateGranularity = super._genRenderFn(() => {
-        const { maxGranularity, minGranularity } = this;
-        const hEle = this.shadowRoot!.querySelector<HTMLElement>('.col.hour')!;
-        const mEle =
-            this.shadowRoot!.querySelector<HTMLElement>('.col.minute')!;
-        const sEle =
-            this.shadowRoot!.querySelector<HTMLElement>('.col.second')!;
-        const msEle = this.shadowRoot!.querySelector<HTMLElement>(
-            '[part="ms-wrapper"]'
-        )!;
-        const colsContainer =
-            this.shadowRoot!.querySelector<HTMLElement>('.cols')!;
-
-        // granularity
+        const { maxGranularity, minGranularity, _els } = this;
         const granularityMap = {
             hour: 3,
             minute: 2,
@@ -195,24 +147,21 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
         let maxG = granularityMap[maxGranularity] ?? 0;
         let minG = granularityMap[minGranularity] ?? 3;
         if (maxG < minG) [maxG, minG] = [minG, maxG];
-        hEle.style.display = maxG >= 3 && minG <= 3 ? '' : 'none';
-        mEle.style.display = maxG >= 2 && minG <= 2 ? '' : 'none';
-        sEle.style.display = maxG >= 1 && minG <= 1 ? '' : 'none';
-        colsContainer.style.display = [hEle, mEle, sEle].filter(
-            (ele) => ele.style.display !== 'none'
-        ).length
-            ? ''
-            : 'none';
-        msEle.style.display = maxG >= 0 && minG <= 0 ? '' : 'none';
+        const show = (el: HTMLElement, condition: boolean) =>
+            !(el.style.display = condition ? '' : 'none');
+        show(
+            _els.cols,
+            [
+                show(_els.hCol, maxG >= 3 && minG <= 3),
+                show(_els.mCol, maxG >= 2 && minG <= 2),
+                show(_els.sCol, maxG >= 1 && minG <= 1)
+            ].some((v) => v)
+        );
+        show(_els.msWrapper, maxG >= 0 && minG <= 0);
     });
 
     private _updateColsValue = super._genRenderFn(() => {
-        const {
-            _listEleHour: hEle,
-            _listEleMinute: mEle,
-            _listEleSecond: sEle,
-            millisecond
-        } = this;
+        const { millisecond, _els } = this;
 
         // set column values
         const hour = Math.floor(millisecond / (60 * 60 * 1000));
@@ -221,17 +170,18 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
         );
         const second = Math.floor((millisecond % (60 * 1000)) / 1000);
         const ms = millisecond % 1000;
-        hEle.currentNum = hour;
-        mEle.currentNum = minute;
-        sEle.currentNum = second;
-        this._msInputEle.value = ('000' + ms).slice(-3);
+        _els.hList.currentNum = hour;
+        _els.mList.currentNum = minute;
+        _els.sList.currentNum = second;
+        _els.msInput.value = ('000' + ms).slice(-3);
     });
 
     private _getMsFromEle() {
-        const hour = this._listEleHour.currentNum;
-        const minute = this._listEleMinute.currentNum;
-        const second = this._listEleSecond.currentNum;
-        const ms = Math.min(Math.max(0, +this._msInputEle.value || 0), 999);
+        const { _els } = this;
+        const hour = _els.hList.currentNum;
+        const minute = _els.mList.currentNum;
+        const second = _els.sList.currentNum;
+        const ms = Math.min(Math.max(0, +_els.msInput.value || 0), 999);
         return ((hour * 60 + minute) * 60 + second) * 1000 + ms;
     }
     private _onMsInput = (e: Event) => {

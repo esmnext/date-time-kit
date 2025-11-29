@@ -52,16 +52,14 @@ export class Ele extends UiBase<Attrs, Emits> {
         ] satisfies (keyof Attrs)[];
     }
 
-    private get _listEleYear() {
-        return this.shadowRoot?.querySelector('dt-num-list.year') as NumListEle;
-    }
-    private get _listEleMonth() {
-        return this.shadowRoot?.querySelector(
-            'dt-num-list.month'
-        ) as NumListEle;
-    }
-    private get _listEleDay() {
-        return this.shadowRoot?.querySelector('dt-num-list.day') as NumListEle;
+    get _staticEls() {
+        return {
+            ...super._staticEls,
+            lists: this.$<NumListEle>`dt-num-list`!,
+            yList: this.$0<NumListEle>`dt-num-list.year`!,
+            mList: this.$0<NumListEle>`dt-num-list.month`!,
+            dList: this.$0<NumListEle>`dt-num-list.day`!
+        } as const;
     }
 
     public get millisecond() {
@@ -94,33 +92,21 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
 
     public scrollToCurrentItem() {
-        this.shadowRoot?.querySelectorAll('dt-num-list').forEach((ele) => {
-            if (ele instanceof NumListEle) ele.scrollToCurrent();
-        });
+        this._els.lists.forEach((e) => e.scrollToCurrent());
     }
 
     public connectedCallback() {
         if (!super.connectedCallback()) return;
-        this._listEleYear.formatter = (num) => '' + num;
-        this._listEleMonth.formatter = this._listEleDay.formatter = (num) =>
+        const { _els } = this;
+        _els.yList.formatter = (num) => '' + num;
+        _els.mList.formatter = _els.dList.formatter = (num) =>
             ('0' + num).slice(-2);
 
         this._renderCols();
         this._updateGranularity();
         this._updateColsValue();
 
-        this._listEleYear.addEventListener('select-num', this._onColsSelect);
-        this._listEleMonth.addEventListener('select-num', this._onColsSelect);
-        this._listEleDay.addEventListener('select-num', this._onColsSelect);
-    }
-    public disconnectedCallback() {
-        if (!super.disconnectedCallback()) return;
-        this._listEleYear.removeEventListener('select-num', this._onColsSelect);
-        this._listEleMonth.removeEventListener(
-            'select-num',
-            this._onColsSelect
-        );
-        this._listEleDay.removeEventListener('select-num', this._onColsSelect);
+        this._bindEvt(_els.lists)('select-num', this._onColsSelect);
     }
 
     protected _onAttrChanged(
@@ -140,11 +126,8 @@ export class Ele extends UiBase<Attrs, Emits> {
         // columns order
         const orderedCols = ['year', 'month', 'day']
             .sort((a, b) => colOrder.indexOf(a[0]) - colOrder.indexOf(b[0]))
-            .map(
-                (s) => this.shadowRoot!.querySelector<HTMLElement>(`.col.${s}`)!
-            );
-        const colsContainer =
-            this.shadowRoot!.querySelector<HTMLElement>('.cols')!;
+            .map((s) => this.$0`.col.${s}`!);
+        const colsContainer = this.$0`.cols`!;
         // return if order not changed
         if (orderedCols.every((el, i) => el === colsContainer.children[i]))
             return;
@@ -153,11 +136,10 @@ export class Ele extends UiBase<Attrs, Emits> {
 
     private _updateGranularity = super._genRenderFn(() => {
         const { maxGranularity, minGranularity } = this;
-        const colsContainer =
-            this.shadowRoot!.querySelector<HTMLElement>('.cols')!;
-        const yEle = this.shadowRoot!.querySelector<HTMLElement>('.col.year')!;
-        const mEle = this.shadowRoot!.querySelector<HTMLElement>('.col.month')!;
-        const dEle = this.shadowRoot!.querySelector<HTMLElement>('.col.day')!;
+        const colsContainer = this.$0`.cols`!;
+        const yEle = this.$0`.col.year`!;
+        const mEle = this.$0`.col.month`!;
+        const dEle = this.$0`.col.day`!;
         const granularityMap = { year: 3, month: 2, day: 1 };
         let maxG = granularityMap[maxGranularity] ?? 1;
         let minG = granularityMap[minGranularity] ?? 3;
@@ -176,22 +158,22 @@ export class Ele extends UiBase<Attrs, Emits> {
         const { millisecond } = this;
         const date = new Date(millisecond);
         if (Number.isNaN(date.getTime())) return;
-        this._listEleYear.currentNum = date.getFullYear();
-        this._listEleMonth.currentNum = date.getMonth() + 1;
-        this._listEleDay.maxNum = new Date(
+        this._els.yList.currentNum = date.getFullYear();
+        this._els.mList.currentNum = date.getMonth() + 1;
+        this._els.dList.maxNum = new Date(
             date.getFullYear(),
             date.getMonth() + 1,
             0
         ).getDate();
-        this._listEleDay.currentNum = date.getDate();
+        this._els.dList.currentNum = date.getDate();
     });
 
     private _getMsFromEle() {
-        const month = this._listEleMonth.currentNum;
+        const month = this._els.mList.currentNum;
         const date = new Date(
-            this._listEleYear.currentNum,
+            this._els.yList.currentNum,
             month - 1,
-            this._listEleDay.currentNum
+            this._els.dList.currentNum
         );
         if (date.getMonth() + 1 !== month) {
             // 日期不符合预期，可能是因为月份天数不够

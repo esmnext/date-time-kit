@@ -61,11 +61,18 @@ export class Ele extends UiBase<Attrs, Emits> {
         ] satisfies (keyof Attrs)[];
     }
 
-    private get _containerEle() {
-        return this.shadowRoot?.querySelector('.container') as HTMLElement;
+    get _staticEls() {
+        return {
+            ...super._staticEls,
+            container: this.$0`.container`!
+        } as const;
     }
-    private get _currentItemEle() {
-        return this._containerEle.querySelector<HTMLElement>('.item-current');
+    get _dynamicEls() {
+        return {
+            ...super._dynamicEls,
+            currentItem: this.$0`.item-current`,
+            items: this.$`.item`
+        } as const;
     }
 
     public get currentNum() {
@@ -116,7 +123,7 @@ export class Ele extends UiBase<Attrs, Emits> {
                 entries: IntersectionObserverEntry[],
                 observer: IntersectionObserver
             ) => {
-                const container = this._containerEle;
+                const container = this._els.container;
                 const firstItem = container.firstElementChild as HTMLElement;
                 const lastItem = container.lastElementChild as HTMLElement;
                 for (const {
@@ -129,7 +136,7 @@ export class Ele extends UiBase<Attrs, Emits> {
                     if (!isIntersecting) continue;
                     observer.unobserve(target);
                     // 只有在滚动的时候才会观察当前元素
-                    if (target === this._currentItemEle) {
+                    if (target === this._els.currentItem) {
                         observer.observe(firstItem!);
                         observer.observe(lastItem!);
                         // 继续观察：如果元素没有完全进入可视区域 || 滚动还没有结束
@@ -158,7 +165,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
 
     private _loadBefore = debounce(() => {
-        const container = this._containerEle;
+        const container = this._els.container;
         const firstItem = container.firstElementChild as HTMLElement;
         const lastItem = container.lastElementChild as HTMLElement;
         const firstNum = Number(firstItem.dataset.number);
@@ -185,7 +192,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (this._isScrolling) this.scrollToCurrent();
     });
     private _loadAfter = debounce(() => {
-        const container = this._containerEle;
+        const container = this._els.container;
         const firstItem = container.firstElementChild as HTMLElement;
         const lastItem = container.lastElementChild as HTMLElement;
         const curNum = this.currentNum;
@@ -218,9 +225,9 @@ export class Ele extends UiBase<Attrs, Emits> {
         this.addEventListener('click', this._onClick);
     }
     public disconnectedCallback() {
-        if (!super.disconnectedCallback()) return;
         this.removeEventListener('click', this._onClick);
         this._destroyOb();
+        return super.disconnectedCallback();
     }
 
     protected _onAttrChanged(
@@ -233,9 +240,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         // 这里是针对无限滚动时重新渲染会导致元素滚动异常。
         if (
             name === 'current-num' &&
-            newValue ===
-                this._containerEle.querySelector<HTMLElement>('.item-current')
-                    ?.dataset.number
+            newValue === this._els.currentItem?.dataset.number
         ) {
             return;
         }
@@ -243,7 +248,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
 
     private get _itemHeight() {
-        const container = this._containerEle;
+        const container = this._els.container;
         const items = Array.from(
             container.querySelectorAll<HTMLElement>('.item')
         );
@@ -275,7 +280,7 @@ export class Ele extends UiBase<Attrs, Emits> {
 
     private _isScrolling = false;
     public scrollToCurrent = () => {
-        const ele = this._currentItemEle;
+        const ele = this._els.currentItem;
         if (!ele) return;
         const thisRect = this.getBoundingClientRect();
         // 如果当前元素不可见，则不执行滚动
@@ -291,7 +296,7 @@ export class Ele extends UiBase<Attrs, Emits> {
 
     private _render = super._genRenderFn(() => {
         this._destroyOb();
-        const container = this._containerEle;
+        const container = this._els.container;
         container.innerHTML = '';
         if (!this.hasAttribute('current-num')) return;
 
@@ -319,7 +324,7 @@ export class Ele extends UiBase<Attrs, Emits> {
 
     private _onClick = (e: MouseEvent) => {
         if (!this.isConnected) return;
-        const container = this._containerEle;
+        const container = this._els.container;
         const oldCurrent =
             container.querySelector<HTMLElement>('.item-current');
         const item = closestByEvent(e, '.item', this);

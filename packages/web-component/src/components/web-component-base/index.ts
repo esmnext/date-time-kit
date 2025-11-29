@@ -70,6 +70,8 @@ const HTMLElementBase = (() => {
     return class {} as typeof HTMLElement;
 })();
 
+type Elements = HTMLElement | HTMLElement[];
+
 export class UiBase<
     Attr extends BaseAttrs = BaseAttrs,
     Emit extends BaseEmits = BaseEmits
@@ -109,11 +111,23 @@ export class UiBase<
         return templateEle;
     }
 
+    get _staticEls(): Record<string, Elements> {
+        return Object.create(null);
+    }
+    get _dynamicEls(): Record<string, Elements | undefined> {
+        return Object.create(null);
+    }
+    private _staticElsCache: this['_staticEls'] & this['_dynamicEls'];
+    protected get _els(): this['_staticEls'] & this['_dynamicEls'] {
+        return Object.assign({}, this._staticElsCache, this._dynamicEls);
+    }
+
     constructor() {
         super();
         const shadowRoot = this.attachShadow({ mode: 'open' });
         shadowRoot.innerHTML = '';
         shadowRoot.appendChild(this._initTemplate().content.cloneNode(true));
+        this._staticElsCache = this._staticEls;
     }
 
     protected _getAttr<K extends keyof Attr>(
@@ -131,6 +145,46 @@ export class UiBase<
         return (
             attr === null && defaultValue !== void 0 ? defaultValue : attr
         ) as getAttrType<Attr, K> | null;
+    }
+
+    protected $<E extends HTMLElement = HTMLElement>(
+        selector: string | TemplateStringsArray,
+        ...args: unknown[]
+    ) {
+        if (typeof selector !== 'string')
+            selector = String.raw(selector, ...args);
+        return [...(this.shadowRoot?.querySelectorAll<E>(selector) || [])];
+    }
+    protected $0<E extends HTMLElement = HTMLElement>(
+        selector: string | TemplateStringsArray,
+        ...args: unknown[]
+    ): E | undefined {
+        return this.$<E>(selector, ...args)[0];
+    }
+
+    private _unbindFnCache: (() => void)[] = [];
+    protected _bindEvt<Ele>(
+        elsOrSelector: Ele | Ele[] | string | TemplateStringsArray,
+        ...strSlot: unknown[]
+    ): Ele extends string | TemplateStringsArray
+        ? HTMLElement['addEventListener']
+        : Ele extends { addEventListener: infer F }
+          ? F
+          : never {
+        const els =
+            typeof elsOrSelector === 'string'
+                ? this.$(elsOrSelector)
+                : !Array.isArray(elsOrSelector)
+                  ? [elsOrSelector]
+                  : typeof elsOrSelector[0] === 'string'
+                    ? this.$(elsOrSelector as any, ...strSlot)
+                    : (elsOrSelector as HTMLElement[]);
+        return ((...args: Parameters<HTMLElement['addEventListener']>) => {
+            els.forEach((el) => {
+                el.addEventListener(...args);
+                this._unbindFnCache.push(() => el.removeEventListener(...args));
+            });
+        }) as any;
     }
 
     protected _onAttrChanged(
@@ -162,13 +216,15 @@ export class UiBase<
             }
         });
     }
-    /** return false | void means not continue */
+    /** return `false | void` means not continue */
     connectedCallback(): boolean | void {
         this.setAttribute('dt', '');
         return !!this.shadowRoot;
     }
-    /** return false | void means not continue */
+    /** return `false | void` means not continue */
     disconnectedCallback(): boolean | void {
+        this._unbindFnCache.forEach((fn) => fn());
+        this._unbindFnCache = [];
         return !!this.shadowRoot;
     }
     connectedMoveCallback() {}

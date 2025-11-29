@@ -104,32 +104,12 @@ export class Ele extends UiBase<Attrs, Emits> {
     public connectedCallback() {
         if (!super.connectedCallback()) return;
         this._render();
-        this.shadowRoot!.querySelector<PopoverEle>('.echo')!.addEventListener(
-            'open-change',
-            this._onTitleToggle
+        this._bindEvt<PopoverEle>`.echo`('open-change', this._onTitleToggle);
+        this._bindEvt<YyyyMmDdListGrpEle>`dt-yyyymmdd-list-grp`(
+            'change',
+            this._onItemSelect
         );
-        this.shadowRoot!.querySelector<YyyyMmDdListGrpEle>(
-            'dt-yyyymmdd-list-grp'
-        )!.addEventListener('change', this._onItemSelect);
-        this.shadowRoot!.querySelectorAll<HTMLElement>('.btn').forEach(
-            (btn) => {
-                btn.addEventListener('click', this._onBtnClick);
-            }
-        );
-    }
-    public disconnectedCallback() {
-        if (!super.disconnectedCallback()) return;
-        this.shadowRoot!.querySelector<PopoverEle>(
-            '.echo'
-        )!.removeEventListener('open-change', this._onTitleToggle);
-        this.shadowRoot!.querySelector<YyyyMmDdListGrpEle>(
-            'dt-yyyymmdd-list-grp'
-        )!.removeEventListener('change', this._onItemSelect);
-        this.shadowRoot!.querySelectorAll<HTMLElement>('.btn').forEach(
-            (btn) => {
-                btn.removeEventListener('click', this._onBtnClick);
-            }
-        );
+        this._bindEvt<HTMLElement>`.btn`('click', this._onBtnClick);
     }
 
     protected _onAttrChanged(
@@ -152,24 +132,17 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
 
     private _render = super._genRenderFn(() => {
-        const root = this.shadowRoot!;
         const ms = this.millisecond;
-        root.querySelector<YyyyMmDdListGrpEle>(
-            'dt-yyyymmdd-list-grp'
-        )!.millisecond = ms;
-        root.querySelector('.title')!.textContent = this.titleFormatter(ms);
+        this.$0<YyyyMmDdListGrpEle>`dt-yyyymmdd-list-grp`!.millisecond = ms;
+        this.$0`.title`!.textContent = this.titleFormatter(ms);
     });
 
     private _onTitleToggle = (e: PopoverEvent['open-change']) => {
         const isOpen = e.detail;
         e.stopPropagation();
-        this.shadowRoot!.querySelector('.wrapper')!.classList.toggle(
-            'show-list',
-            isOpen
-        );
-        this.shadowRoot!.querySelector<YyyyMmDdListGrpEle>(
-            'dt-yyyymmdd-list-grp'
-        )!.scrollToCurrentItem();
+        this.$0`.wrapper`!.classList.toggle('show-list', isOpen);
+        this
+            .$0<YyyyMmDdListGrpEle>`dt-yyyymmdd-list-grp`!.scrollToCurrentItem();
         this.dispatchEvent('popover-open-change', isOpen, true);
     };
     private _onItemSelect = (e: YyyyMmDdListGrpEvent['change']) => {

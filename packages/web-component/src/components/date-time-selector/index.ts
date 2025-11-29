@@ -173,58 +173,35 @@ export class Ele extends UiBase<Attrs, Emits> {
         this.setAttribute('min-granularity', val);
     }
 
-    private get _navEle() {
-        return this.shadowRoot?.querySelector('dt-yyyymm-nav') as YyyyMmNavEle;
-    }
-    private get _calendar() {
-        return this.shadowRoot?.querySelector(
-            'dt-calendar-base'
-        ) as CalendarBaseEle;
-    }
-    private get _timeSelector() {
-        return this.shadowRoot?.querySelector(
-            'dt-hhmmss-ms-selector'
-        ) as HhMmSsMsSelectorEle;
-    }
-    private get _popoverEle() {
-        return this.shadowRoot!.querySelector('dt-popover') as PopoverEle;
+    get _staticEls() {
+        return {
+            ...super._staticEls,
+            nav: this.$0<YyyyMmNavEle>`dt-yyyymm-nav`!,
+            calendar: this.$0<CalendarBaseEle>`dt-calendar-base`!,
+            timeSelector: this.$0<HhMmSsMsSelectorEle>`dt-hhmmss-ms-selector`!,
+            popover: this.$0<PopoverEle>`dt-popover`!
+        } as const;
     }
 
     public connectedCallback() {
         if (!super.connectedCallback()) return;
-        this._calendar.formatter = (i: number) => String(i).padStart(2, '0');
+        const { _els } = this;
+        _els.calendar.formatter = (n) => ('' + n).padStart(2, '0');
         this._render();
-        popEleAttrSync2Parent(this, this._popoverEle);
-        this._calendar.addEventListener('select-time', this._onCalendarSelect);
-        this._navEle.addEventListener('change', this._onNavChange);
-        this._navEle.addEventListener(
-            'popover-open-change',
-            this._onNavOpenToggle
-        );
-        this._timeSelector.addEventListener(
+        popEleAttrSync2Parent(this, _els.popover);
+        this._bindEvt(_els.calendar)('select-time', this._onCalendarSelect);
+        this._bindEvt(_els.nav)('change', this._onNavChange);
+        this._bindEvt(_els.nav)('popover-open-change', this._onNavOpenToggle);
+        this._bindEvt(_els.timeSelector)(
             'select-time',
             this._onTimeSelectorChange
         );
-        this._timeSelector.addEventListener('open-change', this._stopEvent);
+        this._bindEvt(_els.timeSelector)('open-change', this._stopEvent);
         this.dispatchEvent('select-time', this.currentTime as Date);
     }
     public disconnectedCallback() {
-        if (!super.disconnectedCallback()) return;
         clearupPopEleAttrSync2Parent(this);
-        this._calendar.removeEventListener(
-            'select-time',
-            this._onCalendarSelect
-        );
-        this._navEle.removeEventListener('change', this._onNavChange);
-        this._navEle.removeEventListener(
-            'popover-open-change',
-            this._onNavOpenToggle
-        );
-        this._timeSelector.removeEventListener(
-            'select-time',
-            this._onTimeSelectorChange
-        );
-        this._timeSelector.removeEventListener('open-change', this._stopEvent);
+        return super.disconnectedCallback();
     }
     protected _onAttrChanged(
         name: string,
@@ -233,7 +210,12 @@ export class Ele extends UiBase<Attrs, Emits> {
     ) {
         super._onAttrChanged(name, oldValue, newValue);
         if (
-            parentPopAttrSync2PopEle(name, oldValue, newValue, this._popoverEle)
+            parentPopAttrSync2PopEle(
+                name,
+                oldValue,
+                newValue,
+                this._els.popover
+            )
         ) {
             return;
         }
@@ -245,24 +227,24 @@ export class Ele extends UiBase<Attrs, Emits> {
 
     private _render = super._genRenderFn(() => {
         const currentTime = this.currentTime as Date;
-        const { _calendar, _timeSelector } = this;
-        _calendar.weekStartAt = this.weekStartAt;
-        this._navEle.millisecond =
-            _calendar.timeStart =
-            _calendar.timeEnd =
+        const { _els } = this;
+        _els.calendar.weekStartAt = this.weekStartAt;
+        this._els.nav.millisecond =
+            _els.calendar.timeStart =
+            _els.calendar.timeEnd =
                 +currentTime;
-        _calendar.showingTime = this.showingTime;
+        _els.calendar.showingTime = this.showingTime;
         const { min, max } = this._getMaxMinTime();
-        _calendar.minTime = min;
-        _calendar.maxTime = max;
+        _els.calendar.minTime = min;
+        _els.calendar.maxTime = max;
 
         if (this.minGranularity === 'day') {
-            _timeSelector.style.display = 'none';
+            _els.timeSelector.style.display = 'none';
             return;
         }
-        _timeSelector.style.display = '';
-        _timeSelector.minGranularity = this.minGranularity;
-        _timeSelector.currentTime = currentTime;
+        _els.timeSelector.style.display = '';
+        _els.timeSelector.minGranularity = this.minGranularity;
+        _els.timeSelector.currentTime = currentTime;
     });
 
     private _onCalendarSelect = (e: CalendarBaseEvent['select-time']) => {
@@ -271,14 +253,14 @@ export class Ele extends UiBase<Attrs, Emits> {
             +e.detail +
             (this.minGranularity === 'day'
                 ? 0
-                : this._timeSelector.millisecond);
+                : this._els.timeSelector.millisecond);
     };
     private _onNavChange = (e: YyyyMmNavEvent['change']) => {
         e.stopPropagation();
         const wrapper = closestByEvent(e, '.wrapper');
         if (!wrapper) return;
         const { newTime } = e.detail;
-        this._calendar.showingTime = +newTime;
+        this._els.calendar.showingTime = +newTime;
     };
     private _onNavOpenToggle = (e: YyyyMmNavEvent['popover-open-change']) => {
         if (!(e.target instanceof YyyyMmNavEle)) return;
@@ -292,14 +274,14 @@ export class Ele extends UiBase<Attrs, Emits> {
     };
 
     public get timeFormatter() {
-        return this._timeSelector.timeFormatter;
+        return this._els.timeSelector.timeFormatter;
     }
     public set timeFormatter(fn: (
         time: Date,
         minGranularity: TimeGranularity
     ) => string) {
         if (typeof fn !== 'function') return;
-        this._timeSelector.timeFormatter = fn;
+        this._els.timeSelector.timeFormatter = fn;
     }
 }
 

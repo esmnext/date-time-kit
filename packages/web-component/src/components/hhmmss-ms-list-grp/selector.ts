@@ -40,33 +40,27 @@ export class Ele extends BaseEle<Attrs, Emits> {
             'current-time'
         ] satisfies (keyof Attrs)[];
     }
-    private get _popoverEle() {
-        return this.shadowRoot?.querySelector('dt-popover') as PopoverEle;
+
+    get _staticEls() {
+        return {
+            ...super._staticEls,
+            popover: this.$0<PopoverEle>`dt-popover`!,
+            timeEcho: this.$0`.time-echo`!
+        };
     }
+
     public set open(v: boolean) {
-        this._popoverEle.open = v;
+        this._els.popover.open = v;
     }
     public get open() {
-        return this._popoverEle.open;
+        return this._els.popover.open;
     }
 
     public connectedCallback() {
         if (!super.connectedCallback()) return;
         this._render();
-        this._popoverEle.addEventListener('open-change', this._onPopoverChange);
-        this.shadowRoot
-            ?.querySelector('button')
-            ?.addEventListener('click', this._onDoneBtnClick);
-    }
-    public disconnectedCallback() {
-        if (!super.disconnectedCallback()) return;
-        this._popoverEle.removeEventListener(
-            'open-change',
-            this._onPopoverChange
-        );
-        this.shadowRoot
-            ?.querySelector('button')
-            ?.removeEventListener('click', this._onDoneBtnClick);
+        this._bindEvt(this._els.popover)('open-change', this._onPopoverChange);
+        this._bindEvt<HTMLButtonElement>`button`('click', this._onDoneBtnClick);
     }
     protected _onAttrChanged(
         name: string,
@@ -91,8 +85,10 @@ export class Ele extends BaseEle<Attrs, Emits> {
     private _render = super._genRenderFn(() => {
         const tz = getCurrentTzOffsetMs();
         this.millisecond = (+this.currentTime - tz) % (24 * 60 * 60 * 1000);
-        this.shadowRoot!.querySelector('.time-echo')!.textContent =
-            this.timeFormatter(this.currentTime as Date, this.minGranularity);
+        this._els.timeEcho.textContent = this.timeFormatter(
+            this.currentTime as Date,
+            this.minGranularity
+        );
     });
 
     private _onPopoverChange = (e: PopoverEvent['open-change']) => {
@@ -111,7 +107,7 @@ export class Ele extends BaseEle<Attrs, Emits> {
         this.currentTime = time;
         this.dispatchEvent('select-time', time);
         this._render();
-        this._popoverEle.open = false;
+        this.open = false;
     };
 
     public timeFormatter = (time: Date, minGranularity: Granularity) => {
