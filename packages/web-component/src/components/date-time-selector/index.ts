@@ -238,7 +238,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         const hasSlotTrigger = !!this.querySelector('[slot="trigger"]');
         _els.slots.forEach((slot) => {
             const slotType = slot.dataset.type!;
-            const enabled = slotType.includes(_granType);
+            const enabled = slotType.split(' ').includes(_granType);
             if (enabled) {
                 slot.setAttribute('name', 'trigger');
             } else {
