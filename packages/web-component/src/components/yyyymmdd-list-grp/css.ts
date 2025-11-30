@@ -1,13 +1,6 @@
 import { css } from '../../utils';
 
 export const baseCss = css`
-:host {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  gap: 15px;
-}
-
 .cols {
   flex: 1;
   display: flex;
@@ -34,6 +27,13 @@ dt-num-list {
   flex: 1;
 }
 `;
+
+export const listGrpCss = css`:host {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  gap: 15px;
+}${baseCss}`;
 
 import { dateSvg, svg2cssUrl } from '../../assets';
 

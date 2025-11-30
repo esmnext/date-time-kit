@@ -43,13 +43,15 @@ dt-yyyymm-nav::part(list-grp) {
   margin-top: 15px;
 }
 
-.timeOnly::part(pop) {
+.timeOnly::part(pop),
+dt-yyyymmdd-selector::part(pop) {
   width: 285px;
 }
 
 @media (max-width: 750px) {
   .wrapper,
-  .timeOnly::part(pop) {
+  .timeOnly::part(pop),
+  dt-yyyymmdd-selector::part(pop) {
     width: 100%;
   }
 }
