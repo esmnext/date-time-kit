@@ -2,24 +2,24 @@
 import { DtDataTimeSelector as DtDataTimeSelectorPkg } from '@gez/date-time-kit';
 import { ref, watch } from 'vue';
 
+type Granularity = DtDataTimeSelectorPkg.Granularity;
+
 const props = defineProps<{
-    min: DtDataTimeSelectorPkg.Granularity;
-    max: DtDataTimeSelectorPkg.Granularity;
+    min: Granularity;
+    max: Granularity;
 }>();
 
 const emits = defineEmits<{
-    (e: 'update:min', value: DtDataTimeSelectorPkg.Granularity): void;
-    (e: 'update:max', value: DtDataTimeSelectorPkg.Granularity): void;
+    (e: 'update:min', value: Granularity): void;
+    (e: 'update:max', value: Granularity): void;
 }>();
 
-const limitMax = DtDataTimeSelectorPkg.granularityList.length - 1;
+const granList = DtDataTimeSelectorPkg.granularityList;
+const granListReserved = granList.slice().reverse() as Granularity[];
+const limitMax = granList.length - 1;
 
-const min = ref<Number>(
-    DtDataTimeSelectorPkg.granularityList.indexOf(props.max)
-);
-const max = ref<Number>(
-    DtDataTimeSelectorPkg.granularityList.indexOf(props.min)
-);
+const min = ref<Number>(granListReserved.indexOf(props.min));
+const max = ref<Number>(granListReserved.indexOf(props.max));
 
 watch([min, max], () => {
     if (min.value > max.value) {
@@ -27,14 +27,8 @@ watch([min, max], () => {
         min.value = max.value;
         max.value = temp;
     }
-    emits(
-        'update:min',
-        DtDataTimeSelectorPkg.granularityList[limitMax - (min.value as number)]
-    );
-    emits(
-        'update:max',
-        DtDataTimeSelectorPkg.granularityList[limitMax - (max.value as number)]
-    );
+    emits('update:min', granListReserved[+min.value]);
+    emits('update:max', granListReserved[+max.value]);
 });
 </script>
 
@@ -59,7 +53,7 @@ watch([min, max], () => {
             v-model="min"
         />
         <datalist id="granularityList">
-            <option v-for="(str, idx) in DtDataTimeSelectorPkg.granularityList" :value="idx" :label="str" />
+            <option v-for="(str, idx) in granList" :value="idx" :label="str" />
         </datalist>
     </div>
 </template>
