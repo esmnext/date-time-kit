@@ -98,9 +98,8 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
     public connectedCallback(): boolean | void {
         if (!super.connectedCallback()) return;
         const { _els } = this;
-        _els.dList.formatter = (num) => '' + num;
-        _els.mList.formatter = _els.dList.formatter = (num) =>
-            ('0' + num).slice(-2);
+        _els.mList.formatter = _els.dList.formatter = (i) =>
+            (i < 10 ? '0' : '') + i;
 
         this._renderCols();
         this._updateGranularity();

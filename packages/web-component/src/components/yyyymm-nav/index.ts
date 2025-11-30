@@ -170,7 +170,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         const date = new Date(ms);
         const year = date.getFullYear();
         const month = date.getMonth() + 1;
-        return `${('0' + month).slice(-2)}/${year}`;
+        return `${(month < 10 ? '0' : '') + month}/${year}`;
     };
 }
 

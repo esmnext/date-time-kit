@@ -105,7 +105,9 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
     public connectedCallback(): boolean | void {
         if (!super.connectedCallback()) return;
         const { _els } = this;
-        _els.lists.forEach((e) => (e.formatter = (n) => ('0' + n).slice(-2)));
+        _els.lists.forEach(
+            (e) => (e.formatter = (i) => (i < 10 ? '0' : '') + i)
+        );
 
         this._renderCols();
         this._updateGranularity();
