@@ -87,7 +87,10 @@ export class Ele extends BaseEle<Attrs, Emits> {
         this.millisecond = (+this.currentTime - tz) % (24 * 60 * 60 * 1000);
         this._els.timeEcho.textContent = this.timeFormatter(
             this.currentTime as Date,
-            this.minGranularity
+            {
+                max: this.maxGranularity,
+                min: this.minGranularity
+            }
         );
     });
 
@@ -110,14 +113,21 @@ export class Ele extends BaseEle<Attrs, Emits> {
         this.open = false;
     };
 
-    public timeFormatter = (time: Date, minGranularity: Granularity) => {
-        const t = new Date(+time - getCurrentTzOffsetMs())
-            .toISOString()
-            .slice(11, 23);
-        if (minGranularity === 'hour') return t.slice(0, 2);
-        if (minGranularity === 'minute') return t.slice(0, 5);
-        if (minGranularity === 'second') return t.slice(0, 8);
-        return t;
+    public timeFormatter = (
+        time: Date,
+        granularity: {
+            max: Granularity;
+            min: Granularity;
+        }
+    ) => {
+        const t = new Date(+time - getCurrentTzOffsetMs()).toISOString();
+        const idx = {
+            hour: [11, 13],
+            minute: [14, 16],
+            second: [17, 19],
+            millisecond: [20, 23]
+        };
+        return t.slice(idx[granularity.max][0], idx[granularity.min][1]);
     };
 }
 

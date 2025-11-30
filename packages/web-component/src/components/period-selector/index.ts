@@ -365,10 +365,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     public get timeFormatter() {
         return this._els.startTimeSelector.timeFormatter;
     }
-    public set timeFormatter(fn: (
-        time: Date,
-        minGranularity: TimeGranularity
-    ) => string) {
+    public set timeFormatter(fn: HhMmSsMsSelectorEle['timeFormatter']) {
         if (typeof fn !== 'function') return;
         this._els.startTimeSelector.timeFormatter = fn;
         this._els.endTimeSelector.timeFormatter = fn;
