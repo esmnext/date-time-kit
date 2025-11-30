@@ -5,6 +5,7 @@ import type { Ele as PeriodSelectorEle } from '../period-selector';
 import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
 import {
     clearupPopEleAttrSync2Parent,
+    isPopoverAttrKey,
     parentPopAttrSync2PopEle,
     popEleAttrSync2Parent,
     popoverAttrKeys,
@@ -234,14 +235,13 @@ export class Ele extends UiBase<Attrs, Emits> {
         newValue: string | null
     ) {
         super._onAttrChanged(name, oldValue, newValue);
-        if (
+        if (isPopoverAttrKey(name)) {
             parentPopAttrSync2PopEle(
                 name,
                 oldValue,
                 newValue,
                 this._els.popover
-            )
-        ) {
+            );
             return;
         }
         if (name === 'tz-offset') {

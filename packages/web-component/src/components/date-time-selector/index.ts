@@ -14,6 +14,7 @@ import {
 import type { Ele as PopoverEle, EventMap as PopoverEvent } from '../popover';
 import {
     clearupPopEleAttrSync2Parent,
+    isPopoverAttrKey,
     parentPopAttrSync2PopEle,
     popEleAttrSync2Parent,
     popoverAttrKeys,
@@ -29,13 +30,17 @@ import {
     Ele as YyyyMmNavEle,
     type EventMap as YyyyMmNavEvent
 } from '../yyyymm-nav';
+import {
+    type Granularity as DateGranularity,
+    type Ele as YyyyMmDdSelector,
+    granularityList as dateGranularityList
+} from '../yyyymmdd-list-grp/selector';
+import { GranType } from './common';
 import html from './index.html';
 import { styleStr } from './styleStr';
 
 export const granularityList = [
-    'year',
-    'month',
-    'day',
+    ...dateGranularityList,
     ...timeGranularityList
 ] as const;
 export type Granularity = (typeof granularityList)[number];
@@ -194,14 +199,17 @@ export class Ele extends UiBase<Attrs, Emits> {
     get _staticEls() {
         return {
             ...super._staticEls,
+            hostWrapper: this.$0`.host-wrapper`!,
             nav: this.$0<YyyyMmNavEle>`dt-yyyymm-nav`!,
             calendar: this.$0<CalendarBaseEle>`dt-calendar-base`!,
             timeSelectors: this.$<HhMmSsMsSelectorEle>`dt-hhmmss-ms-selector`!,
-            timeSelectorWithCalendar: this
-                .$0<HhMmSsMsSelectorEle>`dt-hhmmss-ms-selector.withCalendar`!,
-            timeSelectorOnlyTime: this
-                .$0<HhMmSsMsSelectorEle>`dt-hhmmss-ms-selector.onlyTime`!,
-            popover: this.$0<PopoverEle>`dt-popover`!
+            timeSelectorInCalendar: this
+                .$0<HhMmSsMsSelectorEle>`dt-popover dt-hhmmss-ms-selector`!,
+            timeSelectorOnly: this
+                .$0<HhMmSsMsSelectorEle>`dt-hhmmss-ms-selector.timeOnly`!,
+            dateSelector: this.$0<YyyyMmDdSelector>`dt-yyyymmdd-selector`!,
+            popover: this.$0<PopoverEle>`dt-popover`!,
+            slots: this.$<HTMLSlotElement>`slot`!
         } as const;
     }
 
@@ -214,30 +222,52 @@ export class Ele extends UiBase<Attrs, Emits> {
             [minGranIdx, maxGranIdx] = [maxGranIdx, minGranIdx];
         const dayGranIdx = granularityList.indexOf('day');
 
-        if (dayGranIdx < maxGranIdx && dayGranIdx < minGranIdx) {
-            return 'onlyTime';
+        if (maxGranIdx === 0 && minGranIdx === dayGranIdx) {
+            return GranType.Calendar;
+        } else if (dayGranIdx < maxGranIdx && dayGranIdx < minGranIdx) {
+            return GranType.Time;
         } else if (maxGranIdx <= dayGranIdx && minGranIdx <= dayGranIdx) {
-            return 'onlyCalendar';
+            return GranType.Date;
         } else {
-            return 'calendarAndTime';
+            return GranType.CalendarTime;
         }
     }
 
     private _updateSlot() {
-        const { _els } = this;
-        const onlyTimeSlot = _els.timeSelectorOnlyTime.querySelector('slot');
-        if (this._granType === 'onlyTime') {
-            if (this.querySelector('[slot="trigger"]')) {
-                onlyTimeSlot?.setAttribute('slot', 'trigger');
+        const { _els, _granType } = this;
+        const hasSlotTrigger = !!this.querySelector('[slot="trigger"]');
+        _els.slots.forEach((slot) => {
+            const slotType = slot.dataset.type!;
+            const enabled = slotType.includes(_granType);
+            if (enabled) {
+                slot.setAttribute('name', 'trigger');
             } else {
-                onlyTimeSlot?.removeAttribute('slot');
+                slot.removeAttribute('name');
             }
-            onlyTimeSlot?.setAttribute('name', 'trigger');
-            _els.popover.querySelector('slot')?.removeAttribute('name');
-        } else {
-            onlyTimeSlot?.removeAttribute('name');
-            _els.popover.querySelector('slot')?.setAttribute('name', 'trigger');
-        }
+            if (slotType === GranType.Time || slotType === GranType.Date) {
+                if (hasSlotTrigger) {
+                    slot.setAttribute('slot', 'trigger');
+                } else {
+                    slot.removeAttribute('slot');
+                }
+            }
+        });
+    }
+
+    public get open() {
+        const { _els } = this;
+        return (
+            _els.popover.open ||
+            _els.dateSelector.open ||
+            _els.timeSelectorOnly.open
+        );
+    }
+    public set open(v: boolean) {
+        const { _els } = this;
+        _els.popover.open =
+            _els.dateSelector.open =
+            _els.timeSelectorOnly.open =
+                v;
     }
 
     private _ob: MutationObserver | null = null;
@@ -255,13 +285,21 @@ export class Ele extends UiBase<Attrs, Emits> {
             'select-time',
             this._onTimeSelectorChange
         );
-        this._bindEvt(_els.timeSelectorWithCalendar)(
+        this._bindEvt(_els.timeSelectorInCalendar)(
             'open-change',
             this._stopEvent
         );
-        this.dispatchEvent('select-time', this.currentTime as Date);
+        this._bindEvt(_els.dateSelector)(
+            'open-change',
+            this._onSelectorOpenChange
+        );
+        this._bindEvt(_els.timeSelectorOnly)(
+            'open-change',
+            this._onSelectorOpenChange
+        );
         this._ob = new MutationObserver(() => this._updateSlot());
         this._ob.observe(this, { childList: true });
+        this.dispatchEvent('select-time', this.currentTime as Date);
     }
     public disconnectedCallback() {
         clearupPopEleAttrSync2Parent(this);
@@ -275,14 +313,17 @@ export class Ele extends UiBase<Attrs, Emits> {
         newValue: string | null
     ) {
         super._onAttrChanged(name, oldValue, newValue);
-        if (
-            parentPopAttrSync2PopEle(
-                name,
-                oldValue,
-                newValue,
-                this._els.popover
-            )
-        ) {
+        const { _els } = this;
+        if (isPopoverAttrKey(name)) {
+            if (oldValue === newValue) return;
+            parentPopAttrSync2PopEle(name, oldValue, newValue, _els.popover);
+            if (newValue === null) {
+                _els.timeSelectorOnly.removeAttribute(name);
+                _els.dateSelector.removeAttribute(name);
+                return;
+            }
+            _els.timeSelectorOnly.setAttribute(name, newValue);
+            _els.dateSelector.setAttribute(name, newValue);
             return;
         }
         this._render();
@@ -294,38 +335,37 @@ export class Ele extends UiBase<Attrs, Emits> {
     private _render = super._genRenderFn(() => {
         const currentTime = this.currentTime as Date;
         const { _els, _granType } = this;
-        _els.calendar.weekStartAt = this.weekStartAt;
-        _els.nav.millisecond =
-            _els.calendar.timeStart =
-            _els.calendar.timeEnd =
-                +currentTime;
-        _els.calendar.showingTime = this.showingTime;
+        _els.hostWrapper.dataset.type = _granType;
+        _els.nav.millisecond = +currentTime;
         const { min, max } = this._getMaxMinTime();
-        _els.calendar.minTime = min;
-        _els.calendar.maxTime = max;
+        Object.assign(_els.calendar, {
+            weekStartAt: this.weekStartAt,
+            timeStart: +currentTime,
+            timeEnd: +currentTime,
+            showingTime: this.showingTime,
+            minTime: min,
+            maxTime: max
+        });
 
         this._updateSlot();
 
-        _els.popover.style.display = _granType === 'onlyTime' ? 'none' : '';
-
-        if (_granType === 'onlyTime') {
-            _els.timeSelectorOnlyTime.style.display = '';
-            _els.timeSelectorOnlyTime.maxGranularity = this
-                .maxGranularity as TimeGranularity;
-            _els.timeSelectorOnlyTime.minGranularity = this
-                .minGranularity as TimeGranularity;
-            _els.timeSelectorOnlyTime.currentTime = currentTime;
-        } else if (_granType === 'onlyCalendar') {
-            _els.timeSelectorOnlyTime.style.display =
-                _els.timeSelectorWithCalendar.style.display = 'none';
-        } else {
-            _els.timeSelectorWithCalendar.style.display = '';
-            _els.timeSelectorWithCalendar.maxGranularity = this
-                .maxGranularity as TimeGranularity;
-            _els.timeSelectorWithCalendar.minGranularity = this
-                .minGranularity as TimeGranularity;
-            _els.timeSelectorWithCalendar.currentTime = currentTime;
-            _els.timeSelectorOnlyTime.style.display = 'none';
+        if (_granType === GranType.Time) {
+            Object.assign(_els.timeSelectorOnly, {
+                maxGranularity: this.maxGranularity as TimeGranularity,
+                minGranularity: this.minGranularity as TimeGranularity,
+                currentTime
+            });
+        } else if (_granType === GranType.Date) {
+            Object.assign(_els.dateSelector, {
+                maxGranularity: this.maxGranularity as DateGranularity,
+                minGranularity: this.minGranularity as DateGranularity,
+                currentTime
+            });
+        } else if (_granType === GranType.CalendarTime) {
+            Object.assign(_els.timeSelectorInCalendar, {
+                minGranularity: this.minGranularity as TimeGranularity,
+                currentTime
+            });
         }
     });
 
@@ -335,7 +375,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             +e.detail +
             (this.minGranularity === 'day'
                 ? 0
-                : this._els.timeSelectorWithCalendar.millisecond);
+                : this._els.timeSelectorInCalendar.millisecond);
     };
     private _onNavChange = (e: YyyyMmNavEvent['change']) => {
         e.stopPropagation();
@@ -354,17 +394,20 @@ export class Ele extends UiBase<Attrs, Emits> {
     ) => {
         this.currentTime = e.detail;
     };
+    private _onSelectorOpenChange = (e: PopoverEvent['open-change']) => {
+        this.open = e.detail;
+    };
 
     public get timeFormatter() {
-        return this._els.timeSelectorWithCalendar.timeFormatter;
+        return this._els.timeSelectorInCalendar.timeFormatter;
     }
     public set timeFormatter(fn: (
         time: Date,
         minGranularity: TimeGranularity
     ) => string) {
         if (typeof fn !== 'function') return;
-        this._els.timeSelectorWithCalendar.timeFormatter = fn;
-        this._els.timeSelectorOnlyTime.timeFormatter = fn;
+        this._els.timeSelectorInCalendar.timeFormatter =
+            this._els.timeSelectorOnly.timeFormatter = fn;
     }
 }
 

@@ -21,13 +21,17 @@ export const popoverAttrKeys = [
     'pop-offset'
 ] as const;
 
+export const isPopoverAttrKey = (
+    name: string
+): name is (typeof popoverAttrKeys)[number] =>
+    popoverAttrKeys.includes(name as any);
+
 export const parentPopAttrSync2PopEle = (
     name: string,
     oldValue: string | null,
     newValue: string | null,
     popEle: PopoverEle
 ): name is (typeof popoverAttrKeys)[number] => {
-    if (!popoverAttrKeys.includes(name as any)) return false;
     if (oldValue === newValue) return true;
     const key = name.replace('pop-', '') as keyof PopoverAttrs;
     if (newValue === null) popEle.removeAttribute(key);

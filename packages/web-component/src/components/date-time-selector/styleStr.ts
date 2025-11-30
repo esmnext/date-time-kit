@@ -1,12 +1,19 @@
 import { css } from '../../utils';
+import { GranType } from './common';
 
 export const styleStr = css`
-:host {
-  font-size: 14px;
+:host { font-size: 14px; }
+
+.host-wrapper { display: contents; }
+
+.host-wrapper:not([data-type*='${GranType.Calendar}']) dt-popover,
+.host-wrapper:not([data-type*='${GranType.Time}']) dt-hhmmss-ms-selector,
+.host-wrapper[data-type*='${GranType.Calendar}'] > dt-hhmmss-ms-selector,
+.host-wrapper:not([data-type*='${GranType.Date}']) dt-yyyymmdd-selector {
+  display: none;
 }
-dt-popover {
-  width: 100%;
-}
+
+dt-popover { width: 100%; }
 .wrapper {
   display: flex;
   flex-direction: column;
@@ -14,9 +21,7 @@ dt-popover {
   gap: 15px;
   width: 285px;
 }
-.wrapper > * {
-  width: 100%;
-}
+.wrapper > * { width: 100%; }
 
 dt-calendar-base {
   // 254 = item height 6 * 30 + week 14 + gap 10 * 6
@@ -38,13 +43,13 @@ dt-yyyymm-nav::part(list-grp) {
   margin-top: 15px;
 }
 
-.onlyTime::part(pop) {
+.timeOnly::part(pop) {
   width: 285px;
 }
 
 @media (max-width: 750px) {
   .wrapper,
-  .onlyTime::part(pop) {
+  .timeOnly::part(pop) {
     width: 100%;
   }
 }
