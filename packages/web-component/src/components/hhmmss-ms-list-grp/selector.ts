@@ -60,10 +60,10 @@ export class Ele extends BaseEle<Attrs, Emits> {
     }
 
     public set open(v: boolean) {
-        this._els.popover.open = v;
+        this.toggleAttribute('pop-open', v);
     }
     public get open() {
-        return this._els.popover.open;
+        return this.hasAttribute('pop-open');
     }
 
     public connectedCallback() {

@@ -97,7 +97,8 @@ export type EventMap = Emit2EventMap<Emits>;
  * 日期时间选择器（单个时间点）
  * 包括日历和时分秒毫秒选择。
  *
- * 存在一个 timeFormatter 方法，用于格式化时分秒毫秒显示时间。
+ * - 存在一个 timeFormatter 方法，用于格式化时分秒毫秒显示时间。
+ * - 存在一个 dateFormatter 方法，用于格式化年月日显示时间。
  */
 export class Ele extends UiBase<Attrs, Emits> {
     public static readonly tagName = 'dt-date-time-selector' as const;
@@ -254,20 +255,29 @@ export class Ele extends UiBase<Attrs, Emits> {
         });
     }
 
-    public get open() {
-        const { _els } = this;
-        return (
-            _els.popover.open ||
-            _els.dateSelector.open ||
-            _els.timeSelectorOnly.open
+    private _updateOpenState(force = this.hasAttribute('pop-open')) {
+        const { _els, _granType } = this;
+        // use toggleAttribute to avoid element not connected yet
+        _els.popover.toggleAttribute(
+            'open',
+            force && _granType !== GranType.Time && _granType !== GranType.Date
         );
+        _els.dateSelector.toggleAttribute(
+            'pop-open',
+            force && _granType === GranType.Date
+        );
+        _els.timeSelectorOnly.toggleAttribute(
+            'pop-open',
+            force && _granType === GranType.Time
+        );
+        this.toggleAttribute('pop-open', force);
+    }
+
+    public get open() {
+        return this.hasAttribute('pop-open');
     }
     public set open(v: boolean) {
-        const { _els } = this;
-        _els.popover.open =
-            _els.dateSelector.open =
-            _els.timeSelectorOnly.open =
-                v;
+        this._updateOpenState(v);
     }
 
     private _ob: MutationObserver | null = null;
@@ -315,6 +325,10 @@ export class Ele extends UiBase<Attrs, Emits> {
         const { _els } = this;
         if (isPopoverAttrKey(name)) {
             if (oldValue === newValue) return;
+            if (name === 'pop-open') {
+                this._updateOpenState();
+                return;
+            }
             parentPopAttrSync2PopEle(name, oldValue, newValue, _els.popover);
             if (newValue === null) {
                 _els.timeSelectorOnly.removeAttribute(name);
@@ -332,6 +346,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
 
     private _render = super._genRenderFn(() => {
+        this._updateOpenState();
         const currentTime = this.currentTime as Date;
         const { _els, _granType } = this;
         _els.hostWrapper.dataset.type = _granType;
