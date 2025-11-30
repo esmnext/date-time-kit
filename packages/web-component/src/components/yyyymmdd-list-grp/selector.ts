@@ -1,5 +1,11 @@
 import { getCurrentTzOffsetMs } from '../../utils';
 import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
+import {
+    clearupPopEleAttrSync2Parent,
+    isPopoverAttrKey,
+    parentPopAttrSync2PopEle,
+    popEleAttrSync2Parent
+} from '../popover/attr-sync-helper';
 import type { Emit2EventMap } from '../web-component-base';
 import {
     type Attrs as BaseAttrs,
@@ -59,8 +65,13 @@ export class Ele extends BaseEle<Attrs, Emits> {
         if (!super.connectedCallback()) return;
         this._render();
         const { _els } = this;
+        popEleAttrSync2Parent(this, _els.popover);
         this._bindEvt(_els.popover)('open-change', this._onPopoverChange);
         this._bindEvt<HTMLButtonElement>`button`('click', this._onDoneBtnClick);
+    }
+    public disconnectedCallback() {
+        clearupPopEleAttrSync2Parent(this);
+        return super.disconnectedCallback();
     }
 
     protected _onAttrChanged(
@@ -70,6 +81,15 @@ export class Ele extends BaseEle<Attrs, Emits> {
     ) {
         super._onAttrChanged(name, oldValue, newValue);
         if (name === 'millisecond') return;
+        if (isPopoverAttrKey(name)) {
+            parentPopAttrSync2PopEle(
+                name,
+                oldValue,
+                newValue,
+                this._els.popover
+            );
+            return;
+        }
         this._render();
     }
 
