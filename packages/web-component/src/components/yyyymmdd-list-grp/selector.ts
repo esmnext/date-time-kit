@@ -1,4 +1,3 @@
-import { getCurrentTzOffsetMs } from '../../utils';
 import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
 import {
     clearupPopEleAttrSync2Parent,
@@ -109,10 +108,10 @@ export class Ele extends BaseEle<Attrs, Emits> {
 
     private _render = super._genRenderFn(() => {
         if (!this.isConnected) return;
-        const tz = getCurrentTzOffsetMs();
-        this.millisecond = (+this.currentTime - tz) % (24 * 60 * 60 * 1000);
+        const { currentTime } = this;
+        this.millisecond = +currentTime;
         this.$0`.date-echo`!.textContent = this.dateFormatter(
-            this.currentTime as Date,
+            currentTime as Date,
             {
                 max: this.maxGranularity,
                 min: this.minGranularity
@@ -127,12 +126,12 @@ export class Ele extends BaseEle<Attrs, Emits> {
     };
 
     private _onDoneBtnClick = (_e: Event) => {
-        const calcTime = (time: Date, ms: number) => {
-            time.setHours(0, 0, 0, 0);
-            time.setMilliseconds(ms);
-            return time;
-        };
-        const time = calcTime(this.currentTime as Date, this.millisecond);
+        const oldTime = new Date(this.currentTime);
+        const newTime = new Date(this.millisecond);
+        oldTime.setFullYear(newTime.getFullYear());
+        oldTime.setMonth(newTime.getMonth());
+        oldTime.setDate(newTime.getDate());
+        const time = oldTime;
         this.currentTime = time;
         this.dispatchEvent('select-time', time);
         this._render();

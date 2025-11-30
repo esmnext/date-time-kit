@@ -302,6 +302,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             'open-change',
             this._onSelectorOpenChange
         );
+        this._bindEvt(_els.dateSelector)('select-time', this._onCalendarSelect);
         this._bindEvt(_els.timeSelectorOnly)(
             'open-change',
             this._onSelectorOpenChange
