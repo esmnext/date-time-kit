@@ -4,7 +4,9 @@ import {
     clearupPopEleAttrSync2Parent,
     isPopoverAttrKey,
     parentPopAttrSync2PopEle,
-    popEleAttrSync2Parent
+    popEleAttrSync2Parent,
+    popoverAttrKeys,
+    type reExportPopoverAttrs
 } from '../popover/attr-sync-helper';
 import type { Emit2EventMap } from '../web-component-base';
 import {
@@ -19,10 +21,11 @@ import { selectorHtml } from './html';
 export type { Granularity, ColOrder } from './base';
 export { granularityList, colOrderList } from './base';
 
-export interface Attrs extends BaseAttrs {
-    /** 当前的时间戳 */
-    'current-time'?: number | string;
-}
+export type Attrs = BaseAttrs &
+    reExportPopoverAttrs & {
+        /** 当前的时间戳 */
+        'current-time'?: number | string;
+    };
 
 export interface Emits extends BaseEmits {
     'select-time': Date;
@@ -43,7 +46,8 @@ export class Ele extends BaseEle<Attrs, Emits> {
     static get observedAttributes(): string[] {
         return [
             ...(super.observedAttributes as (keyof BaseAttrs)[]),
-            'current-time'
+            'current-time',
+            ...popoverAttrKeys
         ] satisfies (keyof Attrs)[];
     }
 

@@ -75,7 +75,7 @@ const dateNow = Date.now();
 
 const dateTimeSelectorGranMax = ref<DtDataTimeSelectorPkg.Granularity>('year');
 const dateTimeSelectorGranMin =
-    ref<DtDataTimeSelectorPkg.Granularity>('millisecond');
+    ref<DtDataTimeSelectorPkg.Granularity>('month');
 </script>
 
 <template>
@@ -196,6 +196,7 @@ const dateTimeSelectorGranMin =
             </dt-date-time-selector> -->
             <dt-date-time-selector
                 :lang="lang"
+                pop-open
                 pop-strategy="absolute"
                 :min-granularity="dateTimeSelectorGranMin"
                 :max-granularity="dateTimeSelectorGranMax"
