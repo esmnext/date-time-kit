@@ -5,7 +5,7 @@ import {
     offset,
     shift
 } from '@floating-ui/dom';
-import { html, smallScreenObserver } from '../../utils';
+import { html } from '../../utils';
 import {
     type BaseAttrs,
     type BaseEmits,
@@ -135,12 +135,6 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (!super.connectedCallback()) return;
         this._bindEvt(this._els.trigger)('click', this._onToggleClick);
         this.strategy = this.strategy;
-        smallScreenObserver.observe(this, this._onScreenSizeChange);
-    }
-    public disconnectedCallback() {
-        this._els.trigger.removeEventListener('click', this._onToggleClick);
-        smallScreenObserver.unobserve(this);
-        return super.disconnectedCallback();
     }
 
     protected _onAttrChanged(
@@ -158,11 +152,10 @@ export class Ele extends UiBase<Attrs, Emits> {
                 true
             );
         });
-        const { isSmall } = smallScreenObserver;
-        if (!isOpen || this.strategy === 'none' || isSmall)
+        if (!isOpen || this.strategy === 'none' || this._isSmallScreen)
             this._cleanupAutoUpdate?.();
         else this._autoUpdatePosition();
-        if (isSmall) {
+        if (this._isSmallScreen) {
             if (isOpen) hiddenBodyOverflow();
             else resetBodyOverflow();
         }
@@ -231,7 +224,8 @@ export class Ele extends UiBase<Attrs, Emits> {
             this._els.pop.style.transform = '';
         };
     }
-    private _onScreenSizeChange = (isSmall: boolean) => {
+    protected _onScreenSizeChanged(isSmall: boolean) {
+        super._onScreenSizeChanged(isSmall);
         if (!this.open || this.strategy === 'none') return;
         if (isSmall) {
             this._cleanupAutoUpdate?.();
@@ -241,7 +235,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             this._autoUpdatePosition();
             resetBodyOverflow();
         }
-    };
+    }
 }
 
 Ele.define();

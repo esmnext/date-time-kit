@@ -1,4 +1,4 @@
-import { closestByEvent, smallScreenObserver } from '../../utils';
+import { closestByEvent } from '../../utils';
 import {
     type Ele as CalendarBaseEle,
     type EventMap as CalendarBaseEvent,
@@ -161,11 +161,11 @@ export class Ele extends UiBase<Attrs, Emits> {
             'select-time',
             this._onTimeSelectorChange
         );
-        smallScreenObserver.observe(this, this._render);
     }
-    public disconnectedCallback() {
-        smallScreenObserver.unobserve(this);
-        return super.disconnectedCallback();
+
+    protected _onScreenSizeChanged(isSmall: boolean) {
+        super._onScreenSizeChanged(isSmall);
+        this._render();
     }
 
     protected _onAttrChanged(
@@ -182,7 +182,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         const timeStart = new Date(_els.startNav.millisecond);
         const timeEnd = new Date(_els.endNav.millisecond);
         const showCtrlBtn = diffInMonth(timeStart, timeEnd) > 1;
-        const isSmall = smallScreenObserver.isSmall;
+        const isSmall = this._isSmallScreen;
         _els.startNav.showCtrlBtnMonthAdd = _els.endNav.showCtrlBtnMonthSub =
             isSmall || showCtrlBtn;
     }
@@ -196,7 +196,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             this.weekStartAt;
         _els.startCalendar.timeStart = _els.endCalendar.timeStart = +timeStart;
         _els.endCalendar.timeEnd = _els.startCalendar.timeEnd = +timeEnd;
-        const isSmall = smallScreenObserver.isSmall;
+        const isSmall = this._isSmallScreen;
         _els.startNav.millisecond = _els.startCalendar.showingTime =
             !isSmall ||
             !this._selectedDate ||
@@ -226,7 +226,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._updateDateEcho();
         this._updateNavCtrlBtn();
         const dividingLine = this.$0`.start .dividing-line`!;
-        if (smallScreenObserver.isSmall) {
+        if (this._isSmallScreen) {
             this.$0`.start .time-selector-wrapper`!.appendChild(
                 this._els.endTimeSelector
             );
@@ -243,7 +243,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         let timeStart = this.timeStart as Date;
         let timeEnd = this.timeEnd as Date;
         if (timeStart > timeEnd) [timeStart, timeEnd] = [timeEnd, timeStart];
-        const isSmall = smallScreenObserver.isSmall;
+        const isSmall = this._isSmallScreen;
         this.$0`.start-date-echo`!.textContent = this.dateFormatter(
             timeStart,
             this.minGranularity,

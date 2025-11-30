@@ -1,5 +1,5 @@
 import type { Lang } from '../../i18n';
-import { debounce } from '../../utils';
+import { debounce, smallScreenObserver } from '../../utils';
 import { scrollbarStyleStr, styleStr } from './css';
 
 type EmitType = Record<string, any>;
@@ -214,16 +214,23 @@ export class UiBase<
     /** return `false | void` means not continue */
     connectedCallback(): boolean | void {
         this.setAttribute('dt', '');
+        smallScreenObserver.observe(this, this._onScreenSizeChanged.bind(this));
         return !!this.shadowRoot;
     }
     /** return `false | void` means not continue */
     disconnectedCallback(): boolean | void {
+        smallScreenObserver.unobserve(this);
         this._unbindFnCache.forEach((fn) => fn());
         this._unbindFnCache = [];
         return !!this.shadowRoot;
     }
     connectedMoveCallback() {}
     adoptedCallback() {}
+
+    protected _onScreenSizeChanged(isSmall: boolean) {}
+    protected get _isSmallScreen() {
+        return smallScreenObserver.isSmall;
+    }
 
     public dispatchEvent(event: Event): boolean;
     public dispatchEvent<K extends keyof Emit>(
