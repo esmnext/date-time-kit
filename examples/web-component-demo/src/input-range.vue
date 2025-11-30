@@ -76,7 +76,7 @@ input[type="range"] {
   height: 200px;
   width: 40px;
   margin: 0;
-  writing-mode: bt-lr;
-  appearance: slider-vertical;
+  writing-mode: vertical-lr;
+  direction: rtl;
 }
 </style>
