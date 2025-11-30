@@ -49,8 +49,10 @@ export const popEleAttrSync2Parent = (
         if (!(evt.target instanceof PopoverEle)) return;
         const { name, oldValue, newValue } = evt.detail;
         if (newValue === oldValue) return;
-        if (newValue === null) parent.removeAttribute('pop-' + name);
-        else parent.setAttribute('pop-' + name, newValue);
+        const popName = 'pop-' + name;
+        if (!isPopoverAttrKey(popName)) return;
+        if (newValue === null) parent.removeAttribute(popName);
+        else parent.setAttribute(popName, newValue);
     };
     popEle.addEventListener('dt-attribute-changed', onAttrChanged);
     const clearup = () => {
