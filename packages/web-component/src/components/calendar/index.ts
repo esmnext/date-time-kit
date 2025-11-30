@@ -299,7 +299,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         super.dispatchEvent('hover-item', time, true);
     };
 
-    public formatter = (i: number) => '' + i;
+    public formatter = (i: number) => (i < 10 ? '0' : '') + i;
 }
 
 Ele.define();

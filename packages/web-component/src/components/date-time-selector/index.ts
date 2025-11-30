@@ -275,7 +275,6 @@ export class Ele extends UiBase<Attrs, Emits> {
     public connectedCallback() {
         if (!super.connectedCallback()) return;
         const { _els } = this;
-        _els.calendar.formatter = (n) => ('' + n).padStart(2, '0');
         this._render();
         popEleAttrSync2Parent(this, _els.popover);
         this._bindEvt(_els.calendar)('select-time', this._onCalendarSelect);

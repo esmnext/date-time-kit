@@ -144,9 +144,6 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (!super.connectedCallback()) return;
         const { _els } = this;
         this._selectedDate = null;
-        _els.calendars.forEach(
-            (c) => (c.formatter = (i) => ('' + i).padStart(2, '0'))
-        );
         this._render();
 
         this._bindEvt(_els.allNav)('change', this._onNavChange);
