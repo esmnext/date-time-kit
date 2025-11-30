@@ -406,6 +406,13 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._els.timeSelectorInCalendar.timeFormatter =
             this._els.timeSelectorOnly.timeFormatter = fn;
     }
+    public get dateFormatter() {
+        return this._els.dateSelector.dateFormatter;
+    }
+    public set dateFormatter(fn: YyyyMmDdSelector['dateFormatter']) {
+        if (typeof fn !== 'function') return;
+        this._els.dateSelector.dateFormatter = fn;
+    }
 }
 
 Ele.define();

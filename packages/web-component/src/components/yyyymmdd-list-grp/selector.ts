@@ -89,7 +89,10 @@ export class Ele extends BaseEle<Attrs, Emits> {
         this.millisecond = (+this.currentTime - tz) % (24 * 60 * 60 * 1000);
         this.$0`.date-echo`!.textContent = this.dateFormatter(
             this.currentTime as Date,
-            this.minGranularity
+            {
+                max: this.maxGranularity,
+                min: this.minGranularity
+            }
         );
     });
 
@@ -112,8 +115,21 @@ export class Ele extends BaseEle<Attrs, Emits> {
         this.open = false;
     };
 
-    public dateFormatter = (time: Date, minGranularity: Granularity) =>
-        time.toLocaleDateString('en-GB');
+    public dateFormatter = (
+        time: Date,
+        granularity: {
+            max: Granularity;
+            min: Granularity;
+        }
+    ) => {
+        const s = time.toLocaleDateString('en-GB');
+        const idx = {
+            year: [6, 10],
+            month: [3, 5],
+            day: [0, 2]
+        };
+        return s.slice(idx[granularity.min][0], idx[granularity.max][1]);
+    };
 }
 
 Ele.define();
