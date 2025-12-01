@@ -17,6 +17,7 @@ import {
     type Emit2EventMap,
     UiBase
 } from '../web-component-base';
+import { granularityList as dateGranularityList } from '../yyyymmdd-list-grp/selector';
 import styleStr from './index.css';
 import html, { utcText } from './index.html';
 import {
@@ -49,7 +50,10 @@ export {
     UTCInfo2LocaleInfo
 };
 
-export const granularityList = ['day', ...timeGranularityList] as const;
+export const granularityList = [
+    ...dateGranularityList,
+    ...timeGranularityList
+] as const;
 export type Granularity = (typeof granularityList)[number];
 
 export type Attrs = BaseAttrs &

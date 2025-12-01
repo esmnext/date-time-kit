@@ -17,10 +17,14 @@ import {
     Ele as YyyyMmNavEle,
     type EventMap as YyyyMmNavEvent
 } from '../yyyymm-nav';
+import { granularityList as dateGranularityList } from '../yyyymmdd-list-grp/selector';
 import styleStr from './index.css';
 import html from './index.html';
 
-export const granularityList = ['day', ...timeGranularityList] as const;
+export const granularityList = [
+    ...dateGranularityList,
+    ...timeGranularityList
+] as const;
 export type Granularity = (typeof granularityList)[number];
 
 export interface Attrs extends BaseAttrs {
@@ -213,12 +217,15 @@ export class Ele extends UiBase<Attrs, Emits> {
         }
         if (this.minGranularity === 'day') {
             _els.timeSelectors.forEach((e) => (e.style.display = 'none'));
-        } else {
+        } else if (
+            timeGranularityList.includes(this.minGranularity as TimeGranularity)
+        ) {
             _els.timeSelectors.forEach((e) => (e.style.display = ''));
             _els.startTimeSelector.currentTime = timeStart;
             _els.endTimeSelector.currentTime = timeEnd;
             _els.startTimeSelector.minGranularity =
-                _els.endTimeSelector.minGranularity = this.minGranularity;
+                _els.endTimeSelector.minGranularity = this
+                    .minGranularity as TimeGranularity;
         }
         this._updateDateEcho();
         this._updateNavCtrlBtn();
