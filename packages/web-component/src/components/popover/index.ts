@@ -136,6 +136,11 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._bindEvt(this._els.trigger)('click', this._onToggleClick);
         this.strategy = this.strategy;
     }
+    public disconnectedCallback() {
+        this._cleanupAutoUpdate?.();
+        document.removeEventListener('click', this._onDocClick, true);
+        return super.disconnectedCallback();
+    }
 
     protected _onAttrChanged(
         name: string,
