@@ -14,6 +14,7 @@ export const limitKeys: DataLimit[] = [
     'last7Days',
     'month',
     'last30Days',
+    'last90Days',
     'last180Days',
     'last6Month',
     'year'
@@ -107,6 +108,12 @@ const presetPeriods = {
         genPeriodTimes({
             ...ops,
             start: (t) => t.setDate(t.getDate() - 29),
+            end: noop
+        }),
+    last90Days: (ops: QuickGenPeriodTimesOptions) =>
+        genPeriodTimes({
+            ...ops,
+            start: (t) => t.setDate(t.getDate() - 89),
             end: noop
         }),
     last180Days: (ops: QuickGenPeriodTimesOptions) =>

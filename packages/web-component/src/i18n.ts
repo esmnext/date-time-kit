@@ -7,6 +7,7 @@ export type DataLimit =
     | 'last7Days'
     | 'month'
     | 'last30Days'
+    | 'last90Days'
     | 'last180Days'
     | 'last6Month'
     | 'year';
@@ -89,6 +90,7 @@ export const i18n: I18n = {
             last7Days: 'Last 7 Days',
             month: 'This Month',
             last30Days: 'Last 30 Days',
+            last90Days: 'Last 90 Days',
             last180Days: 'Last 180 Days',
             last6Month: 'Last 6 Month',
             year: 'This Year',
@@ -143,6 +145,7 @@ export const i18n: I18n = {
             last7Days: '最近7天',
             month: '本月',
             last30Days: '最近30天',
+            last90Days: '最近90天',
             last180Days: '最近180天',
             last6Month: '最近6个月',
             year: '今年',
@@ -197,6 +200,7 @@ export const i18n: I18n = {
             last7Days: '最近7天',
             month: '本月',
             last30Days: '最近30天',
+            last90Days: '最近90天',
             last180Days: '最近180天',
             last6Month: '最近6個月',
             year: '今年',
@@ -245,6 +249,7 @@ export const i18n: I18n = {
             last7Days: '7 hari terakhir',
             month: 'Bulan ini',
             last30Days: '30 hari terakhir',
+            last90Days: '90 hari terakhir',
             last180Days: '180 hari terakhir',
             last6Month: '6 bulan terakhir',
             year: 'Tahun ini',
@@ -299,6 +304,7 @@ export const i18n: I18n = {
             last7Days: 'Trong 7 ngày qua',
             month: 'Tháng này',
             last30Days: 'Trong 30 ngày trước',
+            last90Days: 'Trong 90 ngày trước',
             last180Days: 'Trong 180 ngày trước',
             last6Month: 'Trong 6 tháng trước',
             year: 'Năm nay',
@@ -353,6 +359,7 @@ export const i18n: I18n = {
             last7Days: '7 วันที่ผ่านมา',
             month: 'เดือนนี้',
             last30Days: '30 วันที่ผ่านมา',
+            last90Days: '90 วันที่ผ่านมา',
             last180Days: '180 วันที่ผ่านมา',
             last6Month: '6 เดือนที่ผ่านมา',
             year: 'ปีนี้',
@@ -407,6 +414,7 @@ export const i18n: I18n = {
             last7Days: '7 hari lepas',
             month: 'Bulan ini',
             last30Days: '30 hari lepas',
+            last90Days: '90 hari lepas',
             last180Days: '180 hari lepas',
             last6Month: '6 bulan lepas',
             year: 'Tahun ini',
@@ -462,6 +470,7 @@ export const i18n: I18n = {
             last7Days: '지난 7일',
             month: '이번달',
             last30Days: '지난 30일',
+            last90Days: '지난 90일',
             last180Days: '지난 180일',
             last6Month: '지난 6개월',
             year: '올해',
@@ -522,6 +531,7 @@ export const i18n: I18n = {
             last7Days: 'آخر 7 أيام',
             month: 'هذا الشهر',
             last30Days: 'آخر 30 يومًا',
+            last90Days: 'آخر 90 يومًا',
             last180Days: 'آخر 180 يومًا',
             last6Month: 'آخر 6 أشهر', // 注意：阿拉伯语复数形式
             year: 'هذه السنة',
