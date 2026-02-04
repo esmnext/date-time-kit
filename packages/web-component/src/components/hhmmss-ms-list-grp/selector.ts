@@ -13,7 +13,8 @@ import {
     type Attrs as BaseAttrs,
     BaseEle,
     type BaseEmits,
-    type Granularity
+    type Granularity,
+    granularityList
 } from './base';
 import { selectorCss } from './css';
 import { selectorHtml } from './html';
@@ -33,10 +34,35 @@ export interface Emits extends BaseEmits {
 }
 export type EventMap = Emit2EventMap<Emits>;
 
+export const defaultTimeFormatter = (
+    time: Date,
+    granularity: {
+        max: Granularity;
+        min: Granularity;
+    }
+) => {
+    const t = new Date(+time - getCurrentTzOffsetMs()).toISOString();
+    const idx = {
+        hour: [11, 13],
+        minute: [14, 16],
+        second: [17, 19],
+        millisecond: [20, 23]
+    };
+    const max = granularityList.includes(granularity.max)
+        ? granularity.max
+        : 'hour';
+    const min = granularityList.includes(granularity.min)
+        ? granularity.min
+        : 'millisecond';
+    return t.slice(idx[max][0], idx[min][1]);
+};
+export type TimeFormatterFn = typeof defaultTimeFormatter;
+
 /**
  * 时分秒毫秒下拉选择器。
- * 这个选择器以 current-time 属性作为当前时间的依据。
- * 而 millisecond 属性则表示现在选中的毫秒数（点击Done按钮后才生效的），理论上外部不应该使用。
+ *
+ * 这个选择器以 `current-time` 属性作为当前时间的依据（特别是年月日）。
+ * 而 `millisecond` 属性则表示现在选中的毫秒数（随着用户操作时实时更新），理论上外部不应直接使用。
  */
 export class Ele extends BaseEle<Attrs, Emits> {
     public static readonly tagName = 'dt-hhmmss-ms-selector' as const;
@@ -98,6 +124,7 @@ export class Ele extends BaseEle<Attrs, Emits> {
         this._render();
     }
 
+    /** 当前日期，带年月日，`select-time` 事件抛出时，年月日来自这里，时分秒来自 `millisecond`。 */
     public get currentTime() {
         const v = this._getAttr('current-time', '' + Date.now());
         return new Date(Number.isNaN(+v) ? v : +v);
@@ -111,7 +138,7 @@ export class Ele extends BaseEle<Attrs, Emits> {
     private _render = super._genRenderFn(() => {
         const tz = getCurrentTzOffsetMs();
         this.millisecond = (+this.currentTime - tz) % (24 * 60 * 60 * 1000);
-        this._els.timeEcho.textContent = this.timeFormatter(
+        this._els.timeEcho.textContent = this._currentTimeFormatter(
             this.currentTime as Date,
             {
                 max: this.maxGranularity,
@@ -139,22 +166,15 @@ export class Ele extends BaseEle<Attrs, Emits> {
         this.open = false;
     };
 
-    public timeFormatter = (
-        time: Date,
-        granularity: {
-            max: Granularity;
-            min: Granularity;
-        }
-    ) => {
-        const t = new Date(+time - getCurrentTzOffsetMs()).toISOString();
-        const idx = {
-            hour: [11, 13],
-            minute: [14, 16],
-            second: [17, 19],
-            millisecond: [20, 23]
-        };
-        return t.slice(idx[granularity.max][0], idx[granularity.min][1]);
-    };
+    private _currentTimeFormatter = defaultTimeFormatter;
+    /** 时间回显格式化函数。设置为 `null` 则重置为默认值 */
+    public get timeFormatter(): TimeFormatterFn {
+        return this._currentTimeFormatter;
+    }
+    public set timeFormatter(fn: TimeFormatterFn | null) {
+        this._currentTimeFormatter = fn || defaultTimeFormatter;
+        this._render();
+    }
 }
 
 Ele.define();

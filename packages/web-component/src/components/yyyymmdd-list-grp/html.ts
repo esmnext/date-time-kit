@@ -30,6 +30,7 @@ export const selectorHtml = html`
   <div slot="pop" part="pop">
     <h3><slot name="title"><dt-i18n i18n-key="date.singleTitle"></dt-i18n></slot></h3>
     <div class="list-grp">${baseHtml}</div>
+    <slot name="footer"></slot>
     <button><dt-i18n i18n-key="box.confirm"></dt-i18n></button>
   </div>
 </dt-popover>

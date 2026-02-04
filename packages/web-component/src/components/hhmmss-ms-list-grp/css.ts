@@ -155,6 +155,7 @@ button {
   font-size: 14px;
   background-color: var(--dt-accent, #18181B);
   color: var(--dt-text-reverse, #fff);
+  cursor: pointer;
 }
 button:hover {
   background-color: var(--color-accent-hover, #000);

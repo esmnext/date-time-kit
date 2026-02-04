@@ -73,9 +73,12 @@ const dateTimeSelectorWithLimitState = ref<'open' | 'close'>('close');
 
 const dateNow = Date.now();
 
-const dateTimeSelectorGranMax = ref<DtDataTimeSelectorPkg.Granularity>('year');
+// const dateTimeSelectorGranMax = ref<DtDataTimeSelectorPkg.Granularity>('year');
+// const dateTimeSelectorGranMin =
+//     ref<DtDataTimeSelectorPkg.Granularity>('month');
+const dateTimeSelectorGranMax = ref<DtDataTimeSelectorPkg.Granularity>('month');
 const dateTimeSelectorGranMin =
-    ref<DtDataTimeSelectorPkg.Granularity>('month');
+    ref<DtDataTimeSelectorPkg.Granularity>('millisecond');
 </script>
 
 <template>

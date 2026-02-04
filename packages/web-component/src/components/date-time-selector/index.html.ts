@@ -11,20 +11,30 @@ import { Ele as YyyyMmDdSelector } from '../yyyymmdd-list-grp/selector';
 YyyyMmDdSelector.define();
 import { GranType } from './common';
 
+const popoverShow = `${GranType.Calendar} ${GranType.CalendarTime}`;
+
 export default html`<div class="host-wrapper" data-type="${GranType.CalendarTime}">
-<dt-popover part="popover">
-  <slot slot="trigger" name="trigger" data-type="${GranType.CalendarTime} ${GranType.Calendar}">
+<dt-popover data-show="${popoverShow}" part="popover">
+  <slot slot="trigger" name="trigger" data-type="${popoverShow}">
     <button>select date and time</button>
   </slot>
   <div slot="pop" class="wrapper" part="pop">
-    <dt-yyyymm-nav
+    <dt-yyyymm-nav data-show="${popoverShow}"
       show-ctrl-btn-month-add
       show-ctrl-btn-month-sub
     ></dt-yyyymm-nav>
-    <dt-calendar-base></dt-calendar-base>
-    <dt-hhmmss-ms-selector></dt-hhmmss-ms-selector>
+    <dt-calendar-base data-show="${popoverShow}"></dt-calendar-base>
+    <dt-hhmmss-ms-selector data-show="${GranType.CalendarTime}"></dt-hhmmss-ms-selector>
+    <button data-show="${GranType.CalendarTime}" class="confirmBtn" part="confirm-btn"
+      ><dt-i18n i18n-key="box.confirm"></dt-i18n
+    ></button>
   </div>
 </dt-popover>
-<dt-hhmmss-ms-selector class="timeOnly"><slot data-type="${GranType.Time}"></slot></dt-hhmmss-ms-selector>
-<dt-yyyymmdd-selector><slot data-type="${GranType.Date}"></slot></dt-yyyymmdd-selector>
+<dt-hhmmss-ms-selector data-show="${GranType.Time}" class="timeOnly">
+  <slot data-type="${GranType.Time}"></slot>
+</dt-hhmmss-ms-selector>
+<dt-yyyymmdd-selector data-show="${GranType.Date} ${GranType.DateTime}">
+  <slot data-type="${GranType.Date} ${GranType.DateTime}"></slot>
+  <dt-hhmmss-ms-selector data-show="${GranType.DateTime}" slot="footer"></dt-hhmmss-ms-selector>
+</dt-yyyymmdd-selector>
 </div>`;

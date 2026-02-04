@@ -6,10 +6,18 @@ export const styleStr = css`
 
 .host-wrapper { display: contents; }
 
-.host-wrapper:not([data-type*='${GranType.Calendar}']) dt-popover,
-.host-wrapper:not([data-type*='${GranType.Time}']) dt-hhmmss-ms-selector,
-.host-wrapper[data-type*='${GranType.Calendar}'] > dt-hhmmss-ms-selector,
-.host-wrapper:not([data-type*='${GranType.Date}']) dt-yyyymmdd-selector {
+${[
+    GranType.Calendar,
+    GranType.DateTime,
+    GranType.Time,
+    GranType.Date,
+    GranType.CalendarTime
+]
+    .map(
+        (t) =>
+            css`.host-wrapper[data-type='${t}'] :not([data-show~='${t}'], slot, slot *, dt-i18n, [slot]:not([data-show]))`
+    )
+    .join(',')} {
   display: none;
 }
 
@@ -24,7 +32,7 @@ dt-popover { width: 100%; }
 .wrapper > * { width: 100%; }
 
 dt-calendar-base {
-  // 254 = item height 6 * 30 + week 14 + gap 10 * 6
+  /* 254 = item height 6 * 30 + week 14 + gap 10 * 6 */
   height: 254px;
 }
 dt-calendar-base::part(week) {
@@ -41,6 +49,20 @@ dt-calendar-base.hide {
 dt-yyyymm-nav::part(list-grp) {
   height: 254px;
   margin-top: 15px;
+}
+
+.confirmBtn {
+  border: none;
+  min-height: 30px;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 14px;
+  background-color: var(--dt-accent, #18181B);
+  color: var(--dt-text-reverse, #fff);
+  cursor: pointer;
+}
+.confirmBtn:hover {
+  background-color: var(--color-accent-hover, #000);
 }
 
 .timeOnly::part(pop),

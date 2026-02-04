@@ -68,6 +68,7 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
         } as const;
     }
 
+    /** 当前时间的毫秒数，范围为一天内的毫秒数（0 到 86399999），随着用户选择时实时更新 */
     public get millisecond() {
         const v = Math.floor(+this._getAttr('millisecond', '0'));
         return Math.min(Math.max(0, v), 24 * 60 * 60 * 1000 - 1);

@@ -48,6 +48,7 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
         ] satisfies (keyof Attrs)[];
     }
 
+    /** 当前选中日期，不带时分秒，用户点击列表内数字后会更新该值 */
     public get millisecond() {
         return Math.floor(+this._getAttr('millisecond', '0'));
     }
