@@ -1,20 +1,11 @@
-import {
-    css,
-    cssDirLtrSelector1,
-    cssDirLtrSelector2,
-    cssDirLtrSelector3
-} from '../../utils';
+import { css, dirLtr } from '../../utils';
 
 export const styleStr = css`
-:host {
-  display: inline-block;
-}
-* {
-  box-sizing: border-box;
-}
-.bidirectional-flip${cssDirLtrSelector1} { transform: scaleX(-1); }
-.bidirectional-flip${cssDirLtrSelector2} { transform: scaleX(-1); }
-.bidirectional-flip${cssDirLtrSelector3} { transform: scaleX(-1); }
+${dirLtr(css`.bidirectional-flip:dir(ltr) { transform: scaleX(-1); }`)}
+
+:host { display: inline-block; }
+* { box-sizing: border-box; }
+
 /* firefox only: */
 @-moz-document url-prefix() {
   :host, * {
