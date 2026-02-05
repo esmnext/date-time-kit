@@ -1,15 +1,11 @@
+import { type TimeGranularity, granHelper } from '../../utils';
 import { Ele as NumListEle, type EventMap as NumListEvent } from '../num-list';
 import { type BaseAttrs, type BaseEmits, UiBase } from '../web-component-base';
 import { baseCss } from './css';
 import { baseHtml } from './html';
 
-export const granularityList = [
-    'hour',
-    'minute',
-    'second',
-    'millisecond'
-] as const;
-export type Granularity = (typeof granularityList)[number];
+export const granularityList = granHelper.time.list;
+export type Granularity = TimeGranularity;
 
 export const colOrderList = ['hms', 'hsm', 'mhs', 'msh', 'shm', 'smh'] as const;
 export type ColOrder = (typeof colOrderList)[number] & {
@@ -81,14 +77,14 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
         return this._getAttr('max-granularity', 'hour') as Granularity;
     }
     public set maxGranularity(v: Granularity) {
-        if (!granularityList.includes(v)) return;
+        if (!granHelper.time.has(v)) return;
         this.setAttribute('max-granularity', v);
     }
     public get minGranularity() {
         return this._getAttr('min-granularity', 'millisecond') as Granularity;
     }
     public set minGranularity(v: Granularity) {
-        if (!granularityList.includes(v)) return;
+        if (!granHelper.time.has(v)) return;
         this.setAttribute('min-granularity', v);
     }
     public get colOrder() {
@@ -97,6 +93,14 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
     public set colOrder(v: ColOrder) {
         if (!colOrderList.includes(v)) return;
         this.setAttribute('col-order', v);
+    }
+
+    protected get _minmaxGran() {
+        const [min, max] = granHelper.time.minmax(
+            this.minGranularity,
+            this.maxGranularity
+        );
+        return { min, max };
     }
 
     public scrollToCurrentItem() {
@@ -140,16 +144,11 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
     });
 
     private _updateGranularity = super._genRenderFn(() => {
-        const { maxGranularity, minGranularity, _els } = this;
-        const granularityMap = {
-            hour: 3,
-            minute: 2,
-            second: 1,
-            millisecond: 0
-        };
-        let maxG = granularityMap[maxGranularity] ?? 0;
-        let minG = granularityMap[minGranularity] ?? 3;
-        if (maxG < minG) [maxG, minG] = [minG, maxG];
+        const { _minmaxGran, _els } = this;
+        const [maxG, minG] = granHelper.time.idx(
+            _minmaxGran.max,
+            _minmaxGran.min
+        );
         const show = (el: HTMLElement, condition: boolean) =>
             !(el.style.display = condition ? '' : 'none');
         show(

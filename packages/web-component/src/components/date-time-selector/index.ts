@@ -1,4 +1,10 @@
-import { closestByEvent } from '../../utils';
+import {
+    type DateGranularity,
+    type DateTimeGranularity,
+    type TimeGranularity,
+    closestByEvent,
+    granHelper
+} from '../../utils';
 import {
     type Ele as CalendarBaseEle,
     type EventMap as CalendarBaseEvent,
@@ -8,9 +14,7 @@ import {
 import {
     type Ele as HhMmSsMsSelectorEle,
     type EventMap as HhMmSsMsSelectorEvent,
-    type Granularity as TimeGranularity,
-    defaultTimeFormatter,
-    granularityList as timeGranularityList
+    defaultTimeFormatter
 } from '../hhmmss-ms-list-grp/selector';
 import type { Ele as PopoverEle } from '../popover';
 import {
@@ -32,44 +36,35 @@ import {
     type EventMap as YyyyMmNavEvent
 } from '../yyyymm-nav';
 import {
-    type Granularity as DateGranularity,
     type Ele as YyyyMmDdSelectorEle,
     type EventMap as YyyyMmDdSelectorEvt,
-    granularityList as dateGranularityList,
     defaultDateFormatter
 } from '../yyyymmdd-list-grp/selector';
 import { GranType } from './common';
 import html from './index.html';
 import { styleStr } from './styleStr';
 
-export const granularityList = [
-    ...dateGranularityList,
-    ...timeGranularityList
-] as const;
-export type Granularity = (typeof granularityList)[number];
+export const granularityList = granHelper.dateTime.list;
+export type Granularity = DateTimeGranularity;
 
 export const defaultDateTimeFormatter = (
     time: Date,
     granularity: {
-        max: Granularity;
-        min: Granularity;
+        max: DateTimeGranularity;
+        min: DateTimeGranularity;
     }
 ) => {
     const datePart = defaultDateFormatter(time, {
-        max: granularity.max as DateGranularity,
+        max: granHelper.toDateGran(granularity.max),
         min: 'day'
     });
     const timePart = defaultTimeFormatter(time, {
         max: 'hour',
-        min: granularity.min as TimeGranularity
+        min: granHelper.toTimeGran(granularity.min)
     });
     return `${datePart} ${timePart}`;
 };
 export type DateTimeFormatterFn = typeof defaultDateTimeFormatter;
-
-const granIdxMap = new Map<Granularity, number>(
-    granularityList.map((g, idx) => [g, idx])
-);
 
 export type Attrs = BaseAttrs &
     reExportPopoverAttrs & {
@@ -95,12 +90,12 @@ export type Attrs = BaseAttrs &
          * 选择器的粒度，表示最小可选的时间单位。默认为 millisecond。
          * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。忽略的时间单位将被重置为 0。
          */
-        'min-granularity'?: Granularity;
+        'min-granularity'?: DateTimeGranularity;
         /**
          * 选择器的粒度，表示最大可选的时间单位。默认为 year。
          * 例如设置为 'day'，则表示只能选择到日，年和月秒将被忽略。忽略的时间单位将被重置为 0、1972（离1970最近的闰年）。
          */
-        'max-granularity'?: Granularity;
+        'max-granularity'?: DateTimeGranularity;
         /**
          * The minimum time of the calendar display range.
          * @type {`string | number`} A value that can be passed to the Date constructor.
@@ -211,15 +206,15 @@ export class Ele extends UiBase<Attrs, Emits> {
     public get minGranularity() {
         return this._getAttr('min-granularity', 'millisecond');
     }
-    public set minGranularity(val: NonNullable<Attrs['min-granularity']>) {
-        if (!granIdxMap.has(val)) return;
+    public set minGranularity(val: DateTimeGranularity) {
+        if (!granHelper.dateTime.has(val)) return;
         this.setAttribute('min-granularity', val);
     }
     public get maxGranularity() {
         return this._getAttr('max-granularity', 'year');
     }
-    public set maxGranularity(val: NonNullable<Attrs['max-granularity']>) {
-        if (!granIdxMap.has(val)) return;
+    public set maxGranularity(val: DateTimeGranularity) {
+        if (!granHelper.dateTime.has(val)) return;
         this.setAttribute('max-granularity', val);
     }
 
@@ -241,24 +236,25 @@ export class Ele extends UiBase<Attrs, Emits> {
         } as const;
     }
 
-    private get _granType() {
-        const idx = (g: Granularity) => granIdxMap.get(g)!;
-        let minGranIdx = idx(this.minGranularity);
-        let maxGranIdx = idx(this.maxGranularity);
-        if (minGranIdx < maxGranIdx)
-            [minGranIdx, maxGranIdx] = [maxGranIdx, minGranIdx];
+    private get _minmaxGran() {
+        const [min, max] = granHelper.dateTime.minmax(
+            this.minGranularity,
+            this.maxGranularity
+        );
+        return { min, max };
+    }
 
-        if (maxGranIdx === idx('year') && minGranIdx === idx('day')) {
+    private get _granType() {
+        const { isDateGran, isTimeGran } = granHelper.dateTime;
+        const { min, max } = this._minmaxGran;
+
+        if (max === 'year' && min === 'day') {
             return GranType.Calendar;
-        } else if (idx('day') < maxGranIdx && idx('day') < minGranIdx) {
+        } else if (isTimeGran(max) && isTimeGran(min)) {
             return GranType.Time;
-        } else if (maxGranIdx <= idx('day') && minGranIdx <= idx('day')) {
+        } else if (isDateGran(max) && isDateGran(min)) {
             return GranType.Date;
-        } else if (
-            idx('year') < maxGranIdx &&
-            maxGranIdx <= idx('day') &&
-            idx('day') < minGranIdx
-        ) {
+        } else if ((max === 'month' || max === 'day') && isTimeGran(min)) {
             return GranType.DateTime;
         } else {
             return GranType.CalendarTime;
@@ -395,13 +391,14 @@ export class Ele extends UiBase<Attrs, Emits> {
         const currentTime = this.currentTime as Date;
         const { _els, _granType } = this;
         _els.hostWrapper.dataset.type = _granType;
+        const { min: minGran, max: maxGran } = this._minmaxGran;
 
         if (
             _granType === GranType.CalendarTime ||
             _granType === GranType.DateTime
         ) {
             Object.assign(_els.timeSelectorInCalendar, {
-                minGranularity: this.minGranularity as TimeGranularity,
+                minGranularity: minGran as TimeGranularity,
                 currentTime
             });
         }
@@ -421,27 +418,27 @@ export class Ele extends UiBase<Attrs, Emits> {
             });
         } else if (_granType === GranType.Time) {
             Object.assign(_els.timeSelectorOnly, {
-                maxGranularity: this.maxGranularity as TimeGranularity,
-                minGranularity: this.minGranularity as TimeGranularity,
+                maxGranularity: maxGran as TimeGranularity,
+                minGranularity: minGran as TimeGranularity,
                 currentTime
             });
         } else if (_granType === GranType.Date) {
             this.dateFormatter = this._currentDateFormatter;
             Object.assign(_els.dateSelector, {
-                maxGranularity: this.maxGranularity as DateGranularity,
-                minGranularity: this.minGranularity as DateGranularity,
+                maxGranularity: maxGran as DateGranularity,
+                minGranularity: minGran as DateGranularity,
                 currentTime
             });
         } else if (_granType === GranType.DateTime) {
             this.dateTimeFormatter = this._currentDateTimeFormatter;
             Object.assign(_els.dateSelector, {
-                maxGranularity: this.maxGranularity as DateGranularity,
+                maxGranularity: maxGran as DateGranularity,
                 minGranularity: 'day',
                 currentTime
             });
             Object.assign(_els.timeSelectorInDate, {
                 maxGranularity: 'hour',
-                minGranularity: this.minGranularity as TimeGranularity,
+                minGranularity: minGran as TimeGranularity,
                 currentTime
             });
         }
@@ -453,16 +450,14 @@ export class Ele extends UiBase<Attrs, Emits> {
         e.stopPropagation();
         this.currentTime =
             +e.detail +
-            (this.minGranularity === 'day'
+            (this._minmaxGran.min === 'day'
                 ? 0
                 : this._els.timeSelectorInCalendar.millisecond);
     };
     private _onNavChange = (e: YyyyMmNavEvent['change']) => {
         e.stopPropagation();
-        const wrapper = closestByEvent(e, '.wrapper');
-        if (!wrapper) return;
-        const { newTime } = e.detail;
-        this._els.calendar.showingTime = +newTime;
+        if (!closestByEvent(e, '.wrapper')) return;
+        this._els.calendar.showingTime = +e.detail.newTime;
     };
     private _onNavOpenToggle = (e: YyyyMmNavEvent['popover-open-change']) => {
         if (!(e.target instanceof YyyyMmNavEle)) return;
@@ -513,11 +508,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
     public set dateTimeFormatter(fn: DateTimeFormatterFn | null) {
         this._els.dateSelector.dateFormatter = fn
-            ? (time, _granularity) =>
-                  fn(time, {
-                      max: this.maxGranularity,
-                      min: this.minGranularity
-                  })
+            ? (time, _granularity) => fn(time, this._minmaxGran)
             : null;
     }
 }

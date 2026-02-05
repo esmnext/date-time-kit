@@ -15,11 +15,10 @@ const emits = defineEmits<{
 }>();
 
 const granList = DtDataTimeSelectorPkg.granularityList;
-const granListReserved = granList.slice().reverse() as Granularity[];
 const limitMax = granList.length - 1;
 
-const min = ref<Number>(granListReserved.indexOf(props.min));
-const max = ref<Number>(granListReserved.indexOf(props.max));
+const min = ref<Number>(granList.indexOf(props.min));
+const max = ref<Number>(granList.indexOf(props.max));
 
 watch([min, max], () => {
     if (min.value > max.value) {
@@ -27,8 +26,8 @@ watch([min, max], () => {
         min.value = max.value;
         max.value = temp;
     }
-    emits('update:min', granListReserved[+min.value]);
-    emits('update:max', granListReserved[+max.value]);
+    emits('update:min', granList[+min.value]);
+    emits('update:max', granList[+max.value]);
 });
 </script>
 
@@ -53,7 +52,7 @@ watch([min, max], () => {
             v-model="min"
         />
         <datalist id="granularityList">
-            <option v-for="(str, idx) in granList" :value="idx" :label="str" />
+            <option v-for="(str, idx) in granList.toReversed()" :value="idx" :label="str" />
         </datalist>
     </div>
 </template>

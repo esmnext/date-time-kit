@@ -1,4 +1,8 @@
-import { closestByEvent } from '../../utils';
+import {
+    type DateTimeGranularity,
+    closestByEvent,
+    granHelper
+} from '../../utils';
 import {
     type Ele as CalendarBaseEle,
     type EventMap as CalendarBaseEvent,
@@ -7,25 +11,18 @@ import {
 } from '../calendar';
 import {
     Ele as HhMmSsMsSelectorEle,
-    type EventMap as HhMmSsMsSelectorEvent,
-    type Granularity as TimeGranularity,
-    granularityList as timeGranularityList
+    type EventMap as HhMmSsMsSelectorEvent
 } from '../hhmmss-ms-list-grp/selector';
-import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
 import { type BaseAttrs, type BaseEmits, UiBase } from '../web-component-base';
 import {
     Ele as YyyyMmNavEle,
     type EventMap as YyyyMmNavEvent
 } from '../yyyymm-nav';
-import { granularityList as dateGranularityList } from '../yyyymmdd-list-grp/selector';
 import styleStr from './index.css';
 import html from './index.html';
 
-export const granularityList = [
-    ...dateGranularityList,
-    ...timeGranularityList
-] as const;
-export type Granularity = (typeof granularityList)[number];
+export const granularityList = granHelper.dateTime.list;
+export type Granularity = DateTimeGranularity;
 
 export interface Attrs extends BaseAttrs {
     /**
@@ -120,7 +117,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         return this._getAttr('min-granularity', 'millisecond');
     }
     public set minGranularity(val: Granularity) {
-        if (!granularityList.includes(val)) return;
+        if (!granHelper.dateTime.has(val)) return;
         this.setAttribute('min-granularity', val);
     }
 
@@ -217,15 +214,12 @@ export class Ele extends UiBase<Attrs, Emits> {
         }
         if (this.minGranularity === 'day') {
             _els.timeSelectors.forEach((e) => (e.style.display = 'none'));
-        } else if (
-            timeGranularityList.includes(this.minGranularity as TimeGranularity)
-        ) {
+        } else if (granHelper.isTimeGran(this.minGranularity)) {
             _els.timeSelectors.forEach((e) => (e.style.display = ''));
             _els.startTimeSelector.currentTime = timeStart;
             _els.endTimeSelector.currentTime = timeEnd;
             _els.startTimeSelector.minGranularity =
-                _els.endTimeSelector.minGranularity = this
-                    .minGranularity as TimeGranularity;
+                _els.endTimeSelector.minGranularity = this.minGranularity;
         }
         this._updateDateEcho();
         this._updateNavCtrlBtn();

@@ -1,10 +1,11 @@
+import { type DateGranularity, granHelper } from '../../utils';
 import { Ele as NumListEle, type EventMap as NumListEvent } from '../num-list';
 import { type BaseAttrs, type BaseEmits, UiBase } from '../web-component-base';
 import { baseCss } from './css';
 import { baseHtml } from './html';
 
-export const granularityList = ['year', 'month', 'day'] as const;
-export type Granularity = (typeof granularityList)[number];
+export const granularityList = granHelper.date.list;
+export type Granularity = DateGranularity;
 
 export const colOrderList = ['ymd', 'ydm', 'myd', 'mdy', 'dym', 'dmy'] as const;
 export type ColOrder = (typeof colOrderList)[number] & {
@@ -92,6 +93,14 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
         } as const;
     }
 
+    protected get _minmaxGran() {
+        const [min, max] = granHelper.date.minmax(
+            this.minGranularity,
+            this.maxGranularity
+        );
+        return { min, max };
+    }
+
     public scrollToCurrentItem() {
         this._els.lists.forEach((e) => e.scrollToCurrent());
     }
@@ -131,19 +140,19 @@ export class BaseEle<A extends Attrs, E extends BaseEmits> extends UiBase<
     });
 
     private _updateGranularity = super._genRenderFn(() => {
-        const { maxGranularity, minGranularity, _els } = this;
-        const granularityMap = { year: 3, month: 2, day: 1 };
-        let maxG = granularityMap[maxGranularity] ?? 1;
-        let minG = granularityMap[minGranularity] ?? 3;
-        if (maxG < minG) [maxG, minG] = [minG, maxG];
+        const { _minmaxGran, _els } = this;
+        const [maxG, minG] = granHelper.date.idx(
+            _minmaxGran.max,
+            _minmaxGran.min
+        );
         const show = (el: HTMLElement, condition: boolean) =>
             !(el.style.display = condition ? '' : 'none');
         show(
             _els.cols,
             [
-                show(_els.yCol, maxG >= 3 && minG <= 3),
-                show(_els.mCol, maxG >= 2 && minG <= 2),
-                show(_els.dCol, maxG >= 1 && minG <= 1)
+                show(_els.yCol, maxG >= 2 && minG <= 2),
+                show(_els.mCol, maxG >= 1 && minG <= 1),
+                show(_els.dCol, maxG >= 0 && minG <= 0)
             ].some((v) => v)
         );
     });

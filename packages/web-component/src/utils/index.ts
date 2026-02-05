@@ -80,3 +80,10 @@ class SmallScreenObserver {
     }
 }
 export const smallScreenObserver = new SmallScreenObserver(750);
+
+export type {
+    DateGranularity,
+    TimeGranularity,
+    DateTimeGranularity
+} from './granularity';
+export { granHelper } from './granularity';

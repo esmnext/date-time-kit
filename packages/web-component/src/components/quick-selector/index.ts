@@ -1,6 +1,10 @@
-import { debounce, getCurrentTzOffset } from '../../utils';
+import {
+    type DateTimeGranularity,
+    debounce,
+    getCurrentTzOffset,
+    granHelper
+} from '../../utils';
 import { type Weeks, weekKey } from '../calendar';
-import { granularityList as timeGranularityList } from '../hhmmss-ms-list-grp/selector';
 import type { Ele as PeriodSelectorEle } from '../period-selector';
 import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
 import {
@@ -17,7 +21,6 @@ import {
     type Emit2EventMap,
     UiBase
 } from '../web-component-base';
-import { granularityList as dateGranularityList } from '../yyyymmdd-list-grp/selector';
 import styleStr from './index.css';
 import html, { utcText } from './index.html';
 import {
@@ -50,11 +53,8 @@ export {
     UTCInfo2LocaleInfo
 };
 
-export const granularityList = [
-    ...dateGranularityList,
-    ...timeGranularityList
-] as const;
-export type Granularity = (typeof granularityList)[number];
+export const granularityList = granHelper.dateTime.list;
+export type Granularity = DateTimeGranularity;
 
 export type Attrs = BaseAttrs &
     reExportPopoverAttrs & {
@@ -181,8 +181,8 @@ export class Ele extends UiBase<Attrs, Emits> {
     public get minGranularity() {
         return this._getAttr('min-granularity', 'millisecond');
     }
-    public set minGranularity(val: NonNullable<Attrs['min-granularity']>) {
-        if (!granularityList.includes(val)) return;
+    public set minGranularity(val: Granularity) {
+        if (!granHelper.dateTime.has(val)) return;
         this.setAttribute('min-granularity', val);
     }
     public get excludeField() {

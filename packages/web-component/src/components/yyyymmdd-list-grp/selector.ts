@@ -1,3 +1,4 @@
+import { granHelper } from '../../utils';
 import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
 import {
     clearupPopEleAttrSync2Parent,
@@ -12,8 +13,7 @@ import {
     type Attrs as BaseAttrs,
     BaseEle,
     type BaseEmits,
-    type Granularity,
-    granularityList
+    type Granularity
 } from './base';
 import { selectorCss } from './css';
 import { selectorHtml } from './html';
@@ -47,10 +47,10 @@ export const defaultDateFormatter = (
         month: [3, 5],
         day: [0, 2]
     };
-    const max = granularityList.includes(granularity.max)
+    const max = granHelper.isDateGran(granularity.max)
         ? granularity.max
         : 'year';
-    const min = granularityList.includes(granularity.min)
+    const min = granHelper.isDateGran(granularity.min)
         ? granularity.min
         : 'day';
     return s.slice(idx[min][0], idx[max][1]);
@@ -139,10 +139,7 @@ export class Ele extends BaseEle<Attrs, Emits> {
         this.millisecond = +currentTime;
         this.$0`.date-echo`!.textContent = this._currentDateFormatter(
             currentTime as Date,
-            {
-                max: this.maxGranularity,
-                min: this.minGranularity
-            }
+            this._minmaxGran
         );
     });
 

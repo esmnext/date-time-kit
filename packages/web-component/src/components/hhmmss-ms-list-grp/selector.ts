@@ -1,4 +1,4 @@
-import { getCurrentTzOffsetMs } from '../../utils';
+import { getCurrentTzOffsetMs, granHelper } from '../../utils';
 import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
 import {
     clearupPopEleAttrSync2Parent,
@@ -13,8 +13,7 @@ import {
     type Attrs as BaseAttrs,
     BaseEle,
     type BaseEmits,
-    type Granularity,
-    granularityList
+    type Granularity
 } from './base';
 import { selectorCss } from './css';
 import { selectorHtml } from './html';
@@ -48,10 +47,10 @@ export const defaultTimeFormatter = (
         second: [17, 19],
         millisecond: [20, 23]
     };
-    const max = granularityList.includes(granularity.max)
+    const max = granHelper.isTimeGran(granularity.max)
         ? granularity.max
         : 'hour';
-    const min = granularityList.includes(granularity.min)
+    const min = granHelper.isTimeGran(granularity.min)
         ? granularity.min
         : 'millisecond';
     return t.slice(idx[max][0], idx[min][1]);
@@ -140,10 +139,7 @@ export class Ele extends BaseEle<Attrs, Emits> {
         this.millisecond = (+this.currentTime - tz) % (24 * 60 * 60 * 1000);
         this._els.timeEcho.textContent = this._currentTimeFormatter(
             this.currentTime as Date,
-            {
-                max: this.maxGranularity,
-                min: this.minGranularity
-            }
+            this._minmaxGran
         );
     });
 
