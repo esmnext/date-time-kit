@@ -1,4 +1,6 @@
 import { getCurrentTzOffsetMs, granHelper } from '../../utils';
+import type { Ele as EchoEle } from '../echo';
+import type { TimeFormatterFn } from '../echo/utils';
 import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
 import {
     clearupPopEleAttrSync2Parent,
@@ -33,30 +35,6 @@ export interface Emits extends BaseEmits {
 }
 export type EventMap = Emit2EventMap<Emits>;
 
-export const defaultTimeFormatter = (
-    time: Date,
-    granularity: {
-        max: Granularity;
-        min: Granularity;
-    }
-) => {
-    const t = new Date(+time - getCurrentTzOffsetMs()).toISOString();
-    const idx = {
-        hour: [11, 13],
-        minute: [14, 16],
-        second: [17, 19],
-        millisecond: [20, 23]
-    };
-    const max = granHelper.isTimeGran(granularity.max)
-        ? granularity.max
-        : 'hour';
-    const min = granHelper.isTimeGran(granularity.min)
-        ? granularity.min
-        : 'millisecond';
-    return t.slice(idx[max][0], idx[min][1]);
-};
-export type TimeFormatterFn = typeof defaultTimeFormatter;
-
 /**
  * 时分秒毫秒下拉选择器。
  *
@@ -80,7 +58,7 @@ export class Ele extends BaseEle<Attrs, Emits> {
         return {
             ...super._staticEls,
             popover: this.$0<PopoverEle>`dt-popover`!,
-            timeEcho: this.$0`.time-echo`!
+            timeEcho: this.$0<EchoEle>`dt-echo`!
         };
     }
 
@@ -124,7 +102,7 @@ export class Ele extends BaseEle<Attrs, Emits> {
     }
 
     /** 当前日期，带年月日，`select-time` 事件抛出时，年月日来自这里，时分秒来自 `millisecond`。 */
-    public get currentTime() {
+    public get currentTime(): Date {
         const v = this._getAttr('current-time', '' + Date.now());
         return new Date(Number.isNaN(+v) ? v : +v);
     }
@@ -136,15 +114,18 @@ export class Ele extends BaseEle<Attrs, Emits> {
 
     private _render = super._genRenderFn(() => {
         const tz = getCurrentTzOffsetMs();
-        this.millisecond = (+this.currentTime - tz) % (24 * 60 * 60 * 1000);
-        this._els.timeEcho.textContent = this._currentTimeFormatter(
-            this.currentTime as Date,
-            this._minmaxGran
-        );
+        const { currentTime, _minmaxGran } = this;
+        this.millisecond = (+currentTime - tz) % (24 * 60 * 60 * 1000);
+        Object.assign(this._els.timeEcho, {
+            currentTime: currentTime,
+            minGranularity: _minmaxGran.min,
+            maxGranularity: _minmaxGran.max
+        } as Partial<EchoEle>);
     });
 
     private _onPopoverChange = (e: PopoverEvent['open-change']) => {
         if (!(e.target instanceof PopoverEle)) return;
+        this._els.timeEcho.active = e.detail;
         if (!e.detail) return this._render();
         this.scrollToCurrentItem();
     };
@@ -155,21 +136,19 @@ export class Ele extends BaseEle<Attrs, Emits> {
             time.setMilliseconds(ms);
             return time;
         };
-        const time = calcTime(this.currentTime as Date, this.millisecond);
+        const time = calcTime(this.currentTime, this.millisecond);
         this.currentTime = time;
         this.dispatchEvent('select-time', time);
         this._render();
         this.open = false;
     };
 
-    private _currentTimeFormatter = defaultTimeFormatter;
     /** 时间回显格式化函数。设置为 `null` 则重置为默认值 */
     public get timeFormatter(): TimeFormatterFn {
-        return this._currentTimeFormatter;
+        return this._els.timeEcho.timeFormatter;
     }
     public set timeFormatter(fn: TimeFormatterFn | null) {
-        this._currentTimeFormatter = fn || defaultTimeFormatter;
-        this._render();
+        this._els.timeEcho.timeFormatter = fn;
     }
 }
 

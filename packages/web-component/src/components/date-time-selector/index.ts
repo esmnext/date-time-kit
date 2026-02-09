@@ -11,10 +11,15 @@ import {
     type Weeks,
     weekKey
 } from '../calendar';
-import {
-    type Ele as HhMmSsMsSelectorEle,
-    type EventMap as HhMmSsMsSelectorEvent,
-    defaultTimeFormatter
+import type { Ele as EchoEle } from '../echo';
+import type {
+    DateFormatterFn,
+    DatetimeFormatterFn,
+    TimeFormatterFn
+} from '../echo/utils';
+import type {
+    Ele as HhMmSsMsSelectorEle,
+    EventMap as HhMmSsMsSelectorEvent
 } from '../hhmmss-ms-list-grp/selector';
 import type { Ele as PopoverEle } from '../popover';
 import {
@@ -35,10 +40,9 @@ import {
     Ele as YyyyMmNavEle,
     type EventMap as YyyyMmNavEvent
 } from '../yyyymm-nav';
-import {
-    type Ele as YyyyMmDdSelectorEle,
-    type EventMap as YyyyMmDdSelectorEvt,
-    defaultDateFormatter
+import type {
+    Ele as YyyyMmDdSelectorEle,
+    EventMap as YyyyMmDdSelectorEvt
 } from '../yyyymmdd-list-grp/selector';
 import { GranType } from './common';
 import html from './index.html';
@@ -46,25 +50,6 @@ import { styleStr } from './styleStr';
 
 export const granularityList = granHelper.dateTime.list;
 export type Granularity = DateTimeGranularity;
-
-export const defaultDateTimeFormatter = (
-    time: Date,
-    granularity: {
-        max: DateTimeGranularity;
-        min: DateTimeGranularity;
-    }
-) => {
-    const datePart = defaultDateFormatter(time, {
-        max: granHelper.toDateGran(granularity.max),
-        min: 'day'
-    });
-    const timePart = defaultTimeFormatter(time, {
-        max: 'hour',
-        min: granHelper.toTimeGran(granularity.min)
-    });
-    return `${datePart} ${timePart}`;
-};
-export type DateTimeFormatterFn = typeof defaultDateTimeFormatter;
 
 export type Attrs = BaseAttrs &
     reExportPopoverAttrs & {
@@ -232,7 +217,9 @@ export class Ele extends UiBase<Attrs, Emits> {
             timeSelectorInDate: this
                 .$0<HhMmSsMsSelectorEle>`dt-yyyymmdd-selector dt-hhmmss-ms-selector`!,
             popover: this.$0<PopoverEle>`dt-popover`!,
-            slots: this.$<HTMLSlotElement>`slot`!
+            slots: this.$<HTMLSlotElement>`slot`!,
+            echoInDate: this.$0<EchoEle>`dt-yyyymmdd-selector dt-echo`!,
+            echoInPopover: this.$0<EchoEle>`dt-popover dt-echo`!
         } as const;
     }
 
@@ -265,14 +252,12 @@ export class Ele extends UiBase<Attrs, Emits> {
         const { _els, _granType } = this;
         const hasSlotTrigger = !!this.querySelector('[slot="trigger"]');
         _els.slots.forEach((slot) => {
-            const hasTypes = (types: GranType[]) =>
-                slot.matches(types.map((t) => `[data-type~='${t}']`).join(','));
-            if (hasTypes([_granType])) {
+            if (slot.matches(`[data-type~='${_granType}']`)) {
                 slot.setAttribute('name', 'trigger');
             } else {
                 slot.removeAttribute('name');
             }
-            if (hasTypes([GranType.Time, GranType.Date, GranType.DateTime])) {
+            if (slot.matches(`[data-type~='${GranType.Time}']`)) {
                 if (hasSlotTrigger) {
                     slot.setAttribute('slot', 'trigger');
                 } else {
@@ -284,22 +269,18 @@ export class Ele extends UiBase<Attrs, Emits> {
 
     private _updateOpenState(force = this.hasAttribute('pop-open')) {
         const { _els, _granType } = this;
+        const isDateGran =
+            _granType === GranType.Date || _granType === GranType.DateTime;
+        const isCalendarGran =
+            _granType === GranType.Calendar ||
+            _granType === GranType.CalendarTime;
+        const isTimeGran = _granType === GranType.Time;
         // use toggleAttribute to avoid element not connected yet
-        _els.popover.toggleAttribute(
-            'open',
-            force &&
-                (_granType === GranType.Calendar ||
-                    _granType === GranType.CalendarTime)
-        );
-        _els.dateSelector.toggleAttribute(
-            'pop-open',
-            force &&
-                (_granType === GranType.Date || _granType === GranType.DateTime)
-        );
-        _els.timeSelectorOnly.toggleAttribute(
-            'pop-open',
-            force && _granType === GranType.Time
-        );
+        _els.popover.toggleAttribute('open', force && isCalendarGran);
+        _els.echoInPopover.toggleAttribute('active', force && isCalendarGran);
+        _els.dateSelector.toggleAttribute('pop-open', force && isDateGran);
+        _els.echoInDate.toggleAttribute('active', force && isDateGran);
+        _els.timeSelectorOnly.toggleAttribute('pop-open', force && isTimeGran);
         this.toggleAttribute('pop-open', force);
     }
 
@@ -393,6 +374,16 @@ export class Ele extends UiBase<Attrs, Emits> {
         _els.hostWrapper.dataset.type = _granType;
         const { min: minGran, max: maxGran } = this._minmaxGran;
 
+        const gen = <T = DateTimeGranularity>() => ({
+            minGranularity: minGran as T,
+            maxGranularity: maxGran as T,
+            currentTime
+        });
+
+        if (_granType !== GranType.Time) {
+            Object.assign(_els.echoInPopover, gen());
+            Object.assign(_els.echoInDate, gen());
+        }
         if (
             _granType === GranType.CalendarTime ||
             _granType === GranType.DateTime
@@ -417,20 +408,10 @@ export class Ele extends UiBase<Attrs, Emits> {
                 maxTime: max
             });
         } else if (_granType === GranType.Time) {
-            Object.assign(_els.timeSelectorOnly, {
-                maxGranularity: maxGran as TimeGranularity,
-                minGranularity: minGran as TimeGranularity,
-                currentTime
-            });
+            Object.assign(_els.timeSelectorOnly, gen<TimeGranularity>());
         } else if (_granType === GranType.Date) {
-            this.dateFormatter = this._currentDateFormatter;
-            Object.assign(_els.dateSelector, {
-                maxGranularity: maxGran as DateGranularity,
-                minGranularity: minGran as DateGranularity,
-                currentTime
-            });
+            Object.assign(_els.dateSelector, gen<DateGranularity>());
         } else if (_granType === GranType.DateTime) {
-            this.dateTimeFormatter = this._currentDateTimeFormatter;
             Object.assign(_els.dateSelector, {
                 maxGranularity: maxGran as DateGranularity,
                 minGranularity: 'day',
@@ -482,34 +463,34 @@ export class Ele extends UiBase<Attrs, Emits> {
     };
 
     /** 时分秒毫秒回显格式化函数。设置为 `null` 则重置为默认值 */
-    public get timeFormatter(): HhMmSsMsSelectorEle['timeFormatter'] {
+    public get timeFormatter(): TimeFormatterFn {
         return this._els.timeSelectorInCalendar.timeFormatter;
     }
-    public set timeFormatter(fn: HhMmSsMsSelectorEle['timeFormatter'] | null) {
-        this._els.timeSelectorInCalendar.timeFormatter =
-            this._els.timeSelectorOnly.timeFormatter =
-            this._els.timeSelectorInDate.timeFormatter =
+    public set timeFormatter(fn: TimeFormatterFn | null) {
+        const { _els } = this;
+        _els.timeSelectorInCalendar.timeFormatter =
+            _els.timeSelectorOnly.timeFormatter =
+            _els.timeSelectorInDate.timeFormatter =
+            _els.echoInDate.timeFormatter =
+            _els.echoInPopover.timeFormatter =
                 fn;
     }
     /** 年月日回显格式化函数。设置为 `null` 则重置为默认值 */
-    private _currentDateFormatter = defaultDateFormatter;
-    public get dateFormatter(): YyyyMmDdSelectorEle['dateFormatter'] {
+    public get dateFormatter(): DateFormatterFn {
         return this._els.dateSelector.dateFormatter;
     }
-    public set dateFormatter(fn: YyyyMmDdSelectorEle['dateFormatter'] | null) {
-        this._els.dateSelector.dateFormatter = fn;
-        this._currentDateFormatter = this._els.dateSelector.dateFormatter;
+    public set dateFormatter(fn: DateFormatterFn | null) {
+        const { _els } = this;
+        _els.echoInDate.dateFormatter = _els.echoInPopover.dateFormatter = fn;
     }
-
-    private _currentDateTimeFormatter = defaultDateTimeFormatter;
     /** 日期时间回显格式化函数。设置为 `null` 则重置为默认值 */
-    public get dateTimeFormatter(): DateTimeFormatterFn {
-        return this._currentDateTimeFormatter;
+    public get dateTimeFormatter(): DatetimeFormatterFn {
+        return this._els.echoInDate.dateTimeFormatter;
     }
-    public set dateTimeFormatter(fn: DateTimeFormatterFn | null) {
-        this._els.dateSelector.dateFormatter = fn
-            ? (time, _granularity) => fn(time, this._minmaxGran)
-            : null;
+    public set dateTimeFormatter(fn: DatetimeFormatterFn | null) {
+        const { _els } = this;
+        _els.echoInDate.dateTimeFormatter =
+            _els.echoInPopover.dateTimeFormatter = fn;
     }
 }
 

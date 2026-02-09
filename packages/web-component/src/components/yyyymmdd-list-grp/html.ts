@@ -19,13 +19,13 @@ export const baseHtml = html`
 </div>
 `;
 
+import { Ele as EchoEle } from '../echo';
+EchoEle.define();
+
 export const selectorHtml = html`
 <dt-popover part="popover" strategy="absolute" placement="bottom">
   <slot name="trigger" slot="trigger">
-    <div class="date-trigger" part="trigger">
-      <i class="date-icon"></i>
-      <span class="date-echo">dd/mm/yyyy</span>
-    </div>
+    <dt-echo part="trigger"></dt-echo>
   </slot>
   <div slot="pop" part="pop">
     <h3><slot name="title"><dt-i18n i18n-key="date.singleTitle"></dt-i18n></slot></h3>

@@ -1,4 +1,6 @@
 import { granHelper } from '../../utils';
+import type { Ele as EchoEle } from '../echo';
+import type { DateFormatterFn } from '../echo/utils';
 import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
 import {
     clearupPopEleAttrSync2Parent,
@@ -34,29 +36,6 @@ export interface Emits extends BaseEmits {
 }
 export type EventMap = Emit2EventMap<Emits>;
 
-export const defaultDateFormatter = (
-    time: Date,
-    granularity: {
-        max: Granularity;
-        min: Granularity;
-    }
-) => {
-    const s = time.toLocaleDateString('en-GB');
-    const idx = {
-        year: [6, 10],
-        month: [3, 5],
-        day: [0, 2]
-    };
-    const max = granHelper.isDateGran(granularity.max)
-        ? granularity.max
-        : 'year';
-    const min = granHelper.isDateGran(granularity.min)
-        ? granularity.min
-        : 'day';
-    return s.slice(idx[min][0], idx[max][1]);
-};
-export type DateFormatterFn = typeof defaultDateFormatter;
-
 /**
  * 年月日下拉选择器。
  *
@@ -79,7 +58,8 @@ export class Ele extends BaseEle<Attrs, Emits> {
     get _staticEls() {
         return {
             ...super._staticEls,
-            popover: this.$0<PopoverEle>`dt-popover`!
+            popover: this.$0<PopoverEle>`dt-popover`!,
+            dateEcho: this.$0<EchoEle>`dt-echo`!
         } as const;
     }
 
@@ -123,7 +103,7 @@ export class Ele extends BaseEle<Attrs, Emits> {
     }
 
     /** 当前日期，带时分秒，`select-time` 事件抛出时，时分秒来自这里，年月日来自 `millisecond`。 */
-    public get currentTime() {
+    public get currentTime(): Date {
         const v = this._getAttr('current-time', '' + Date.now());
         return new Date(Number.isNaN(+v) ? v : +v);
     }
@@ -135,16 +115,18 @@ export class Ele extends BaseEle<Attrs, Emits> {
 
     private _render = super._genRenderFn(() => {
         if (!this.isConnected) return;
-        const { currentTime } = this;
+        const { currentTime, _minmaxGran } = this;
         this.millisecond = +currentTime;
-        this.$0`.date-echo`!.textContent = this._currentDateFormatter(
-            currentTime as Date,
-            this._minmaxGran
-        );
+        Object.assign(this._els.dateEcho, {
+            currentTime: currentTime,
+            minGranularity: _minmaxGran.min,
+            maxGranularity: _minmaxGran.max
+        } as Partial<EchoEle>);
     });
 
     private _onPopoverChange = (e: PopoverEvent['open-change']) => {
         if (!(e.target instanceof PopoverEle)) return;
+        this._els.dateEcho.active = e.detail;
         if (!e.detail) return this._render();
         this.scrollToCurrentItem();
     };
@@ -163,14 +145,12 @@ export class Ele extends BaseEle<Attrs, Emits> {
         this.open = false;
     };
 
-    private _currentDateFormatter = defaultDateFormatter;
     /** 日期回显格式化函数。设置为 `null` 则重置为默认值 */
     public get dateFormatter(): DateFormatterFn {
-        return this._currentDateFormatter;
+        return this._els.dateEcho.dateFormatter;
     }
     public set dateFormatter(fn: DateFormatterFn | null) {
-        this._currentDateFormatter = fn || defaultDateFormatter;
-        this._render();
+        this._els.dateEcho.dateFormatter = fn;
     }
 }
 

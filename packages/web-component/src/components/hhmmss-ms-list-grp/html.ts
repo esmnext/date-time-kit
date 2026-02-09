@@ -34,14 +34,13 @@ export const baseHtml = html`
 
 import { Ele as PopoverEle } from '../popover';
 PopoverEle.define();
+import { Ele as EchoEle } from '../echo';
+EchoEle.define();
 
 export const selectorHtml = html`
 <dt-popover part="popover" strategy="absolute" placement="bottom">
   <slot name="trigger" slot="trigger">
-    <div class="time-trigger" part="trigger">
-      <i class="time-icon"></i>
-      <span class="time-echo">hh:mm:ss.sss</span>
-    </div>
+    <dt-echo part="trigger"></dt-echo>
   </slot>
   <div slot="pop" part="pop">
     <h3><slot name="title"><dt-i18n i18n-key="time.singleTitle"></dt-i18n></slot></h3>
