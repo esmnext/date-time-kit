@@ -140,18 +140,9 @@ const dateTimeSelectorGranMin =
             <option value="sat">week start at Saturday</option>
         </select>
         <select v-model="quickKeyProxy" name="quick-key">
-            <option value="all">all</option>
-            <option value="today">today</option>
-            <option value="yesterday">yesterday</option>
-            <option value="week">week</option>
-            <option value="lastWeek">lastWeek</option>
-            <option value="last7Days">last7Days</option>
-            <option value="month">month</option>
-            <option value="last30Days">last30Days</option>
-            <option value="last180Days">last180Days</option>
-            <option value="last6Month">last6Month</option>
-            <option value="year">year</option>
-            <option value="custom">custom (next week)</option>
+            <option v-for="value in DtQuickSelectorPkg.quickKeys" :key="value" :value="value">{{
+                value === 'custom' ? 'custom (next week)' : value
+            }}</option>
         </select>
         <pre id="quick-result">result: {{ quickResult }}</pre>
         <pre id="quick-result">result with timezone offset: {{ quickResultWithOffset }}</pre>

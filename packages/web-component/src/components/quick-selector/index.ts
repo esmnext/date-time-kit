@@ -50,7 +50,9 @@ export {
     quickGenPeriodTimes,
     quickGenPeriodTimeInfo,
     localeInfo2UTCInfo,
-    UTCInfo2LocaleInfo
+    UTCInfo2LocaleInfo,
+    quickKeys,
+    weekKey
 };
 
 export const granularityList = granHelper.dateTime.list;
