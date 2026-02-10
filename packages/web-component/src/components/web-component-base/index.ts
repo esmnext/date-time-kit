@@ -86,8 +86,9 @@ export class UiBase<
         }
         const tagName = this.tagName;
         if (!tagName) throw new Error('UiBase.define: tagName is not defined.');
+        this._definePromise = customElements.whenDefined(tagName);
         customElements.define(tagName, this);
-        return (this._definePromise = customElements.whenDefined(tagName));
+        return this._definePromise;
     }
 
     // TODO: use override keyword in subclasses

@@ -36,6 +36,7 @@ export const listGrpCss = css`:host {
 }${baseCss}`;
 
 export const selectorCss = css`${baseCss}
+:host { display: inline-block; }
 .list-grp {
   display: flex;
   flex-direction: column;
@@ -43,14 +44,7 @@ export const selectorCss = css`${baseCss}
   gap: 15px;
 }
 
-dt-popover {
-  width: 100%;
-}
-dt-popover::part(pop) {
-  width: 100%;
-}
-
-dt-echo {
+dt-popover, dt-echo {
   width: 100%;
 }
 

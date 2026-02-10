@@ -3,7 +3,7 @@ import {
     computePosition,
     flip,
     offset,
-    shift
+    size
 } from '@floating-ui/dom';
 import { html } from '../../utils';
 import {
@@ -25,6 +25,7 @@ export interface Attrs extends BaseAttrs {
     strategy?: 'absolute' | 'fixed' | 'none';
     /** @default 0 */
     offset?: number;
+    'min-width-with-trigger'?: boolean;
 }
 
 export interface Emits extends BaseEmits {
@@ -70,7 +71,8 @@ export class Ele extends UiBase<Attrs, Emits> {
             'disabled',
             'placement',
             'strategy',
-            'offset'
+            'offset',
+            'min-width-with-trigger'
         ] satisfies (keyof Attrs)[];
     }
 
@@ -112,7 +114,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     get _staticEls() {
         return {
             ...super._staticEls,
-            pop: this.$0`slot[name="pop"]`!,
+            pop: this.$0<HTMLSlotElement>`slot[name="pop"]`!,
             trigger: this.$0<HTMLSlotElement>`slot[name="trigger"]`!
         } as const;
     }
@@ -120,6 +122,13 @@ export class Ele extends UiBase<Attrs, Emits> {
         return this._els.trigger.assignedElements({ flatten: true })[0] as
             | HTMLElement
             | undefined;
+    }
+    private get _popAssignedEle() {
+        return (
+            (this._els.pop.assignedElements({ flatten: true })[0] as
+                | HTMLElement
+                | undefined) || this.querySelector<HTMLElement>('[slot="pop"]')
+        );
     }
 
     /**
@@ -133,7 +142,7 @@ export class Ele extends UiBase<Attrs, Emits> {
 
     public connectedCallback() {
         if (!super.connectedCallback()) return;
-        this._bindEvt(this._els.trigger)('click', this._onToggleClick);
+        this._bindEvt(this._els.trigger)('click', this._onTriggerClick);
         this.strategy = this.strategy;
     }
     public disconnectedCallback() {
@@ -167,11 +176,11 @@ export class Ele extends UiBase<Attrs, Emits> {
         this.dispatchEvent('open-change', this.open, true);
     }
 
-    private _onToggleClick = () => {
+    private _onTriggerClick = () => {
         this.toggleOpen();
     };
     private _onDocClick = (e: MouseEvent) => {
-        const popEle = this.querySelector('[slot="pop"]');
+        const popEle = this._popAssignedEle;
         if (popEle) {
             const composedPath = e.composedPath();
             if (composedPath.includes(popEle)) return;
@@ -208,7 +217,16 @@ export class Ele extends UiBase<Attrs, Emits> {
                     middleware: [
                         offset(this.offset),
                         flip(),
-                        shift({ padding: 5 })
+                        size({
+                            apply: ({ elements, rects }) => {
+                                if (
+                                    !this.hasAttribute('min-width-with-trigger')
+                                )
+                                    return;
+                                elements.floating.style.minWidth =
+                                    rects.reference.width + 'px';
+                            }
+                        })
                     ]
                 }
             );

@@ -83,7 +83,7 @@ const dateTimeSelectorGranMin =
 
 <template>
     <div class="wrapper" :data-theme="theme" :dir="lang === 'ar-AE' ? 'rtl' : 'ltr'">
-        <!-- <select v-model="theme" name="theme">
+        <select v-model="theme" name="theme">
             <option value="light">light</option>
             <option value="dark">dark</option>
         </select>
@@ -147,7 +147,7 @@ const dateTimeSelectorGranMin =
         <pre id="quick-result">result: {{ quickResult }}</pre>
         <pre id="quick-result">result with timezone offset: {{ quickResultWithOffset }}</pre>
 
-        <hr /> -->
+        <hr />
 
         <div>
             <p>selected time: {{ currentTime && new Date(currentTime).toISOString() }}</p>
@@ -158,7 +158,7 @@ const dateTimeSelectorGranMin =
             Granularity:
             <InputRange v-model:max="dateTimeSelectorGranMax" v-model:min="dateTimeSelectorGranMin" />
 
-            <!-- <dt-date-time-selector
+            <dt-date-time-selector
                 :lang="lang"
                 pop-strategy="absolute"
                 :current-time="currentTime"
@@ -187,20 +187,22 @@ const dateTimeSelectorGranMin =
                 @open-change="dateTimeSelectorState = $event.detail ? 'open' : 'close'"
             >
                 <button slot="trigger">min-granularity="minute"</button>
-            </dt-date-time-selector> -->
-            <dt-date-time-selector
-                :lang="lang"
-                pop-open
-                pop-strategy="absolute"
-                :min-granularity="dateTimeSelectorGranMin"
-                :max-granularity="dateTimeSelectorGranMax"
-                :current-time="currentTime"
-                @select-time="currentTime = +$event.detail"
-                @open-change="dateTimeSelectorState = $event.detail ? 'open' : 'close'"
-            >
-                <!-- <button slot="trigger">granularity=[{{ dateTimeSelectorGranMax }}, {{ dateTimeSelectorGranMin }}]</button> -->
             </dt-date-time-selector>
-            <!-- <ul>
+            <div class="overflow">
+                <dt-date-time-selector
+                    :lang="lang"
+                    pop-open
+                    pop-strategy="fixed"
+                    :min-granularity="dateTimeSelectorGranMin"
+                    :max-granularity="dateTimeSelectorGranMax"
+                    :current-time="currentTime"
+                    @select-time="currentTime = +$event.detail"
+                    @open-change="dateTimeSelectorState = $event.detail ? 'open' : 'close'"
+                >
+                    <!-- <button slot="trigger" class="test">granularity=[{{ dateTimeSelectorGranMax }}, {{ dateTimeSelectorGranMin }}]</button> -->
+                </dt-date-time-selector>
+            </div>
+            <ul>
                 <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil, mollitia?</li>
                 <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil, mollitia?</li>
                 <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil, mollitia?</li>
@@ -214,7 +216,7 @@ const dateTimeSelectorGranMin =
                 <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil, mollitia?</li>
                 <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil, mollitia?</li>
                 <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil, mollitia?</li>
-            </ul> -->
+            </ul>
         </div>
     </div>
 </template>
@@ -305,7 +307,17 @@ dt-quick-selector {
     display: inline-block;
     margin: 0 200px;
 }
+.overflow {
+    overflow: hidden;
+    width: 200px;
+    height: 100px;
+    border: 1px solid var(--color-border-dark);
+}
 dt-date-time-selector {
     margin: 0 200px;
+    width: 400px;
+}
+.test {
+    width: 50%;
 }
 </style>

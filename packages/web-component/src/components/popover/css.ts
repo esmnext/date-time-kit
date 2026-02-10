@@ -9,6 +9,7 @@ export const styleStr = css`
   border: 1px solid var(--dt-border-dark, #0000001A);
   box-shadow: var(--dt-pop-box-shadow, 0 6px 16px #0003);
 }
+:host { display: inline-block; }
 :host(:not([open])) slot[name='pop'] { display: none; }
 :host([open]:not([strategy='none'])) slot[name='pop'] { display: block; }
 

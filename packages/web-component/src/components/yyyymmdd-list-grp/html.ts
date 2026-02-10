@@ -23,7 +23,7 @@ import { Ele as EchoEle } from '../echo';
 EchoEle.define();
 
 export const selectorHtml = html`
-<dt-popover part="popover" strategy="absolute" placement="bottom">
+<dt-popover part="popover" strategy="absolute">
   <slot name="trigger" slot="trigger">
     <dt-echo part="trigger"></dt-echo>
   </slot>

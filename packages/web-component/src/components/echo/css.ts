@@ -3,6 +3,7 @@ import { css } from '../../utils';
 import { dateSvg, svg2cssUrl, timeSvg } from '../../assets';
 
 export const echoCss = css`
+:host { display: inline-block; }
 .wrapper {
   width: 100%;
   padding: 4px;

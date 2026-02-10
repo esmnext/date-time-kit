@@ -3,7 +3,7 @@ import { css, dirLtr } from '../../utils';
 export const styleStr = css`
 ${dirLtr(css`.bidirectional-flip:dir(ltr) { transform: scaleX(-1); }`)}
 
-:host { display: inline-block; }
+:host { display: contents; }
 * { box-sizing: border-box; }
 
 /* firefox only: */

@@ -59,7 +59,7 @@ watch([min, max], () => {
 
 <style scoped>
 div {
-    display: flex;
+    display: inline-flex;
 }
 datalist {
     display: flex;
