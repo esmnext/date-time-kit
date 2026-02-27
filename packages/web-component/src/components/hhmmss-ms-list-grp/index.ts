@@ -1,6 +1,6 @@
 import { debounce } from '../../utils';
 import type { Emit2EventMap } from '../web-component-base';
-import { type Attrs as BaseAttrs, BaseEle, type BaseEmits } from './base';
+import { type BaseEmits, MixinHhmmssBaseEle } from './base';
 
 export type { Granularity, ColOrder } from './base';
 
@@ -12,11 +12,9 @@ export interface Emits extends BaseEmits {
 }
 export type EventMap = Emit2EventMap<Emits>;
 
-/**
- * 时分秒毫秒选择器
- */
-export class Ele extends BaseEle<BaseAttrs, Emits> {
-    public static readonly tagName = 'dt-hhmmss-ms-list-grp' as const;
+/** 时分秒毫秒选择器 */
+export class Ele extends MixinHhmmssBaseEle() {
+    public static readonly tagName = 'dt-hhmmss-ms-list-grp';
 
     protected _onAttrChanged(
         name: string,

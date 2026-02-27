@@ -72,11 +72,20 @@ abstract class Granularity<T extends string = string> {
     };
 }
 
-class _DateGranularity extends Granularity<'year' | 'month' | 'day'> {
+class _YMGranularity extends Granularity<'year' | 'month'> {
     public readonly year = 'year';
     public readonly month = 'month';
+    public readonly list = [this.month, this.year] as const;
+    public readonly map = new Map(this.list.map((v, idx) => [v, idx]));
+}
+type YMGran = _YMGranularity['list'][number];
+export const ymGranHelper = new _YMGranularity();
+
+class _DateGranularity extends Granularity<'year' | 'month' | 'day'> {
+    public readonly year = ymGranHelper.year;
+    public readonly month = ymGranHelper.month;
     public readonly day = 'day';
-    public readonly list = [this.day, this.month, this.year] as const;
+    public readonly list = [this.day, ...ymGranHelper.list] as const;
     public readonly map = new Map(this.list.map((v, idx) => [v, idx]));
 }
 type DateGran = _DateGranularity['list'][number];
@@ -131,14 +140,19 @@ export const granHelper = {
     date: dateGranHelper,
     time: timeGranHelper,
     dateTime: dateTimeGranHelper,
+    ym: ymGranHelper,
     toDateGran: dateTimeGranHelper.toDateGran,
     toTimeGran: dateTimeGranHelper.toTimeGran,
     isTimeGran: dateTimeGranHelper.isTimeGran,
-    isDateGran: dateTimeGranHelper.isDateGran
+    isDateGran: dateTimeGranHelper.isDateGran,
+    isYMGran: (gran: string): gran is YMGran => ymGranHelper.has(gran),
+    minmax: dateTimeGranHelper.minmax
 } as const;
 
 export type {
     DateGran as DateGranularity,
     TimeGran as TimeGranularity,
-    DateTimeGran as DateTimeGranularity
+    DateTimeGran as DateTimeGranularity,
+    YMGran as YMGranularity,
+    Granularity as AbstractGranularity
 };

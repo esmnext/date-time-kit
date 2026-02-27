@@ -1,37 +1,46 @@
 import { closestByEvent, debounce, html } from '../../utils';
 import {
-    type BaseAttrs,
     type BaseEmits,
+    EleMixin,
+    EleWithProps,
     type Emit2EventMap,
-    UiBase
+    UiBase,
+    clampedNumAttr,
+    numAttr
 } from '../web-component-base';
 import styleStr from './index.css';
 
-export interface Attrs extends BaseAttrs {
+const clampedNumAttrs = clampedNumAttr(
+    ['minNum', 'min-num'],
+    ['currentNum', 'current-num'],
+    ['maxNum', 'max-num']
+);
+
+export const props = {
     /**
      * The current number in the list. The component will scroll to this number when rendered.
      * @type {number}
      */
-    'current-num': number;
+    currentNum: clampedNumAttrs.currentNum,
     /**
      * The minimum number in the list (include). If not set, there is no minimum limit.
      * @type {number}
      * @default -Infinity
      */
-    'min-num'?: number;
+    minNum: clampedNumAttrs.minNum,
     /**
      * The maximum number in the list (include). If not set, there is no maximum limit.
      * @type {number}
      * @default Infinity
      */
-    'max-num'?: number;
+    maxNum: clampedNumAttrs.maxNum
     // /**
     //  * The position to scroll the current number into view.
     //  * @type {`"center" | "end" | "nearest" | "start"`}
     //  * @default "start"
     //  */
     // position?: ScrollLogicalPosition;
-}
+};
 
 export interface Emits extends BaseEmits {
     'select-num': {
@@ -46,20 +55,11 @@ export type EventMap = Emit2EventMap<Emits>;
  *
  * 存在一个 formatter 方法，可以重写该方法以自定义数字的显示格式。
  */
-export class Ele extends UiBase<Attrs, Emits> {
+export class Ele extends EleMixin(props, {} as Emits, UiBase) {
     public static tagName = 'dt-num-list' as const;
     protected static _style = styleStr;
     protected static _template =
         html`<div class="container" part="container"></div>`;
-
-    static get observedAttributes(): string[] {
-        return [
-            ...(super.observedAttributes as (keyof BaseAttrs)[]),
-            'current-num',
-            'min-num',
-            'max-num'
-        ] satisfies (keyof Attrs)[];
-    }
 
     get _staticEls() {
         return {
@@ -73,31 +73,6 @@ export class Ele extends UiBase<Attrs, Emits> {
             currentItem: this.$0`.item-current`,
             items: this.$`.item`
         } as const;
-    }
-
-    public get currentNum() {
-        return Number(this._getAttr('current-num'));
-    }
-    public set currentNum(val: number) {
-        this.setAttribute('current-num', String(val));
-    }
-    public get minNum() {
-        return Number(this._getAttr('min-num', '-Infinity'));
-    }
-    public set minNum(val: number) {
-        let min = +val;
-        if (Number.isNaN(min)) min = Number.NEGATIVE_INFINITY;
-        if (min > this.maxNum) [this.maxNum, min] = [min, this.maxNum];
-        this.setAttribute('min-num', String(val));
-    }
-    public get maxNum() {
-        return Number(this._getAttr('max-num', 'Infinity'));
-    }
-    public set maxNum(val: number) {
-        let max = +val;
-        if (Number.isNaN(max)) max = Number.POSITIVE_INFINITY;
-        if (max < this.minNum) [this.minNum, max] = [max, this.minNum];
-        this.setAttribute('max-num', String(val));
     }
 
     private _createItem = (num: number, currentNum = this.currentNum) => {

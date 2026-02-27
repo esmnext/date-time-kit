@@ -1,57 +1,63 @@
 import { closestByEvent } from '../../utils';
 import {
-    type BaseAttrs,
     type BaseEmits,
+    EleMixin,
     type Emit2EventMap,
-    UiBase
+    UiBase,
+    booleanAttr,
+    enumAttr,
+    timeAttr
 } from '../web-component-base';
 import styleStr from './index.css';
 import html from './index.html';
 import { type Weeks, getWeekInOrder, weekKey } from './weeks';
 export { type Weeks, weekKey, getWeekInOrder } from './weeks';
 
-export interface Attrs extends BaseAttrs {
+const props = {
     /**
      * The showing time, used to determine the month to show on calendar.
      * @type {`string | number`} A value that can be passed to the Date constructor.
      * @default Date.now()
      */
-    'showing-time'?: string | number;
+    showingTime: timeAttr('showing-time'),
     /**
      * The start time of the calendar display range.
      * @type {`string | number`} A value that can be passed to the Date constructor.
      * @default 'showing-time'
      */
-    'time-start'?: string | number;
+    timeStart: timeAttr('time-start', { defaultValueFromAttr: 'showing-time' }),
     /**
      * The end time of the calendar display range.
      * @type {`string | number`} A value that can be passed to the Date constructor.
      * @default 'time-start'
      */
-    'time-end'?: string | number;
+    timeEnd: timeAttr('time-end', { defaultValueFromAttr: 'time-start' }),
     /**
      * The minimum time of the calendar display range.
      * @type {`string | number`} A value that can be passed to the Date constructor.
      */
-    'min-time'?: string | number;
+    minTime: timeAttr('min-time', { defaultValue: () => 'NaN' }),
     /**
      * The maximum time of the calendar display range.
      * @type {`string | number`} A value that can be passed to the Date constructor.
      */
-    'max-time'?: string | number;
+    maxTime: timeAttr('max-time', { defaultValue: () => 'NaN' }),
     /**
      * Set which day of the week is the first day.
      * @type `'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'`
      * @default 'sun'
      */
-    'week-start-at'?: Weeks;
+    weekStartAt: enumAttr('week-start-at', {
+        validValues: weekKey,
+        defaultValue: 'sun'
+    }),
     /**
      * Whether to show the days of the previous and next months in the current month's calendar.
      * @type {boolean}
      * @default false
      */
-    'show-other-month'?: boolean;
-}
+    showOtherMonth: booleanAttr('show-other-month')
+};
 
 export interface Emits extends BaseEmits {
     'select-time': Date;
@@ -62,22 +68,10 @@ export type EventMap = Emit2EventMap<Emits>;
 /**
  * 基础的日历显示组件。仅显示星期和数字。
  */
-export class Ele extends UiBase<Attrs, Emits> {
+export class Ele extends EleMixin(props, {} as Emits, UiBase) {
     public static tagName = 'dt-calendar-base' as const;
     protected static _style = styleStr;
     protected static _template = html;
-
-    static get observedAttributes(): string[] {
-        return [
-            ...(super.observedAttributes as (keyof BaseAttrs)[]),
-            'showing-time',
-            'time-start',
-            'time-end',
-            'min-time',
-            'max-time',
-            'week-start-at'
-        ] satisfies (keyof Attrs)[];
-    }
 
     get _staticEls() {
         return {
@@ -85,66 +79,6 @@ export class Ele extends UiBase<Attrs, Emits> {
             weeks: this.$`.week`,
             items: this.$`.item`
         } as const;
-    }
-
-    public get showingTime() {
-        const v = this._getAttr('showing-time', '' + Date.now());
-        return new Date(Number.isNaN(+v) ? v : +v);
-    }
-    public get timeStart() {
-        const v = this._getAttr('time-start', '' + this.showingTime);
-        return new Date(Number.isNaN(+v) ? v : +v);
-    }
-    public get timeEnd() {
-        const v = this._getAttr('time-end', '' + this.timeStart);
-        return new Date(Number.isNaN(+v) ? v : +v);
-    }
-    public get minTime() {
-        const v = this._getAttr('min-time', 'null');
-        return new Date(Number.isNaN(+v) ? v : +v);
-    }
-    public get maxTime() {
-        const v = this._getAttr('max-time', 'null');
-        return new Date(Number.isNaN(+v) ? v : +v);
-    }
-    private _setTimeAttr(
-        name: keyof Omit<
-            Attrs,
-            'week-start-at' | 'show-other-month' | keyof BaseAttrs
-        >,
-        value: number | string | Date
-    ) {
-        const v = new Date(value);
-        if (Number.isNaN(+v)) return;
-        this.setAttribute(name, +v + '');
-    }
-    public set showingTime(val: number | string | Date) {
-        this._setTimeAttr('showing-time', val);
-    }
-    public set timeStart(val: number | string | Date) {
-        this._setTimeAttr('time-start', val);
-    }
-    public set timeEnd(val: number | string | Date) {
-        this._setTimeAttr('time-end', val);
-    }
-    public set minTime(val: number | string | Date) {
-        this._setTimeAttr('min-time', val);
-    }
-    public set maxTime(val: number | string | Date) {
-        this._setTimeAttr('max-time', val);
-    }
-    public get weekStartAt() {
-        return this._getAttr('week-start-at', 'sun');
-    }
-    public set weekStartAt(val: Weeks) {
-        if (!weekKey.includes(val)) return;
-        this.setAttribute('week-start-at', val);
-    }
-    public get showOtherMonth() {
-        return this.hasAttribute('show-other-month');
-    }
-    public set showOtherMonth(val: boolean) {
-        this.setAttribute('show-other-month', '' + val);
     }
 
     public connectedCallback() {
@@ -186,9 +120,9 @@ export class Ele extends UiBase<Attrs, Emits> {
     });
 
     private _onTimeChange = super._genRenderFn(() => {
-        const currentTime = this.showingTime as Date;
-        let timeStart = this.timeStart as Date;
-        let timeEnd = this.timeEnd as Date;
+        const currentTime = this.showingTime;
+        let timeStart = this.timeStart;
+        let timeEnd = this.timeEnd;
         currentTime.setHours(0, 0, 0, 0);
         timeStart.setHours(0, 0, 0, 0);
         timeEnd.setHours(0, 0, 0, 0);
@@ -205,8 +139,8 @@ export class Ele extends UiBase<Attrs, Emits> {
             [timeStart, timeEnd] = [timeEnd, timeStart];
         }
 
-        const minTime = this.minTime as Date;
-        const maxTime = this.maxTime as Date;
+        const minTime = this.minTime;
+        const maxTime = this.maxTime;
         minTime.setHours(0, 0, 0, 0);
         maxTime.setHours(0, 0, 0, 0);
         if (maxTime < timeEnd) timeEnd = maxTime;

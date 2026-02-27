@@ -1,42 +1,45 @@
 import { closeBarSvg, svg2cssUrl } from '../../assets';
 import { css } from '../../utils';
 
+/** 触发器容器的样式（dt-popover） */
 export const styleStr = css`
-::slotted([slot='pop']:not(.not-pop-bg)) {
+:host { display: inline-block; }
+`;
+
+/** 气泡元素的独立样式（dt-popover-pop，挂载到 body） */
+export const popStyleStr = css`
+:host {
+  display: block;
+  position: fixed;
+  z-index: var(--dt-pop-z-index, 9999);
+  top: 0;
+  left: 0;
+}
+:host([hidden]) {
+  display: none;
+}
+::slotted(*) {
   background-color: var(--dt-bg-block-light, #fff);
   padding: 10px 5px;
   border-radius: var(--dt-pop-border-radius, 6px);
   border: 1px solid var(--dt-border-dark, #0000001A);
   box-shadow: var(--dt-pop-box-shadow, 0 6px 16px #0003);
 }
-:host { display: inline-block; }
-:host(:not([open])) slot[name='pop'] { display: none; }
-:host([open]:not([strategy='none'])) slot[name='pop'] { display: block; }
-
-:host(:not([strategy='none'])) slot[name='pop'] {
-  position: fixed;
-  z-index: var(--dt-pop-z-index, 9999);
-  top: 0;
-  left: 0;
-}
-:host([strategy='absolute']) slot[name='pop'] { position: absolute; }
-:host([strategy='absolute']) { position: relative; }
 
 @media (max-width: 750px) {
-  :host([open]) slot[name='pop'] {
+  :host([open]) {
     width: 100vw;
     max-height: min(90vh, 600px);
     top: unset;
     left: 0;
     bottom: 0;
-    position: fixed;
   }
-  :host([open]) slot[name='pop']::after, :host([open]) slot[name='pop']::before {
+  :host([open])::after, :host([open])::before {
     content: '';
     display: block;
     position: absolute;
   }
-  :host([open]) slot[name='pop']::before {
+  :host([open])::before {
     bottom: 100%;
     left: 0;
     right: 0;
@@ -44,7 +47,7 @@ export const styleStr = css`
     border-radius: 20px 20px 0 0;
     background: var(--dt-bg-block-light, #fff);
   }
-  :host([open]) slot[name='pop']::after {
+  :host([open])::after {
     bottom: calc(100% + (24px - 4px) / 2);
     left: 50%;
     transform: translateX(-50%);
@@ -55,14 +58,14 @@ export const styleStr = css`
     -webkit-mask-image: ${svg2cssUrl(closeBarSvg)};
     cursor: pointer;
   }
-  ::slotted([slot='pop']:not(.not-pop-bg)) {
+  ::slotted(*) {
     padding: 15px;
     border-radius: 0;
     border: none;
     box-shadow: none;
   }
   /* for masking */
-  :host([open]:not([strategy='none']))::before {
+  :host([open])::before {
     content: '';
     position: fixed;
     top: 0;

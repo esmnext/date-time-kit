@@ -1,22 +1,15 @@
 import i18n, { langs } from "../../i18n";
-import { BaseAttrs, UiBase } from "../web-component-base";
+import { EleWithProps, strAttr, UiBase } from "../web-component-base";
 import { css, html } from "../../utils";
 
-export interface Attrs extends BaseAttrs {
-    'i18n-key'?: string;
-}
+export const props = {
+    i18nKey: strAttr('i18n-key')
+};
 
-export class Ele extends UiBase<Attrs> {
+export class Ele extends EleWithProps(props, UiBase) {
     public static readonly tagName = 'dt-i18n' as const;
     protected static _style = css`:host{display:contents}`;
     protected static _template = html`<slot></slot>`;
-
-    static get observedAttributes(): string[] {
-        return [
-            ...(super.observedAttributes as (keyof BaseAttrs)[]),
-            'i18n-key'
-        ] satisfies (keyof Attrs)[];
-    }
 
     protected _onAttrChanged(name: string, oldValue: string, newValue: string) {
         super._onAttrChanged(name, oldValue, newValue);
@@ -30,10 +23,9 @@ export class Ele extends UiBase<Attrs> {
     }
 
     public updateText() {
-        let lang = this._getAttr('lang', 'en-US');
-        if (!langs.includes(lang)) lang = 'en-US';
+        let lang = this.lang;
         let text: any = i18n[lang];
-        const keys = (this._getAttr('i18n-key') || '').split('.');
+        const keys = (this.i18nKey || '').split('.');
         for (const k of keys) {
             text = text?.[k];
             if (!text) break;

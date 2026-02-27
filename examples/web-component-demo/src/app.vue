@@ -83,7 +83,7 @@ const dateTimeSelectorGranMin =
 
 <template>
     <div class="wrapper" :data-theme="theme" :dir="lang === 'ar-AE' ? 'rtl' : 'ltr'">
-        <select v-model="theme" name="theme">
+        <!-- <select v-model="theme" name="theme">
             <option value="light">light</option>
             <option value="dark">dark</option>
         </select>
@@ -147,7 +147,7 @@ const dateTimeSelectorGranMin =
         <pre id="quick-result">result: {{ quickResult }}</pre>
         <pre id="quick-result">result with timezone offset: {{ quickResultWithOffset }}</pre>
 
-        <hr />
+        <hr /> -->
 
         <div>
             <p>selected time: {{ currentTime && new Date(currentTime).toISOString() }}</p>
@@ -158,7 +158,7 @@ const dateTimeSelectorGranMin =
             Granularity:
             <InputRange v-model:max="dateTimeSelectorGranMax" v-model:min="dateTimeSelectorGranMin" />
 
-            <dt-date-time-selector
+            <!-- <dt-date-time-selector
                 :lang="lang"
                 pop-strategy="absolute"
                 :current-time="currentTime"
@@ -187,7 +187,7 @@ const dateTimeSelectorGranMin =
                 @open-change="dateTimeSelectorState = $event.detail ? 'open' : 'close'"
             >
                 <button slot="trigger">min-granularity="minute"</button>
-            </dt-date-time-selector>
+            </dt-date-time-selector> -->
             <div class="overflow">
                 <dt-date-time-selector
                     :lang="lang"
@@ -202,7 +202,7 @@ const dateTimeSelectorGranMin =
                     <!-- <button slot="trigger" class="test">granularity=[{{ dateTimeSelectorGranMax }}, {{ dateTimeSelectorGranMin }}]</button> -->
                 </dt-date-time-selector>
             </div>
-            <ul>
+            <!-- <ul>
                 <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil, mollitia?</li>
                 <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil, mollitia?</li>
                 <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil, mollitia?</li>
@@ -216,7 +216,7 @@ const dateTimeSelectorGranMin =
                 <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil, mollitia?</li>
                 <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil, mollitia?</li>
                 <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil, mollitia?</li>
-            </ul>
+            </ul> -->
         </div>
     </div>
 </template>

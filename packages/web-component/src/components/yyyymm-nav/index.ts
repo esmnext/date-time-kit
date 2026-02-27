@@ -1,9 +1,12 @@
 import type { Ele as PopoverEle, EventMap as PopoverEvent } from '../popover';
 import {
-    type BaseAttrs,
     type BaseEmits,
+    EleMixin,
     type Emit2EventMap,
-    UiBase
+    UiBase,
+    booleanAttr,
+    intAttr,
+    minmaxGranAttr
 } from '../web-component-base';
 import {
     Ele as YyyyMmDdListGrpEle,
@@ -12,29 +15,32 @@ import {
 import styleStr from './index.css';
 import html from './index.html';
 
-export interface Attrs extends BaseAttrs {
-    millisecond: number;
-    /**
-     * 选择器的粒度，表示最大可选的时间单位。默认为 year。
-     */
-    'max-granularity'?: 'year' | 'month';
-    /**
-     * 选择器的粒度，表示最小可选的时间单位。默认为 month。
-     */
-    'min-granularity'?: 'year' | 'month';
+const granAttrs = minmaxGranAttr(
+    ['minGranularity', 'min-granularity'],
+    ['maxGranularity', 'max-granularity'],
+    'ym'
+);
+
+export const props = {
+    millisecond: intAttr('millisecond'),
+    ...granAttrs,
+    /** 选择器的粒度，表示最大可选的时间单位。默认为 year。 */
+    maxGranularity: granAttrs.maxGranularity,
+    /** 选择器的粒度，表示最小可选的时间单位。默认为 month。 */
+    minGranularity: granAttrs.minGranularity,
     /**
      * 是否显示年份控制按钮（快速增减年份）
      * @default false
      */
-    'show-ctrl-btn-year-add'?: boolean;
-    'show-ctrl-btn-year-sub'?: boolean;
+    showCtrlBtnYearAdd: booleanAttr('show-ctrl-btn-year-add'),
+    showCtrlBtnYearSub: booleanAttr('show-ctrl-btn-year-sub'),
     /**
      * 是否显示月份控制按钮（快速增减月份）
      * @default false
      */
-    'show-ctrl-btn-month-add'?: boolean;
-    'show-ctrl-btn-month-sub'?: boolean;
-}
+    showCtrlBtnMonthAdd: booleanAttr('show-ctrl-btn-month-add'),
+    showCtrlBtnMonthSub: booleanAttr('show-ctrl-btn-month-sub')
+};
 
 export interface Emits extends BaseEmits {
     change: {
@@ -50,56 +56,10 @@ export type EventMap = Emit2EventMap<Emits>;
  *
  * 存在一个 titleFormatter 方法，可以重写该方法以自定义年月标题的回显格式。
  */
-export class Ele extends UiBase<Attrs, Emits> {
+export class Ele extends EleMixin(props, {} as Emits, UiBase) {
     public static readonly tagName = 'dt-yyyymm-nav' as const;
     protected static _style = styleStr;
     protected static _template = html;
-
-    static get observedAttributes(): string[] {
-        return [
-            ...(super.observedAttributes as (keyof BaseAttrs)[]),
-            'millisecond',
-            'max-granularity',
-            'min-granularity',
-            'show-ctrl-btn-month-add',
-            'show-ctrl-btn-year-sub',
-            'show-ctrl-btn-month-add',
-            'show-ctrl-btn-month-sub'
-        ] satisfies (keyof Attrs)[];
-    }
-
-    public get millisecond() {
-        return Math.floor(+this._getAttr('millisecond', '0'));
-    }
-    public set millisecond(v: number) {
-        if (!Number.isSafeInteger(v)) return;
-        this.setAttribute('millisecond', '' + Math.floor(v));
-    }
-
-    public get showCtrlBtnYearAdd() {
-        return this.hasAttribute('show-ctrl-btn-year-add');
-    }
-    public set showCtrlBtnYearAdd(val: boolean) {
-        this.toggleAttribute('show-ctrl-btn-year-add', val);
-    }
-    public get showCtrlBtnYearSub() {
-        return this.hasAttribute('show-ctrl-btn-year-sub');
-    }
-    public set showCtrlBtnYearSub(val: boolean) {
-        this.toggleAttribute('show-ctrl-btn-year-sub', val);
-    }
-    public get showCtrlBtnMonthAdd() {
-        return this.hasAttribute('show-ctrl-btn-month-add');
-    }
-    public set showCtrlBtnMonthAdd(val: boolean) {
-        this.toggleAttribute('show-ctrl-btn-month-add', val);
-    }
-    public get showCtrlBtnMonthSub() {
-        return this.hasAttribute('show-ctrl-btn-month-sub');
-    }
-    public set showCtrlBtnMonthSub(val: boolean) {
-        this.toggleAttribute('show-ctrl-btn-month-sub', val);
-    }
 
     public connectedCallback() {
         if (!super.connectedCallback()) return;

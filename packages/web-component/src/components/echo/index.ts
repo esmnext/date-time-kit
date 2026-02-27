@@ -1,9 +1,10 @@
-import { type DateTimeGranularity, granHelper } from '../../utils';
+import { granHelper } from '../../utils';
 import {
-    type BaseAttrs,
-    type BaseEmits,
-    type Emit2EventMap,
-    UiBase
+    EleWithProps,
+    UiBase,
+    booleanAttr,
+    minmaxGranAttr,
+    timeAttr
 } from '../web-component-base';
 import { echoCss } from './css';
 import { echoHtml } from './html';
@@ -17,67 +18,19 @@ import {
 export const iconTypeList = ['date', 'time', 'datetime'] as const;
 export type IconType = (typeof iconTypeList)[number];
 
-export interface Attrs extends BaseAttrs {
-    active?: boolean;
-    'current-time'?: number | string | Date;
-    'min-granularity'?: DateTimeGranularity;
-    'max-granularity'?: DateTimeGranularity;
-}
+const props = {
+    active: booleanAttr('active'),
+    currentTime: timeAttr('current-time'),
+    ...minmaxGranAttr(
+        ['minGranularity', 'min-granularity'],
+        ['maxGranularity', 'max-granularity']
+    )
+};
 
-export interface Emits extends BaseEmits {}
-export type EventMap = Emit2EventMap<Emits>;
-
-export class Ele extends UiBase<Attrs, Emits> {
+export class Ele extends EleWithProps(props, UiBase) {
     public static readonly tagName = 'dt-echo' as const;
     protected static _style = echoCss;
     protected static _template = echoHtml;
-    static get observedAttributes(): string[] {
-        return [
-            ...(super.observedAttributes as (keyof BaseAttrs)[]),
-            'active',
-            'current-time',
-            'min-granularity',
-            'max-granularity'
-        ] satisfies (keyof Attrs)[];
-    }
-
-    public get active(): boolean {
-        return this.hasAttribute('active');
-    }
-    public set active(v: boolean) {
-        this.toggleAttribute('active', !!v);
-    }
-    public get currentTime(): Date {
-        const v = this._getAttr('current-time', '' + Date.now());
-        return new Date(Number.isNaN(+v) ? v : +v);
-    }
-    public set currentTime(val: number | string | Date) {
-        const v = new Date(val);
-        if (Number.isNaN(+v)) return;
-        this.setAttribute('current-time', +v + '');
-    }
-    public get minGranularity() {
-        return this._getAttr('min-granularity') as DateTimeGranularity;
-    }
-    public set minGranularity(v: DateTimeGranularity) {
-        if (!granHelper.dateTime.has(v)) return;
-        this.setAttribute('min-granularity', v);
-    }
-    public get maxGranularity() {
-        return this._getAttr('max-granularity') as DateTimeGranularity;
-    }
-    public set maxGranularity(v: DateTimeGranularity) {
-        if (!granHelper.dateTime.has(v)) return;
-        this.setAttribute('max-granularity', v);
-    }
-
-    protected get _minmaxGran() {
-        const [min, max] = granHelper.dateTime.minmax(
-            this.minGranularity,
-            this.maxGranularity
-        );
-        return { min, max };
-    }
 
     public get iconType(): IconType {
         const { min, max } = this._minmaxGran;

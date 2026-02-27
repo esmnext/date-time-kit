@@ -21,20 +21,16 @@ import type {
     Ele as HhMmSsMsSelectorEle,
     EventMap as HhMmSsMsSelectorEvent
 } from '../hhmmss-ms-list-grp/selector';
-import type { Ele as PopoverEle } from '../popover';
+import { MixinPopover, type Ele as PopoverEle } from '../popover';
 import {
-    clearupPopEleAttrSync2Parent,
-    isPopoverAttrKey,
-    parentPopAttrSync2PopEle,
-    popEleAttrSync2Parent,
-    popoverAttrKeys,
-    type reExportPopoverAttrs
-} from '../popover/attr-sync-helper';
-import {
-    type BaseAttrs,
     type BaseEmits,
+    EleMixin,
     type Emit2EventMap,
-    UiBase
+    UiBase,
+    clampedTimeAttr,
+    enumAttr,
+    minmaxGranAttr,
+    timeAttr
 } from '../web-component-base';
 import {
     Ele as YyyyMmNavEle,
@@ -51,47 +47,63 @@ import { styleStr } from './styleStr';
 export const granularityList = granHelper.dateTime.list;
 export type Granularity = DateTimeGranularity;
 
-export type Attrs = BaseAttrs &
-    reExportPopoverAttrs & {
-        /**
-         * Set which day of the week is the first day.
-         * @type `'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'`
-         * @default 'sun'
-         */
-        'week-start-at'?: Weeks;
-        /**
-         * The time of the calendar.
-         * @type {`string | number`} A value that can be passed to the Date constructor.
-         * @default Math.min('max-time', Math.max('min-time', Date.now()))
-         */
-        'current-time'?: string | number;
-        /**
-         * The showing time, used to determine the month to show on calendar.
-         * @type {`string | number`} A value that can be passed to the Date constructor.
-         * @default 'current-time'
-         */
-        'showing-time'?: string | number;
-        /**
-         * 选择器的粒度，表示最小可选的时间单位。默认为 millisecond。
-         * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。忽略的时间单位将被重置为 0。
-         */
-        'min-granularity'?: DateTimeGranularity;
-        /**
-         * 选择器的粒度，表示最大可选的时间单位。默认为 year。
-         * 例如设置为 'day'，则表示只能选择到日，年和月秒将被忽略。忽略的时间单位将被重置为 0、1972（离1970最近的闰年）。
-         */
-        'max-granularity'?: DateTimeGranularity;
-        /**
-         * The minimum time of the calendar display range.
-         * @type {`string | number`} A value that can be passed to the Date constructor.
-         */
-        'min-time'?: string | number;
-        /**
-         * The maximum time of the calendar display range.
-         * @type {`string | number`} A value that can be passed to the Date constructor.
-         */
-        'max-time'?: string | number;
-    };
+const timeAttrs = clampedTimeAttr(
+    ['minTime', 'min-time'],
+    ['currentTime', 'current-time'],
+    ['maxTime', 'max-time']
+);
+const granAttr = minmaxGranAttr(
+    ['minGranularity', 'min-granularity'],
+    ['maxGranularity', 'max-granularity']
+);
+
+export const props = {
+    /**
+     * Set which day of the week is the first day.
+     * @type `'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'`
+     * @default 'sun'
+     */
+    weekStartAt: enumAttr('week-start-at', {
+        validValues: weekKey,
+        defaultValue: 'sun'
+    }),
+    ...timeAttrs,
+    /**
+     * The time of the calendar.
+     * @type {`string | number`} A value that can be passed to the Date constructor.
+     * @default Math.min('max-time', Math.max('min-time', Date.now()))
+     */
+    currentTime: timeAttrs.currentTime,
+    /**
+     * The showing time, used to determine the month to show on calendar.
+     * @type {`string | number`} A value that can be passed to the Date constructor.
+     * @default 'current-time'
+     */
+    showingTime: timeAttr('showing-time', {
+        defaultValueFromAttr: 'current-time'
+    }),
+    ...granAttr,
+    /**
+     * 选择器的粒度，表示最小可选的时间单位。默认为 millisecond。
+     * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。忽略的时间单位将被重置为 0。
+     */
+    minGranularity: granAttr.minGranularity,
+    /**
+     * 选择器的粒度，表示最大可选的时间单位。默认为 year。
+     * 例如设置为 'day'，则表示只能选择到日，年和月秒将被忽略。忽略的时间单位将被重置为 0、1972（离1970最近的闰年）。
+     */
+    maxGranularity: granAttr.maxGranularity,
+    /**
+     * The minimum time of the calendar display range.
+     * @type {`string | number`} A value that can be passed to the Date constructor.
+     */
+    minTime: timeAttrs.minTime,
+    /**
+     * The maximum time of the calendar display range.
+     * @type {`string | number`} A value that can be passed to the Date constructor.
+     */
+    maxTime: timeAttrs.maxTime
+};
 
 export interface Emits extends BaseEmits {
     'select-time': Date;
@@ -106,102 +118,10 @@ export type EventMap = Emit2EventMap<Emits>;
  * - 存在一个 timeFormatter 方法，用于格式化时分秒毫秒显示时间。
  * - 存在一个 dateFormatter 方法，用于格式化年月日显示时间。
  */
-export class Ele extends UiBase<Attrs, Emits> {
-    public static readonly tagName = 'dt-date-time-selector' as const;
+export class Ele extends EleMixin(props, {} as Emits, MixinPopover()) {
+    public static readonly tagName = 'dt-date-time-selector';
     protected static _style = styleStr;
     protected static _template = html;
-
-    static get observedAttributes(): string[] {
-        return [
-            ...(super.observedAttributes as (keyof BaseAttrs)[]),
-            'week-start-at',
-            'current-time',
-            'showing-time',
-            'min-time',
-            'max-time',
-            'min-granularity',
-            'max-granularity',
-            ...popoverAttrKeys
-        ] satisfies (keyof Attrs)[];
-    }
-    private _getTimeAttr(name: keyof Attrs, defaultValue: string) {
-        const v = this._getAttr(name, defaultValue);
-        return new Date(Number.isNaN(+v) ? v : +v);
-    }
-    private _setTimeAttr(name: keyof Attrs, value: number | string | Date) {
-        const v = new Date(value);
-        if (Number.isNaN(+v)) return;
-        this.setAttribute(name, +v + '');
-    }
-    private _getMaxMinTime({
-        min = +this._getTimeAttr('min-time', 'NaN'),
-        max = +this._getTimeAttr('max-time', 'NaN')
-    } = {}) {
-        if (Number.isNaN(min)) min = Number.NEGATIVE_INFINITY;
-        if (Number.isNaN(max)) max = Number.POSITIVE_INFINITY;
-        if (min > max) [min, max] = [max, min];
-        return { min, max };
-    }
-    public get currentTime() {
-        const { min, max } = this._getMaxMinTime();
-        const currTime = this._getTimeAttr('current-time', '' + Date.now());
-        if (+currTime < min) return new Date(min);
-        if (+currTime > max) return new Date(max);
-        return currTime;
-    }
-    public set currentTime(val: number | string | Date) {
-        const v = new Date(val);
-        if (Number.isNaN(+v)) return;
-        const { min, max } = this._getMaxMinTime();
-        this._setTimeAttr('current-time', Math.min(max, Math.max(min, +v)));
-    }
-    public get showingTime() {
-        return this._getTimeAttr('showing-time', '' + +this.currentTime);
-    }
-    public set showingTime(val: number | string | Date) {
-        this._setTimeAttr('showing-time', val);
-    }
-    public get minTime() {
-        return this._getMaxMinTime().min;
-    }
-    public set minTime(val: number | string | Date) {
-        const { min, max } = this._getMaxMinTime({
-            min: +new Date(Number.isNaN(+val) ? val : +val)
-        });
-        this._setTimeAttr('min-time', min);
-        this._setTimeAttr('max-time', max);
-    }
-    public get maxTime() {
-        return this._getMaxMinTime().max;
-    }
-    public set maxTime(val: number | string | Date) {
-        const { min, max } = this._getMaxMinTime({
-            max: +new Date(Number.isNaN(+val) ? val : +val)
-        });
-        this._setTimeAttr('min-time', min);
-        this._setTimeAttr('max-time', max);
-    }
-    public get weekStartAt() {
-        return this._getAttr('week-start-at', 'sun');
-    }
-    public set weekStartAt(val: Weeks) {
-        if (!weekKey.includes(val)) return;
-        this.setAttribute('week-start-at', val);
-    }
-    public get minGranularity() {
-        return this._getAttr('min-granularity', 'millisecond');
-    }
-    public set minGranularity(val: DateTimeGranularity) {
-        if (!granHelper.dateTime.has(val)) return;
-        this.setAttribute('min-granularity', val);
-    }
-    public get maxGranularity() {
-        return this._getAttr('max-granularity', 'year');
-    }
-    public set maxGranularity(val: DateTimeGranularity) {
-        if (!granHelper.dateTime.has(val)) return;
-        this.setAttribute('max-granularity', val);
-    }
 
     get _staticEls() {
         return {
@@ -221,14 +141,6 @@ export class Ele extends UiBase<Attrs, Emits> {
             echoInDate: this.$0<EchoEle>`dt-yyyymmdd-selector dt-echo`!,
             echoInPopover: this.$0<EchoEle>`dt-popover dt-echo`!
         } as const;
-    }
-
-    private get _minmaxGran() {
-        const [min, max] = granHelper.dateTime.minmax(
-            this.minGranularity,
-            this.maxGranularity
-        );
-        return { min, max };
     }
 
     private get _granType() {
@@ -297,7 +209,6 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (!super.connectedCallback()) return;
         const { _els } = this;
         this._render();
-        popEleAttrSync2Parent(this, _els.popover);
         this._bindEvt(_els.calendar)('select-time', this._onCalendarSelect);
         this._bindEvt(_els.nav)('change', this._onNavChange);
         this._bindEvt(_els.nav)('popover-open-change', this._onNavOpenToggle);
@@ -330,11 +241,11 @@ export class Ele extends UiBase<Attrs, Emits> {
         this.dispatchEvent('select-time', this.currentTime as Date);
     }
     public disconnectedCallback() {
-        clearupPopEleAttrSync2Parent(this);
         this._ob?.disconnect();
         this._ob = null;
         return super.disconnectedCallback();
     }
+    protected _autoSyncPopAttrAtAttrChange = false;
     protected _onAttrChanged(
         name: string,
         oldValue: string | null,
@@ -342,13 +253,13 @@ export class Ele extends UiBase<Attrs, Emits> {
     ) {
         super._onAttrChanged(name, oldValue, newValue);
         const { _els } = this;
-        if (isPopoverAttrKey(name)) {
+        if (this._isPopoverAttrKey(name)) {
             if (oldValue === newValue) return;
             if (name === 'pop-open') {
                 this._updateOpenState();
                 return;
             }
-            parentPopAttrSync2PopEle(name, oldValue, newValue, _els.popover);
+            this._syncPopAttrToPopEle(name, newValue);
             if (newValue === null) {
                 _els.timeSelectorOnly.removeAttribute(name);
                 _els.dateSelector.removeAttribute(name);
@@ -368,6 +279,7 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
 
     private _render = super._genRenderFn(() => {
+        console.log('render');
         this._updateOpenState();
         const currentTime = this.currentTime as Date;
         const { _els, _granType } = this;
@@ -398,7 +310,7 @@ export class Ele extends UiBase<Attrs, Emits> {
             _granType === GranType.CalendarTime
         ) {
             _els.nav.millisecond = +currentTime;
-            const { min, max } = this._getMaxMinTime();
+            const { min, max } = this._minmaxTime;
             Object.assign(_els.calendar, {
                 weekStartAt: this.weekStartAt,
                 timeStart: +currentTime,
@@ -429,16 +341,17 @@ export class Ele extends UiBase<Attrs, Emits> {
 
     private _onCalendarSelect = (e: CalendarBaseEvent['select-time']) => {
         e.stopPropagation();
-        this.currentTime =
+        this.currentTime = new Date(
             +e.detail +
-            (this._minmaxGran.min === 'day'
-                ? 0
-                : this._els.timeSelectorInCalendar.millisecond);
+                (this._minmaxGran.min === 'day'
+                    ? 0
+                    : this._els.timeSelectorInCalendar.millisecond)
+        );
     };
     private _onNavChange = (e: YyyyMmNavEvent['change']) => {
         e.stopPropagation();
         if (!closestByEvent(e, '.wrapper')) return;
-        this._els.calendar.showingTime = +e.detail.newTime;
+        this._els.calendar.showingTime = e.detail.newTime;
     };
     private _onNavOpenToggle = (e: YyyyMmNavEvent['popover-open-change']) => {
         if (!(e.target instanceof YyyyMmNavEle)) return;
@@ -455,7 +368,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         const time = new Date(e.detail);
         time.setHours(0, 0, 0, 0);
         time.setMilliseconds(this._els.timeSelectorInDate.millisecond);
-        this.currentTime = +time;
+        this.currentTime = time;
     };
     private _onConfirmBtnClick = () => {
         this.dispatchEvent('select-time', this.currentTime as Date);

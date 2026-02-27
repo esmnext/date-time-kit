@@ -1,6 +1,9 @@
-import type { Lang } from '../../i18n';
+import { langs } from '../../i18n';
 import { debounce, smallScreenObserver } from '../../utils';
+import { enumAttr } from './attr-accessor';
+import type { AttrAccessor } from './attr-accessor/types';
 import { scrollbarStyleStr, styleStr } from './css';
+export * from './attr-accessor';
 
 type EmitType = Record<string, any>;
 export type Emit2EventMap<Emit extends EmitType> = {
@@ -27,23 +30,8 @@ export type EventListenerOrListenerObj<
     K extends keyof Emit | keyof HTMLElementEventMap
 > = ListenerFn<Emit, K> | EventListenerObj<Emit, K>;
 
-type getAttrType<Attr, K extends keyof Attr> = Extract<
-    Attr[K],
-    string
-> extends never
-    ? string
-    : Extract<Attr[K], string>;
-
 // tagName to template element cache
 const templateCache = new Map<string, HTMLTemplateElement>();
-
-export interface BaseAttrs {
-    /**
-     * The language of the component.
-     * @type `Lang`
-     */
-    lang?: Lang;
-}
 
 export interface BaseEmits {
     'dt-attribute-changed': {
@@ -72,34 +60,31 @@ const HTMLElementBase = (() => {
 
 type Elements = HTMLElement | HTMLElement[];
 
-export class UiBase<
-    Attr extends BaseAttrs = BaseAttrs,
-    Emit extends BaseEmits = BaseEmits
-> extends HTMLElementBase {
-    public static readonly tagName: string = '';
+class DtCustomEleBase extends HTMLElementBase {
+    public static readonly tagName?: `dt-${string}`;
     protected static _definePromise: Promise<CustomElementConstructor> | null =
         null;
     public static define() {
         if (this._definePromise) return this._definePromise;
         if (typeof customElements === 'undefined') {
-            return;
+            return Promise.resolve(this);
         }
         const tagName = this.tagName;
-        if (!tagName) throw new Error('UiBase.define: tagName is not defined.');
+        if (!tagName)
+            throw new Error(this.name + '.define: tagName is not defined.');
         this._definePromise = customElements.whenDefined(tagName);
         customElements.define(tagName, this);
         return this._definePromise;
     }
 
-    // TODO: use override keyword in subclasses
     static get observedAttributes(): string[] {
-        return ['lang'] satisfies (keyof BaseAttrs)[];
+        return [];
     }
 
     protected static _style = '';
     protected static _template = '';
     private get _constructor() {
-        return this.constructor as typeof UiBase;
+        return this.constructor as typeof DtCustomEleBase;
     }
     private _initTemplate() {
         const { tagName } = this;
@@ -131,23 +116,7 @@ export class UiBase<
         this._staticElsCache = this._staticEls;
     }
 
-    protected _getAttr<K extends keyof Attr>(
-        qualifiedName: K
-    ): getAttrType<Attr, K> | null;
-    protected _getAttr<K extends keyof Attr>(
-        qualifiedName: K,
-        defaultValue: getAttrType<Attr, K> | string
-    ): getAttrType<Attr, K>;
-    protected _getAttr<K extends keyof Attr>(
-        qualifiedName: K,
-        defaultValue?: getAttrType<Attr, K> | string
-    ): getAttrType<Attr, K> | null {
-        const attr = this.getAttribute(qualifiedName as string);
-        return (
-            attr === null && defaultValue !== void 0 ? defaultValue : attr
-        ) as getAttrType<Attr, K> | null;
-    }
-
+    /** Find elements in the shadow DOM */
     protected $<E extends HTMLElement = HTMLElement>(
         selector: string | TemplateStringsArray,
         ...args: unknown[]
@@ -156,6 +125,7 @@ export class UiBase<
             selector = String.raw(selector, ...args);
         return [...(this.shadowRoot?.querySelectorAll<E>(selector) || [])];
     }
+    /** Find the first element in the shadow DOM */
     protected $0<E extends HTMLElement = HTMLElement>(
         selector: string | TemplateStringsArray,
         ...args: unknown[]
@@ -176,7 +146,7 @@ export class UiBase<
             typeof elsOrSelector === 'string'
                 ? this.$(elsOrSelector)
                 : !Array.isArray(elsOrSelector)
-                  ? [elsOrSelector]
+                  ? [elsOrSelector as HTMLElement]
                   : typeof elsOrSelector[0] === 'string'
                     ? this.$(elsOrSelector as any, ...strSlot)
                     : (elsOrSelector as HTMLElement[]);
@@ -233,13 +203,6 @@ export class UiBase<
         return smallScreenObserver.isSmall;
     }
 
-    public dispatchEvent(event: Event): boolean;
-    public dispatchEvent<K extends keyof Emit>(
-        type: K,
-        data: Emit[K],
-        global?: boolean
-    ): boolean;
-    public dispatchEvent(type: string, data?: any, global?: boolean): boolean;
     dispatchEvent(type: string | Event, data?: any, global = false): boolean {
         return type instanceof Event
             ? super.dispatchEvent(type)
@@ -258,31 +221,6 @@ export class UiBase<
     }
     protected _stopEvent = (e: Event) => e.stopPropagation();
 
-    public addEventListener<K extends keyof Emit | keyof HTMLElementEventMap>(
-        type: K | string,
-        listener: EventListenerOrListenerObj<Emit, K>,
-        options?: boolean | EventListenerOptions
-    ): void {
-        super.addEventListener(
-            type as string,
-            listener as EventListenerOrEventListenerObject,
-            options
-        );
-    }
-    public removeEventListener<
-        K extends keyof Emit | keyof HTMLElementEventMap
-    >(
-        type: K | string,
-        listener: EventListenerOrListenerObj<Emit, K>,
-        options?: boolean | EventListenerOptions
-    ): void {
-        super.removeEventListener(
-            type as string,
-            listener as EventListenerOrEventListenerObject,
-            options
-        );
-    }
-
     protected _genRenderFn<F extends (...args: any) => void>(fn: F) {
         return debounce((...args: Parameters<F>) => {
             if (!this.isConnected) return;
@@ -290,3 +228,102 @@ export class UiBase<
         }, 0) as F;
     }
 }
+
+type Ctor<T = {}> = new (...args: any[]) => T;
+
+export type EleCtor<TEle extends DtCustomEleBase = DtCustomEleBase> =
+    Ctor<TEle> & {
+        get observedAttributes(): string[];
+        tagName?: `dt-${string}`;
+        define(): Promise<CustomElementConstructor> | void;
+    };
+
+export type PropsFromAccessors<TProps extends Record<string, AttrAccessor>> = {
+    // 这里很想用映射类型定义为 getter/setter 访问器，但 ts 本身还不支持在访问器声明中使用类型映射键签名
+    // https://stackoverflow.com/questions/73202762/is-there-a-way-to-dynamically-map-keys-to-getters-setters-of-different-types-in
+    // https://github.com/microsoft/TypeScript/issues/43826
+    [K in keyof TProps]: TProps[K] extends AttrAccessor<infer G> ? G : never;
+};
+
+/** 将声明的 attr 转换为访问器，且在实例中注册对应的 `observedAttributes` */
+export const EleWithProps = <
+    TProps extends Record<string, AttrAccessor>,
+    TBase extends EleCtor
+>(
+    props: TProps,
+    BaseEle: TBase
+) =>
+    class DtCustomEleWithProps extends BaseEle {
+        static get observedAttributes() {
+            return [
+                ...super.observedAttributes,
+                ...Object.values(props)
+                    .filter((prop) => prop.attrName)
+                    .map((prop) => prop.attrName!)
+            ];
+        }
+        constructor(...args: any[]) {
+            super(...args);
+            for (const [propName, descriptor] of Object.entries(props)) {
+                Object.defineProperty(this, propName, descriptor);
+            }
+        }
+    } as TBase & Ctor<PropsFromAccessors<TProps>>;
+
+/** 给元素附加事件发射的ts类型 */
+export const EleWithEmits = <TEmit extends BaseEmits, TBase extends EleCtor>(
+    /** 没有实际意义，仅为了ts自动类型推断 */
+    _emits: TEmit,
+    BaseEle: TBase
+) =>
+    BaseEle as Ctor<{
+        dispatchEvent(event: Event): boolean;
+        dispatchEvent<K extends keyof TEmit>(
+            type: K,
+            data: TEmit[K],
+            global?: boolean
+        ): boolean;
+        dispatchEvent(type: string, data?: any, global?: boolean): boolean;
+
+        addEventListener<K extends keyof TEmit>(
+            type: K,
+            listener: EventListenerOrListenerObj<TEmit, K>,
+            options?: boolean | EventListenerOptions
+        ): void;
+        removeEventListener<K extends keyof TEmit>(
+            type: K,
+            listener: EventListenerOrListenerObj<TEmit, K>,
+            options?: boolean | EventListenerOptions
+        ): void;
+    }> &
+        TBase;
+
+/** 将声明的 attr 转换为访问器，且在实例中注册对应的 `observedAttributes`。同时给元素附加事件发射的 ts 类型。等于 `EleWithProps` + `EleWithEmits` */
+export const EleMixin = <
+    TProps extends Record<string, AttrAccessor>,
+    TEmit extends BaseEmits,
+    TBase extends EleCtor
+>(
+    props: TProps,
+    emits: TEmit,
+    BaseEle: TBase
+) => EleWithEmits(emits, EleWithProps(props, BaseEle));
+
+export class UiBase extends EleMixin(
+    {
+        lang: enumAttr('lang', {
+            validValues: langs,
+            defaultValue: 'en-US' as const
+        })
+    },
+    {} as BaseEmits,
+    DtCustomEleBase
+) {}
+
+export type MixinEle<
+    TBase extends typeof UiBase = typeof UiBase,
+    TProps extends Record<string, AttrAccessor> = Record<string, never>,
+    TEmit extends BaseEmits = BaseEmits,
+    TOtherProps extends {} = {}
+> = ReturnType<typeof EleMixin<TProps, TEmit, TBase>> &
+    EleCtor<UiBase & TOtherProps>;

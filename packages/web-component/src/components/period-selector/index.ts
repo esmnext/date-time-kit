@@ -13,7 +13,14 @@ import {
     Ele as HhMmSsMsSelectorEle,
     type EventMap as HhMmSsMsSelectorEvent
 } from '../hhmmss-ms-list-grp/selector';
-import { type BaseAttrs, type BaseEmits, UiBase } from '../web-component-base';
+import {
+    type BaseEmits,
+    EleMixin,
+    UiBase,
+    enumAttr,
+    minmaxGranAttr,
+    timeAttr
+} from '../web-component-base';
 import {
     Ele as YyyyMmNavEle,
     type EventMap as YyyyMmNavEvent
@@ -24,31 +31,44 @@ import html from './index.html';
 export const granularityList = granHelper.dateTime.list;
 export type Granularity = DateTimeGranularity;
 
-export interface Attrs extends BaseAttrs {
+const granAttr = minmaxGranAttr(
+    ['minGranularity', 'min-granularity'],
+    ['maxGranularity', 'max-granularity']
+);
+
+export const props = {
     /**
      * The start time of the calendar display range.
      * @type {`string | number`} A value that can be passed to the Date constructor.
      * @default Date.now()
      */
-    'time-start'?: string | number;
+    timeStart: timeAttr('time-start'),
     /**
      * The end time of the calendar display range.
      * @type {`string | number`} A value that can be passed to the Date constructor.
      * @default 'time-start'
      */
-    'time-end': string | number;
+    timeEnd: timeAttr('time-end', { defaultValueFromAttr: 'time-start' }),
+    ...granAttr,
     /**
      * 选择器的粒度，表示最小可选的时间单位。默认为 millisecond。
      * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。忽略的时间单位视情况重置为 0 或 23 或 59 或 999。
      */
-    'min-granularity'?: Granularity;
+    minGranularity: granAttr.minGranularity,
+    /**
+     * @deprecated 还未实现，勿用
+     */
+    maxGranularity: granAttr.maxGranularity,
     /**
      * Set which day of the week is the first day.
      * @type `'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'`
      * @default 'sun'
      */
-    'week-start-at'?: Weeks;
-}
+    weekStartAt: enumAttr('week-start-at', {
+        validValues: weekKey,
+        defaultValue: 'sun'
+    })
+};
 
 export interface Emits extends BaseEmits {
     change: {
@@ -73,53 +93,10 @@ const diffInMonth = (a: Date, b: Date) => {
  *
  * 存在一个 timeFormatter 方法，可以重写该方法以自定义时分秒毫秒的回显格式。
  */
-export class Ele extends UiBase<Attrs, Emits> {
+export class Ele extends EleMixin(props, {} as Emits, UiBase) {
     public static readonly tagName = 'dt-period-selector' as const;
     protected static _style = styleStr;
     protected static _template = html;
-
-    static get observedAttributes(): string[] {
-        return [
-            ...(super.observedAttributes as (keyof BaseAttrs)[]),
-            'time-start',
-            'time-end',
-            'min-granularity',
-            'week-start-at'
-        ] satisfies (keyof Attrs)[];
-    }
-
-    public get timeStart() {
-        const v = this._getAttr('time-start', '' + Date.now());
-        return new Date(Number.isNaN(+v) ? v : +v);
-    }
-    public set timeStart(val: number | string | Date) {
-        const v = new Date(val);
-        if (Number.isNaN(+v)) return;
-        this.setAttribute('time-start', +v + '');
-    }
-    public get timeEnd() {
-        const v = this._getAttr('time-end', '' + this.timeStart);
-        return new Date(Number.isNaN(+v) ? v : +v);
-    }
-    public set timeEnd(val: number | string | Date) {
-        const v = new Date(val);
-        if (Number.isNaN(+v)) return;
-        this.setAttribute('time-end', +v + '');
-    }
-    public get weekStartAt() {
-        return this._getAttr('week-start-at', 'sun');
-    }
-    public set weekStartAt(val: Weeks) {
-        if (!weekKey.includes(val)) return;
-        this.setAttribute('week-start-at', val);
-    }
-    public get minGranularity() {
-        return this._getAttr('min-granularity', 'millisecond');
-    }
-    public set minGranularity(val: Granularity) {
-        if (!granHelper.dateTime.has(val)) return;
-        this.setAttribute('min-granularity', val);
-    }
 
     get _staticEls() {
         return {
@@ -186,21 +163,21 @@ export class Ele extends UiBase<Attrs, Emits> {
     }
 
     private _render = super._genRenderFn(() => {
-        let timeStart = this.timeStart as Date;
-        let timeEnd = this.timeEnd as Date;
+        let timeStart = this.timeStart;
+        let timeEnd = this.timeEnd;
         if (timeStart > timeEnd) [timeStart, timeEnd] = [timeEnd, timeStart];
         const { _els } = this;
         _els.startCalendar.weekStartAt = _els.endCalendar.weekStartAt =
             this.weekStartAt;
-        _els.startCalendar.timeStart = _els.endCalendar.timeStart = +timeStart;
-        _els.endCalendar.timeEnd = _els.startCalendar.timeEnd = +timeEnd;
+        _els.startCalendar.timeStart = _els.endCalendar.timeStart = timeStart;
+        _els.endCalendar.timeEnd = _els.startCalendar.timeEnd = timeEnd;
         const isSmall = this._isSmallScreen;
-        _els.startNav.millisecond = _els.startCalendar.showingTime =
+        _els.startNav.millisecond = +(_els.startCalendar.showingTime =
             !isSmall ||
             !this._selectedDate ||
             +timeStart !== +this._selectedDate
-                ? +timeStart
-                : +timeEnd;
+                ? timeStart
+                : timeEnd);
         if (diffInMonth(timeStart, timeEnd) <= 1) {
             const nextMonth = new Date(
                 timeStart.getFullYear(),
@@ -323,9 +300,9 @@ export class Ele extends UiBase<Attrs, Emits> {
         if (!wrapper) return;
         const { newTime } = e.detail;
         if (wrapper.classList.contains('start')) {
-            this._els.startCalendar.showingTime = +newTime;
+            this._els.startCalendar.showingTime = newTime;
         } else {
-            this._els.endCalendar.showingTime = +newTime;
+            this._els.endCalendar.showingTime = newTime;
         }
         this._updateNavCtrlBtn();
     };

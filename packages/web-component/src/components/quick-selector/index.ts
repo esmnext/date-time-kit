@@ -6,20 +6,22 @@ import {
 } from '../../utils';
 import { type Weeks, weekKey } from '../calendar';
 import type { Ele as PeriodSelectorEle } from '../period-selector';
-import { Ele as PopoverEle, type EventMap as PopoverEvent } from '../popover';
 import {
-    clearupPopEleAttrSync2Parent,
-    isPopoverAttrKey,
-    parentPopAttrSync2PopEle,
-    popEleAttrSync2Parent,
-    popoverAttrKeys,
-    type reExportPopoverAttrs
-} from '../popover/attr-sync-helper';
+    MixinPopover,
+    Ele as PopoverEle,
+    type EventMap as PopoverEvent
+} from '../popover';
 import {
-    type BaseAttrs,
     type BaseEmits,
+    EleMixin,
     type Emit2EventMap,
-    UiBase
+    UiBase,
+    enumAttr,
+    intAttr,
+    minmaxGranAttr,
+    numAttr,
+    strArrAttr,
+    timeAttr
 } from '../web-component-base';
 import styleStr from './index.css';
 import html, { utcText } from './index.html';
@@ -58,50 +60,67 @@ export {
 export const granularityList = granHelper.dateTime.list;
 export type Granularity = DateTimeGranularity;
 
-export type Attrs = BaseAttrs &
-    reExportPopoverAttrs & {
-        /**
-         * Timezone in minutes. For example: UTC+05:45 => `-345`, UTC-01:00 => `60`.
-         *
-         * @default
-         * new Date().getTimezoneOffset() // locale timezone in minutes
-         */
-        'tz-offset'?: number;
-        /**
-         * Set which day of the week is the first day.
-         * @type `'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'`
-         * @default 'sun'
-         */
-        'week-start-at'?: Weeks;
-        /**
-         * Quick selection key.
-         *
-         * @default 'all'
-         */
-        'quick-key'?: QuickKey;
-        /**
-         * Start locale time of the quick selection. Only works in custom mode.
-         */
-        'start-time'?: string | number | '';
-        /**
-         * End locale time of the quick selection. Only works in custom mode.
-         */
-        'end-time'?: string | number | '';
-        /**
-         * 选择器的粒度，表示最小可选的时间单位。默认为 millisecond。
-         * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。忽略的时间单位视情况重置为 0 或 23 或 59 或 999。
-         */
-        'min-granularity'?: Granularity;
-        /**
-         * Exclude some quick selection options.
-         *
-         * @example
-         * ```ts
-         * exclude-field="last7Days, last30Days, timezone"
-         * ```
-         */
-        'exclude-field'?: (QuickKey | 'timezone')[];
-    };
+const granAttr = minmaxGranAttr(
+    ['minGranularity', 'min-granularity'],
+    ['maxGranularity', 'max-granularity']
+);
+
+export const props = {
+    /**
+     * Timezone in minutes. For example: UTC+05:45 => `-345`, UTC-01:00 => `60`.
+     *
+     * @default
+     * new Date().getTimezoneOffset() // locale timezone in minutes
+     */
+    tzOffset: intAttr('tz-offset', { defaultValue: getCurrentTzOffset() }),
+    /**
+     * Set which day of the week is the first day.
+     * @type `'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'`
+     * @default 'sun'
+     */
+    weekStartAt: enumAttr('week-start-at', {
+        validValues: weekKey,
+        defaultValue: 'sun'
+    }),
+    /**
+     * Quick selection key.
+     *
+     * @default 'all'
+     */
+    quickKey: enumAttr('quick-key', {
+        validValues: quickKeys,
+        defaultValue: 'all'
+    }),
+    /**
+     * Start locale time of the quick selection. Only works in custom mode.
+     */
+    startTime: timeAttr('start-time', { defaultValue: () => 'NaN' }),
+    /**
+     * End locale time of the quick selection. Only works in custom mode.
+     */
+    endTime: timeAttr('end-time', { defaultValue: () => 'NaN' }),
+    ...granAttr,
+    /**
+     * 选择器的粒度，表示最小可选的时间单位。默认为 millisecond。
+     * 例如设置为 'minute'，则表示只能选择到分钟，秒和毫秒将被忽略。忽略的时间单位视情况重置为 0 或 23 或 59 或 999。
+     */
+    minGranularity: granAttr.minGranularity,
+    /**
+     * @deprecated 还未实现，勿用
+     */
+    maxGranularity: granAttr.maxGranularity,
+    /**
+     * Exclude some quick selection options.
+     *
+     * @example
+     * ```ts
+     * exclude-field="last7Days, last30Days, timezone"
+     * ```
+     */
+    excludeField: strArrAttr('exclude-field', {
+        validValues: [...quickKeys, 'timezone'] as const
+    })
+};
 
 export interface Emits extends BaseEmits {
     'time-changed': PeriodTimeInfo;
@@ -112,99 +131,10 @@ export type EventMap = Emit2EventMap<Emits>;
 /**
  * 快速选择下拉选项
  */
-export class Ele extends UiBase<Attrs, Emits> {
+export class Ele extends EleMixin(props, {} as Emits, MixinPopover()) {
     public static readonly tagName = 'dt-quick-selector' as const;
     protected static _style = styleStr;
     protected static _template = html;
-
-    static get observedAttributes(): string[] {
-        return [
-            ...(super.observedAttributes as (keyof BaseAttrs)[]),
-            'tz-offset',
-            'week-start-at',
-            'quick-key',
-            'start-time',
-            'end-time',
-            'min-granularity',
-            'exclude-field',
-            ...popoverAttrKeys
-        ] satisfies (keyof Attrs)[];
-    }
-
-    public get tzOffset() {
-        return +this._getAttr('tz-offset', '' + getCurrentTzOffset());
-    }
-    public set tzOffset(v: number) {
-        if (!Number.isSafeInteger(v)) return;
-        this.setAttribute('tz-offset', '' + v);
-    }
-    public get quickKey() {
-        return this._getAttr('quick-key', 'all');
-    }
-    public set quickKey(val: QuickKey) {
-        if (!quickKeys.includes(val)) return;
-        this.setAttribute('quick-key', val);
-    }
-    public get weekStartAt() {
-        return this._getAttr('week-start-at', 'sun');
-    }
-    public set weekStartAt(val: Weeks) {
-        if (!weekKey.includes(val)) return;
-        this.setAttribute('week-start-at', val);
-    }
-    public get startTime() {
-        const v = this._getAttr('start-time', '');
-        if (v === '') return '';
-        return new Date(Number.isNaN(+v) ? v : +v);
-    }
-    public set startTime(val: number | string | Date) {
-        if (val === '') {
-            this.removeAttribute('start-time');
-            return;
-        }
-        const v = new Date(val);
-        if (Number.isNaN(+v)) return;
-        this.setAttribute('start-time', +v + '');
-    }
-    public get endTime() {
-        const v = this._getAttr('end-time', '' + this.startTime);
-        if (v === '') return '';
-        return new Date(Number.isNaN(+v) ? v : +v);
-    }
-    public set endTime(val: number | string | Date) {
-        if (val === '') {
-            this.removeAttribute('end-time');
-            return;
-        }
-        const v = new Date(val);
-        if (Number.isNaN(+v)) return;
-        this.setAttribute('end-time', +v + '');
-    }
-    public get minGranularity() {
-        return this._getAttr('min-granularity', 'millisecond');
-    }
-    public set minGranularity(val: Granularity) {
-        if (!granHelper.dateTime.has(val)) return;
-        this.setAttribute('min-granularity', val);
-    }
-    public get excludeField() {
-        const v = this._getAttr('exclude-field', '') || '';
-        if (v === '') return [];
-        return (v as string).split(',').map((i) => i.trim()) as (
-            | QuickKey
-            | 'timezone'
-        )[];
-    }
-    public set excludeField(v: (QuickKey | 'timezone')[]) {
-        if (!Array.isArray(v) || v.length === 0) {
-            this.removeAttribute('exclude-field');
-            return;
-        }
-        const arr = v.filter(
-            (i) => quickKeys.includes(i as QuickKey) || i === 'timezone'
-        );
-        this.setAttribute('exclude-field', arr.join(','));
-    }
 
     get _staticEls() {
         return {
@@ -228,11 +158,6 @@ export class Ele extends UiBase<Attrs, Emits> {
         this._bindEvt`.menu`('change', this._onRadioChange);
         this._bindEvt`#reset`('click', this._updatePeriodSelector);
         this._bindEvt`#done`('click', this._onDoneBtnClick);
-        popEleAttrSync2Parent(this, this._els.popover);
-    }
-    public disconnectedCallback() {
-        clearupPopEleAttrSync2Parent(this);
-        return super.disconnectedCallback();
     }
 
     protected _onAttrChanged(
@@ -241,15 +166,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         newValue: string | null
     ) {
         super._onAttrChanged(name, oldValue, newValue);
-        if (isPopoverAttrKey(name)) {
-            parentPopAttrSync2PopEle(
-                name,
-                oldValue,
-                newValue,
-                this._els.popover
-            );
-            return;
-        }
+        if (this._isPopoverAttrKey(name)) return;
         if (name === 'tz-offset') {
             this._renderTz();
             this._dispatchTimeChangeEvent();
@@ -273,7 +190,7 @@ export class Ele extends UiBase<Attrs, Emits> {
         const ele = this._els.periodSelector;
         const startTime = this.startTime;
         const endTime = this.endTime;
-        if (startTime !== '' && endTime !== '') {
+        if (!Number.isNaN(startTime) && !Number.isNaN(endTime)) {
             ele.timeStart = startTime;
             ele.timeEnd = endTime;
         } else {
